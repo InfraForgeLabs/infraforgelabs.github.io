@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>InfraForgeLabs — Free · Local · Open · Forever</title>
   <link rel="icon" href="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     body {
-      font-family: 'Segoe UI', Roboto, sans-serif;
+      font-family: "Segoe UI", Roboto, sans-serif;
       background-color: #0d1117;
       color: #e6edf3;
       margin: 0;
@@ -25,7 +26,7 @@
       margin-bottom: 0.5rem;
     }
     section {
-      max-width: 900px;
+      max-width: 950px;
       margin: 2rem auto;
       padding: 0 1rem;
     }
@@ -34,19 +35,13 @@
       border-radius: 12px;
       padding: 1.5rem;
       margin: 1.5rem 0;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     }
     .card h2 {
       color: #00c7c7;
     }
     .card.devopsmind h2 {
       color: #a259ff;
-    }
-    iframe {
-      width: 100%;
-      border: none;
-      background: #0d1117;
-      height: 600px;
     }
     a {
       color: #58a6ff;
@@ -66,6 +61,31 @@
       width: 90px;
       margin-top: 0.5rem;
     }
+    .markdown {
+      background: #0d1117;
+      color: #e6edf3;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      overflow-x: auto;
+    }
+    blockquote {
+      border-left: 4px solid #a259ff;
+      padding-left: 10px;
+      color: #c9d1d9;
+      font-style: italic;
+    }
+    code, pre {
+      background: #161b22;
+      color: #d2a8ff;
+      border-radius: 5px;
+      padding: 2px 5px;
+      font-family: monospace;
+    }
+    pre {
+      padding: 1rem;
+      overflow-x: auto;
+    }
   </style>
 </head>
 
@@ -73,43 +93,72 @@
   <header>
     <h1>🧩 InfraForgeLabs</h1>
     <p><strong>Free · Local · Open · Forever</strong></p>
-    <img src="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png" width="100%" alt="InfraForgeLabs Banner" />
+    <img
+      src="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png"
+      width="100%"
+      alt="InfraForgeLabs Banner"
+    />
   </header>
 
   <section>
     <h2 align="center">🧱 About</h2>
     <p align="center">
-      <strong>InfraForgeLabs</strong> builds next-generation <strong>DevSecOps ecosystems</strong> that are fully local, offline-ready, and open-source forever.
+      <strong>InfraForgeLabs</strong> builds next-generation
+      <strong>DevSecOps ecosystems</strong> that are fully local, offline-ready,
+      and open-source forever.
     </p>
     <p align="center">
-      We exist to make infrastructure automation and DevOps education <strong>free from cloud lock-in and corporate dependence.</strong>
+      We exist to make infrastructure automation and DevOps education
+      <strong>free from cloud lock-in and corporate dependence.</strong>
     </p>
   </section>
 
   <section>
     <div class="card">
       <h2>⚙️ <a href="https://github.com/InfraForgeLabs/InfraForge">InfraForge</a></h2>
-      <img src="https://raw.githubusercontent.com/InfraForgeLabs/InfraForge/main/assets/logo.png" alt="InfraForge Logo" class="logo" />
-      <p>A modular <strong>infrastructure automation platform</strong> evolving from integration → independence.</p>
-      <p>Supports Terraform, Docker, Helm, Jenkins, Monitoring, Security, and ArgoCD.</p>
-      <p><img src="https://img.shields.io/github/v/tag/InfraForgeLabs/InfraForge?sort=semver&color=00BFFF" alt="InfraForge Tag" /></p>
-      <iframe src="https://github.com/InfraForgeLabs/InfraForge/blob/main/README.md"></iframe>
+      <img
+        src="https://raw.githubusercontent.com/InfraForgeLabs/InfraForge/main/assets/logo.png"
+        alt="InfraForge Logo"
+        class="logo"
+      />
+      <p>
+        A modular <strong>infrastructure automation platform</strong> evolving
+        from integration → independence.
+      </p>
+      <p>
+        <img
+          src="https://img.shields.io/github/v/tag/InfraForgeLabs/InfraForge?sort=semver&color=00BFFF"
+          alt="InfraForge Tag"
+        />
+      </p>
+      <div id="infraforge-readme" class="markdown">Loading InfraForge README...</div>
     </div>
 
     <div class="card devopsmind">
       <h2>🧠 <a href="https://github.com/InfraForgeLabs/DevOpsMind">DevOpsMind</a></h2>
-      <img src="https://raw.githubusercontent.com/InfraForgeLabs/DevOpsMind/main/docs/logo.png" alt="DevOpsMind Logo" class="logo" />
-      <p>A gamified, offline <strong>DevSecOps learning engine</strong> evolving from learning → intelligence.</p>
-      <p>Includes Linux, Git, CI/CD, Cloud, IaC, and Security tracks — all offline-capable.</p>
-      <p><img src="https://img.shields.io/github/v/tag/InfraForgeLabs/DevOpsMind?sort=semver&color=8A2BE2" alt="DevOpsMind Tag" /></p>
-      <iframe src="https://github.com/InfraForgeLabs/DevOpsMind/blob/main/README.md"></iframe>
+      <img
+        src="https://raw.githubusercontent.com/InfraForgeLabs/DevOpsMind/main/docs/logo.png"
+        alt="DevOpsMind Logo"
+        class="logo"
+      />
+      <p>
+        A gamified, offline <strong>DevSecOps learning engine</strong> evolving
+        from learning → intelligence.
+      </p>
+      <p>
+        <img
+          src="https://img.shields.io/github/v/tag/InfraForgeLabs/DevOpsMind?sort=semver&color=8A2BE2"
+          alt="DevOpsMind Tag"
+        />
+      </p>
+      <div id="devopsmind-readme" class="markdown">Loading DevOpsMind README...</div>
     </div>
   </section>
 
   <section>
     <h2 align="center">🌍 Philosophy</h2>
     <blockquote align="center">
-      “No telemetry. No SaaS lock-in. No paywalls for fundamentals.”<br>
+      “No telemetry. No SaaS lock-in. No paywalls for fundamentals.”<br />
       Everything InfraForgeLabs builds can run locally, forever.
     </blockquote>
   </section>
@@ -118,5 +167,24 @@
     © 2025 <strong>InfraForgeLabs</strong> — Built for Builders.<br />
     Free · Local · Open · Forever
   </footer>
+
+  <script>
+    async function loadReadme(repo, elementId) {
+      const url = `https://raw.githubusercontent.com/InfraForgeLabs/${repo}/main/README.md`;
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Failed to load " + repo);
+        const markdown = await response.text();
+        const html = marked.parse(markdown);
+        document.getElementById(elementId).innerHTML = html;
+      } catch (e) {
+        document.getElementById(elementId).innerHTML =
+          `<p style='color:red'>⚠️ Unable to load ${repo} README.</p>`;
+      }
+    }
+
+    loadReadme("InfraForge", "infraforge-readme");
+    loadReadme("DevOpsMind", "devopsmind-readme");
+  </script>
 </body>
 </html>
