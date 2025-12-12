@@ -12,38 +12,41 @@
       color: #e6edf3;
       margin: 0;
       padding: 0;
-      text-align: center;
+      line-height: 1.6;
     }
     header {
+      text-align: center;
       padding: 3rem 1rem;
       background: linear-gradient(135deg, #00c7c7, #a259ff);
-      color: #fff;
+      color: white;
     }
     header h1 {
       font-size: 2.5rem;
       margin-bottom: 0.5rem;
     }
-    header p {
-      font-size: 1.2rem;
-    }
     section {
       max-width: 900px;
       margin: 2rem auto;
-      padding: 1rem;
+      padding: 0 1rem;
     }
-    .project {
+    .card {
       background: #161b22;
       border-radius: 12px;
       padding: 1.5rem;
-      margin: 1rem 0;
+      margin: 1.5rem 0;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
-    .project h2 {
-      margin-bottom: 0.5rem;
+    .card h2 {
       color: #00c7c7;
     }
-    .project.devopsmind h2 {
+    .card.devopsmind h2 {
       color: #a259ff;
+    }
+    iframe {
+      width: 100%;
+      border: none;
+      background: #0d1117;
+      height: 600px;
     }
     a {
       color: #58a6ff;
@@ -53,56 +56,66 @@
       text-decoration: underline;
     }
     footer {
-      margin-top: 3rem;
-      padding: 1rem;
+      text-align: center;
+      padding: 2rem 1rem;
       border-top: 1px solid #30363d;
       color: #8b949e;
       font-size: 0.9rem;
     }
     img.logo {
       width: 90px;
-      margin-top: 1rem;
+      margin-top: 0.5rem;
     }
   </style>
 </head>
+
 <body>
   <header>
     <h1>🧩 InfraForgeLabs</h1>
     <p><strong>Free · Local · Open · Forever</strong></p>
+    <img src="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png" width="100%" alt="InfraForgeLabs Banner" />
   </header>
 
   <section>
-    <h2>🧱 About</h2>
-    <p><strong>InfraForgeLabs</strong> builds next-generation <strong>DevSecOps ecosystems</strong> that are fully local, offline-ready, and open-source forever.</p>
-    <p>We exist to make infrastructure automation and DevOps education <strong>free from cloud lock-in and corporate dependence.</strong></p>
+    <h2 align="center">🧱 About</h2>
+    <p align="center">
+      <strong>InfraForgeLabs</strong> builds next-generation <strong>DevSecOps ecosystems</strong> that are fully local, offline-ready, and open-source forever.
+    </p>
+    <p align="center">
+      We exist to make infrastructure automation and DevOps education <strong>free from cloud lock-in and corporate dependence.</strong>
+    </p>
   </section>
 
   <section>
-    <div class="project infrforge">
+    <div class="card">
       <h2>⚙️ <a href="https://github.com/InfraForgeLabs/InfraForge">InfraForge</a></h2>
       <img src="https://raw.githubusercontent.com/InfraForgeLabs/InfraForge/main/assets/logo.png" alt="InfraForge Logo" class="logo" />
       <p>A modular <strong>infrastructure automation platform</strong> evolving from integration → independence.</p>
-      <p>Supports Terraform, Docker, Helm, Jenkins, Monitoring, Security, and ArgoCD. Built for security, transparency, and extensibility.</p>
+      <p>Supports Terraform, Docker, Helm, Jenkins, Monitoring, Security, and ArgoCD.</p>
+      <p><img src="https://img.shields.io/github/v/tag/InfraForgeLabs/InfraForge?sort=semver&color=00BFFF" alt="InfraForge Tag" /></p>
+      <iframe src="https://github.com/InfraForgeLabs/InfraForge/blob/main/README.md"></iframe>
     </div>
 
-    <div class="project devopsmind">
+    <div class="card devopsmind">
       <h2>🧠 <a href="https://github.com/InfraForgeLabs/DevOpsMind">DevOpsMind</a></h2>
-      <img src="https://raw.githubusercontent.com/InfraForgeLabs/DevopsMind/main/docs/logo.png" alt="DevOpsMind Logo" class="logo" />
+      <img src="https://raw.githubusercontent.com/InfraForgeLabs/DevOpsMind/main/docs/logo.png" alt="DevOpsMind Logo" class="logo" />
       <p>A gamified, offline <strong>DevSecOps learning engine</strong> evolving from learning → intelligence.</p>
-      <p>Includes core tracks across Linux, Git, CI/CD, Cloud, IaC, and Security. Designed for learning, collaboration, and practical mastery.</p>
+      <p>Includes Linux, Git, CI/CD, Cloud, IaC, and Security tracks — all offline-capable.</p>
+      <p><img src="https://img.shields.io/github/v/tag/InfraForgeLabs/DevOpsMind?sort=semver&color=8A2BE2" alt="DevOpsMind Tag" /></p>
+      <iframe src="https://github.com/InfraForgeLabs/DevOpsMind/blob/main/README.md"></iframe>
     </div>
   </section>
 
   <section>
-    <h2>🌍 Philosophy</h2>
-    <blockquote>
+    <h2 align="center">🌍 Philosophy</h2>
+    <blockquote align="center">
       “No telemetry. No SaaS lock-in. No paywalls for fundamentals.”<br>
       Everything InfraForgeLabs builds can run locally, forever.
     </blockquote>
   </section>
 
   <footer>
-    © 2025 <strong>InfraForgeLabs</strong> — Built for Builders.<br>
+    © 2025 <strong>InfraForgeLabs</strong> — Built for Builders.<br />
     Free · Local · Open · Forever
   </footer>
 </body>
