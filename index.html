@@ -20,34 +20,42 @@
 
   <style>
     :root {
-      --bg: linear-gradient(160deg, #0d1117 0%, #1a1f2e 40%, #22293b 100%);
       --panel: #161b22;
       --text: #e6edf3;
       --muted: #8b949e;
       --border: #30363d;
       --accent1: #00c7c7;
       --accent2: #a259ff;
+      --accent3: #58a6ff;
     }
 
+    /* 🌈 Animated Background */
     body {
       font-family: "Inter", "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
-      background-attachment: fixed;
+      background: linear-gradient(120deg, #0d1117, #1a1f2e, #22293b, #171c29);
+      background-size: 300% 300%;
+      animation: gradientShift 20s ease infinite;
       color: var(--text);
       line-height: 1.7;
       margin: 0;
       padding: 0;
     }
 
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ✨ Header */
     header {
       text-align: center;
       padding: 3.5rem 1.5rem 2rem;
-      background: radial-gradient(circle at 30% 10%, rgba(162,89,255,0.2), transparent 60%),
-                  radial-gradient(circle at 80% 50%, rgba(0,199,199,0.15), transparent 60%),
-                  linear-gradient(135deg, var(--accent1), var(--accent2));
       color: #fff;
       position: relative;
       overflow: hidden;
+      background: radial-gradient(circle at 30% 10%, rgba(162,89,255,0.18), transparent 60%),
+                  radial-gradient(circle at 80% 50%, rgba(0,199,199,0.12), transparent 60%);
     }
 
     header .brand {
@@ -59,17 +67,31 @@
       font-weight: 900;
     }
 
+    /* 🔥 Glowing Logo */
     header img.logo {
-      width: 75px;
-      height: 75px;
+      width: 80px;
+      height: 80px;
       border-radius: 14px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      animation: glowPulse 4s ease-in-out infinite;
+      filter: drop-shadow(0 0 10px rgba(162,89,255,0.7)) drop-shadow(0 0 20px rgba(0,199,199,0.5));
+    }
+
+    @keyframes glowPulse {
+      0%, 100% {
+        filter: drop-shadow(0 0 8px rgba(162,89,255,0.6)) drop-shadow(0 0 18px rgba(0,199,199,0.4));
+        transform: scale(1);
+      }
+      50% {
+        filter: drop-shadow(0 0 16px rgba(162,89,255,0.9)) drop-shadow(0 0 28px rgba(0,199,199,0.7));
+        transform: scale(1.03);
+      }
     }
 
     header p {
       font-weight: 500;
       font-size: 1.1rem;
       margin-top: 0.5rem;
+      opacity: 0.95;
     }
 
     section {
@@ -92,6 +114,12 @@
       padding: 2rem;
       margin: 2rem 0;
       box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.35);
     }
 
     .card h3 {
@@ -131,14 +159,13 @@
       font-weight: 600;
       display: inline-block;
       margin-top: 0.8rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
     }
 
-    footer {
-      text-align: center;
-      padding: 2rem;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 0.9rem;
+    a.btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
     }
 
     blockquote {
@@ -148,6 +175,14 @@
       background: var(--panel);
       border-radius: 8px;
       font-style: italic;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.9rem;
     }
   </style>
 </head>
