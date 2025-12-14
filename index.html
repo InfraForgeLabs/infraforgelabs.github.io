@@ -9,11 +9,12 @@
   <meta name="author" content="InfraForgeLabs" />
   <meta name="theme-color" content="#0d1117" />
 
-  <link rel="icon" type="image/png" sizes="512x512" href="logo-transparent.png">
-  <link rel="apple-touch-icon" href="logo-transparent.png">
+  <!-- ✅ Favicon & Social Preview -->
+  <link rel="icon" type="image/png" sizes="512x512" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
   <meta property="og:title" content="InfraForgeLabs — Free · Local · Open · Forever" />
   <meta property="og:description" content="Building the next generation of DevSecOps ecosystems — InfraForge, DevOpsMind, and Ember — designed to run locally, forever." />
-  <meta property="og:image" content="logo-transparent.png" />
+  <meta property="og:image" content="logo.png" />
   <meta property="og:url" content="https://infraforgelabs.in" />
   <meta property="og:type" content="website" />
 
@@ -39,6 +40,7 @@
       margin: 0;
       padding: 0;
     }
+
     @keyframes gradientShift {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
@@ -55,6 +57,7 @@
       background: radial-gradient(circle at 30% 10%, rgba(162,89,255,0.18), transparent 60%),
                   radial-gradient(circle at 80% 50%, rgba(0,199,199,0.12), transparent 60%);
     }
+
     header .brand {
       display: flex;
       align-items: center;
@@ -64,7 +67,7 @@
       font-weight: 900;
     }
 
-    /* 🔥 Glowing Logo (now truly transparent) */
+    /* 🔥 Glowing Logo */
     header img.logo {
       width: 80px;
       height: 80px;
@@ -72,6 +75,7 @@
       animation: glowPulse 4s ease-in-out infinite;
       filter: drop-shadow(0 0 10px rgba(162,89,255,0.7)) drop-shadow(0 0 20px rgba(0,199,199,0.5));
     }
+
     @keyframes glowPulse {
       0%, 100% {
         filter: drop-shadow(0 0 8px rgba(162,89,255,0.6)) drop-shadow(0 0 18px rgba(0,199,199,0.4));
@@ -90,8 +94,18 @@
       opacity: 0.95;
     }
 
-    section { max-width: 1080px; margin: 3rem auto; padding: 0 1.5rem; }
-    h2.section-title { text-align: center; font-size: 1.8rem; color: var(--accent1); margin-bottom: 1rem; }
+    section {
+      max-width: 1080px;
+      margin: 3rem auto;
+      padding: 0 1.5rem;
+    }
+
+    h2.section-title {
+      text-align: center;
+      font-size: 1.8rem;
+      color: var(--accent1);
+      margin-bottom: 1rem;
+    }
 
     .card {
       background: var(--panel);
@@ -102,12 +116,38 @@
       box-shadow: 0 4px 16px rgba(0,0,0,0.25);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    .card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,0,0,0.35); }
-    .card h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-    .logo-sm { width: 72px; border-radius: 12px; margin-bottom: 0.8rem; }
 
-    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-    .chip { background: var(--panel); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; color: var(--muted); font-size: 0.9rem; }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.35);
+    }
+
+    .card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .logo-sm {
+      width: 72px;
+      border-radius: 12px;
+      margin-bottom: 0.8rem;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .chip {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 10px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
 
     a.btn {
       background: linear-gradient(135deg, var(--accent1), var(--accent2));
@@ -122,7 +162,11 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       transition: transform 0.2s ease, box-shadow 0.3s ease;
     }
-    a.btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+
+    a.btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
 
     blockquote {
       margin: 0;
@@ -133,14 +177,20 @@
       font-style: italic;
     }
 
-    footer { text-align: center; padding: 2rem; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.9rem; }
+    footer {
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 
 <body>
   <header>
     <div class="brand">
-      <img src="logo-transparent.png" alt="InfraForgeLabs Logo" class="logo" />
+      <img src="logo.png" alt="InfraForgeLabs Logo" class="logo" />
       <span>InfraForgeLabs</span>
     </div>
     <p>Free · Local · Open · Forever</p>
@@ -150,7 +200,7 @@
     <h2 class="section-title">🚀 Core Projects</h2>
 
     <div class="card">
-      <h3> <a href="https://infraforge.infraforgelabs.in/">InfraForge</a></h3>
+      <h3>⚙️ <a href="https://infraforge.infraforgelabs.in/">InfraForge</a></h3>
       <img src="https://raw.githubusercontent.com/InfraForgeLabs/InfraForge/main/assets/logo.png" alt="InfraForge Logo" class="logo-sm" />
       <p>A modular <strong>infrastructure automation platform</strong> evolving from <em>integration → independence</em>.</p>
       <div class="badges"><span class="chip">Terraform</span><span class="chip">Ansible</span><span class="chip">Kubernetes</span></div>
@@ -158,7 +208,7 @@
     </div>
 
     <div class="card">
-      <h3> <a href="https://devopsmind.infraforgelabs.in/">DevOpsMind</a></h3>
+      <h3>🧠 <a href="https://devopsmind.infraforgelabs.in/">DevOpsMind</a></h3>
       <img src="https://raw.githubusercontent.com/InfraForgeLabs/DevOpsMind/main/docs/logo.png" alt="DevOpsMind Logo" class="logo-sm" />
       <p>A gamified, offline <strong>DevSecOps learning engine</strong> evolving from <em>learning → intelligence</em>.</p>
       <div class="badges"><span class="chip">Linux</span><span class="chip">Bash</span><span class="chip">CI/CD</span><span class="chip">Security</span></div>
@@ -166,7 +216,7 @@
     </div>
 
     <div class="card">
-      <h3> Ember (Launching 2029)</h3>
+      <h3>🔥 Ember (Launching 2029)</h3>
       <p><strong>Ember</strong> is the <em>agentic local intelligence core</em> powering InfraForge and DevOpsMind. It brings reasoning, simulation, and automation planning fully offline — preserving the <strong>Free · Local · Open · Forever</strong> philosophy.</p>
       <div class="badges"><span class="chip">Planned 2029</span><span class="chip">Local AI</span><span class="chip">Agentic Automation</span><span class="chip">Explainable</span></div>
     </div>
