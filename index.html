@@ -10,41 +10,87 @@
   <meta name="theme-color" content="#0d1117" />
 
   <!-- ✅ Favicon & Social Preview -->
-  <link rel="icon" type="image/png" sizes="512x512" href="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png">
-  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
   <meta property="og:title" content="InfraForgeLabs — Free · Local · Open · Forever" />
   <meta property="og:description" content="Building the next generation of DevSecOps ecosystems — InfraForge, DevOpsMind, and Ember — designed to run locally, forever." />
-  <meta property="og:image" content="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png" />
+  <meta property="og:image" content="logo.png" />
   <meta property="og:url" content="https://infraforgelabs.in" />
   <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="InfraForgeLabs — Free · Local · Open · Forever" />
-  <meta name="twitter:description" content="Open-source DevSecOps ecosystem — InfraForge, DevOpsMind, and Ember — built to run locally, forever." />
-  <meta name="twitter:image" content="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png" />
 
   <style>
-    :root { --bg:#0d1117; --panel:#0f1623; --panel-2:#161b22; --text:#e6edf3; --muted:#9aa4b2; --border:#263041; --accent1:#00c7c7; --accent2:#a259ff; --accent3:#58a6ff; }
-    [data-theme="light"] { --bg:#ffffff; --panel:#f7f7fb; --panel-2:#f1f3f8; --text:#0d1117; --muted:#58606b; --border:#dfe3ea; --accent3:#0b61ff; }
-    * { box-sizing:border-box; margin:0; padding:0; }
-    body { font-family: Inter, Segoe UI, Roboto, system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); line-height:1.65; }
-    header.hero { text-align:center; padding:4rem 1.5rem 2rem; }
-    .headline { font-size:2.8rem; font-weight:900; line-height:1.2; }
-    .tag { color:var(--muted); margin-bottom:1rem; }
-    .banner { max-width:900px; width:90%; border-radius:16px; margin-top:2rem; box-shadow:0 8px 24px rgba(0,0,0,.35); }
-    .section-title { text-align:center; color:var(--accent1); font-size:1.7rem; margin-top:3rem; }
-    .card { background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:1.8rem; margin:2rem auto; max-width:1000px; box-shadow:0 8px 22px rgba(0,0,0,0.3); }
-    .card h3 { font-size:1.4rem; margin-bottom:0.5rem; }
-    .badges { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
-    .chip { background:var(--panel-2); border:1px solid var(--border); padding:4px 10px; border-radius:999px; color:var(--muted); font-size:0.9rem; }
-    footer { text-align:center; padding:2rem; border-top:1px solid var(--border); color:var(--muted); font-size:0.9rem; margin-top:2rem; }
-    .btn { background:linear-gradient(135deg, var(--accent1), var(--accent2)); border:none; color:#fff; padding:0.5rem 1rem; border-radius:999px; text-decoration:none; font-weight:600; }
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --border: #30363d;
+      --accent1: #00c7c7;
+      --accent2: #a259ff;
+    }
+    body {
+      font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+    header {
+      text-align: center;
+      padding: 3.5rem 1.5rem 2rem;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: #fff;
+    }
+    header img.logo {
+      width: 90px;
+      border-radius: 16px;
+      margin-bottom: 1rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    header h1 {
+      font-size: 2.8rem;
+      margin-bottom: 0.4rem;
+    }
+    header p {
+      font-weight: 500;
+      font-size: 1.1rem;
+    }
+    section { max-width: 1080px; margin: 3rem auto; padding: 0 1.5rem; }
+    h2.section-title { text-align: center; font-size: 1.8rem; color: var(--accent1); margin-bottom: 1rem; }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2rem;
+      margin: 2rem 0;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+    .card h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .logo-sm { width: 72px; border-radius: 12px; margin-bottom: 0.8rem; }
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .chip { background: var(--panel); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; color: var(--muted); font-size: 0.9rem; }
+    footer {
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    a.btn {
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
-  <header class="hero">
-    <h1 class="headline">🧩 InfraForgeLabs</h1>
-    <p class="tag">Free · Local · Open · Forever</p>
-    <img class="banner" src="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png" alt="InfraForgeLabs banner" />
+  <header>
+    <img src="logo.png" alt="InfraForgeLabs Logo" class="logo" />
+    <h1>🧩 InfraForgeLabs</h1>
+    <p>Free · Local · Open · Forever</p>
   </header>
 
   <section>
@@ -52,6 +98,7 @@
 
     <div class="card">
       <h3>⚙️ <a href="https://infraforge.infraforgelabs.in/">InfraForge</a></h3>
+      <img src="https://raw.githubusercontent.com/InfraForgeLabs/InfraForge/main/assets/logo.png" alt="InfraForge Logo" class="logo-sm" />
       <p>A modular <strong>infrastructure automation platform</strong> evolving from <em>integration → independence</em>.</p>
       <div class="badges"><span class="chip">v1.0.0</span><span class="chip">Terraform</span><span class="chip">Ansible</span><span class="chip">Kubernetes</span></div>
       <p><a class="btn" href="https://infraforge.infraforgelabs.in/">Visit Website</a> <a class="btn" href="https://github.com/InfraForgeLabs/InfraForge">GitHub</a></p>
@@ -59,15 +106,23 @@
 
     <div class="card">
       <h3>🧠 <a href="https://devopsmind.infraforgelabs.in/">DevOpsMind</a></h3>
+      <img src="https://raw.githubusercontent.com/InfraForgeLabs/DevOpsMind/main/docs/logo.png" alt="DevOpsMind Logo" class="logo-sm" />
       <p>A gamified, offline <strong>DevSecOps learning engine</strong> evolving from <em>learning → intelligence</em>.</p>
       <div class="badges"><span class="chip">v0.9.0</span><span class="chip">Linux</span><span class="chip">Bash</span><span class="chip">CI/CD</span><span class="chip">Security</span></div>
       <p><a class="btn" href="https://devopsmind.infraforgelabs.in/">Visit Website</a> <a class="btn" href="https://github.com/InfraForgeLabs/DevOpsMind">GitHub</a></p>
     </div>
 
     <div class="card">
-      <h3>🔥 <a href="#">Ember</a></h3>
-      <p><strong>Launching in 2029</strong> — Ember is the <em>agentic local intelligence core</em> powering both InfraForge and DevOpsMind. It enables reasoning, simulation, and automation planning entirely offline, preserving the <strong>Free · Local · Open · Forever</strong> philosophy.</p>
+      <h3>🔥 Ember (Launching 2029)</h3>
+      <p><strong>Ember</strong> is the <em>agentic local intelligence core</em> powering InfraForge and DevOpsMind. It brings reasoning, simulation, and automation planning fully offline — preserving the <strong>Free · Local · Open · Forever</strong> philosophy.</p>
       <div class="badges"><span class="chip">Planned 2029</span><span class="chip">Local AI</span><span class="chip">Agentic Automation</span><span class="chip">Explainable</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-title">🌍 Philosophy</h2>
+    <div class="card">
+      <blockquote>“No telemetry. No SaaS lock-in. No paywalls for fundamentals.”<br />Everything InfraForgeLabs builds can run locally, forever.</blockquote>
     </div>
   </section>
 
