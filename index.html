@@ -28,13 +28,17 @@
       --accent1: #00c7c7;
       --accent2: #a259ff;
     }
+
     body {
       font-family: "Inter", "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       background-attachment: fixed;
       color: var(--text);
       line-height: 1.7;
+      margin: 0;
+      padding: 0;
     }
+
     header {
       text-align: center;
       padding: 3.5rem 1.5rem 2rem;
@@ -45,6 +49,7 @@
       position: relative;
       overflow: hidden;
     }
+
     header .brand {
       display: flex;
       align-items: center;
@@ -53,18 +58,33 @@
       font-size: 2.8rem;
       font-weight: 900;
     }
+
     header img.logo {
       width: 75px;
+      height: 75px;
       border-radius: 14px;
       box-shadow: 0 6px 18px rgba(0,0,0,0.35);
     }
+
     header p {
       font-weight: 500;
       font-size: 1.1rem;
       margin-top: 0.5rem;
     }
-    section { max-width: 1080px; margin: 3rem auto; padding: 0 1.5rem; }
-    h2.section-title { text-align: center; font-size: 1.8rem; color: var(--accent1); margin-bottom: 1rem; }
+
+    section {
+      max-width: 1080px;
+      margin: 3rem auto;
+      padding: 0 1.5rem;
+    }
+
+    h2.section-title {
+      text-align: center;
+      font-size: 1.8rem;
+      color: var(--accent1);
+      margin-bottom: 1rem;
+    }
+
     .card {
       background: var(--panel);
       border: 1px solid var(--border);
@@ -73,17 +93,34 @@
       margin: 2rem 0;
       box-shadow: 0 4px 16px rgba(0,0,0,0.25);
     }
-    .card h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-    .logo-sm { width: 72px; border-radius: 12px; margin-bottom: 0.8rem; }
-    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-    .chip { background: var(--panel); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; color: var(--muted); font-size: 0.9rem; }
-    footer {
-      text-align: center;
-      padding: 2rem;
-      border-top: 1px solid var(--border);
+
+    .card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .logo-sm {
+      width: 72px;
+      border-radius: 12px;
+      margin-bottom: 0.8rem;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .chip {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 10px;
       color: var(--muted);
       font-size: 0.9rem;
     }
+
     a.btn {
       background: linear-gradient(135deg, var(--accent1), var(--accent2));
       color: #fff;
@@ -92,9 +129,29 @@
       border-radius: 999px;
       text-decoration: none;
       font-weight: 600;
+      display: inline-block;
+      margin-top: 0.8rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    blockquote {
+      margin: 0;
+      padding: 1rem 1.2rem;
+      border-left: 4px solid var(--accent2);
+      background: var(--panel);
+      border-radius: 8px;
+      font-style: italic;
     }
   </style>
 </head>
+
 <body>
   <header>
     <div class="brand">
@@ -138,7 +195,6 @@
   </section>
 
   <footer>
-    <p>📄 CNAME · index.html · logo.png — managed under InfraForgeLabs main branch</p>
     <p>© <span id="year"></span> <strong>InfraForgeLabs</strong> — Built for Builders.<br />Free · Local · Open · Forever</p>
   </footer>
 
