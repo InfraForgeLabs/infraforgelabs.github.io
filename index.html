@@ -2,235 +2,163 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>InfraForgeLabs — Free · Local · Open · Forever</title>
-  <meta name="description" content="InfraForgeLabs builds open, local-first DevSecOps ecosystems — including InfraForge and DevOpsMind — guided by the philosophy Free · Local · Open · Forever." />
+  <meta name="description" content="InfraForgeLabs builds open, local‑first DevSecOps ecosystems — including InfraForge and DevOpsMind — guided by the philosophy Free · Local · Open · Forever." />
   <meta name="keywords" content="InfraForgeLabs, InfraForge, DevOpsMind, DevSecOps, Open Source, Infrastructure Automation, CI/CD, Local-first" />
   <meta name="author" content="InfraForgeLabs" />
-
-  <!-- ✅ Favicon & App Icons -->
-  <link rel="icon" type="image/png" sizes="512x512" href="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png">
-  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png">
   <meta name="theme-color" content="#0d1117" />
 
-  <!-- ✅ Open Graph / Discord / Slack Preview -->
-  <meta property="og:title" content="InfraForgeLabs — Free · Local · Open · Forever">
-  <meta property="og:description" content="Building the next generation of DevSecOps ecosystems — InfraForge and DevOpsMind — designed to run locally, forever.">
-  <meta property="og:image" content="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png">
-  <meta property="og:url" content="https://infraforgelabs.in">
-  <meta property="og:type" content="website">
+  <!-- ✅ Favicon & Social Preview -->
+  <link rel="icon" type="image/png" sizes="512x512" href="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png">
+  <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png">
+  <meta property="og:title" content="InfraForgeLabs — Free · Local · Open · Forever" />
+  <meta property="og:description" content="Building the next generation of DevSecOps ecosystems — InfraForge and DevOpsMind — designed to run locally, forever." />
+  <meta property="og:image" content="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png" />
+  <meta property="og:url" content="https://infraforgelabs.in" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="InfraForgeLabs — Free · Local · Open · Forever" />
+  <meta name="twitter:description" content="Open‑source DevSecOps ecosystem — InfraForge and DevOpsMind — built to run locally, forever." />
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png" />
 
-  <!-- ✅ Twitter / X Card -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="InfraForgeLabs — Free · Local · Open · Forever">
-  <meta name="twitter:description" content="Open-source DevSecOps ecosystem — InfraForge and DevOpsMind — built to run locally, forever.">
-  <meta name="twitter:image" content="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png">
-
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="preload" as="image" href="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png" />
+  <link rel="preconnect" href="https://img.shields.io" crossorigin>
 
   <style>
-    :root {
-      --bg: #0d1117;
-      --panel: #161b22;
-      --text: #e6edf3;
-      --muted: #8b949e;
-      --border: #30363d;
-      --accent1: #00c7c7;
-      --accent2: #a259ff;
-    }
-    [data-theme="light"] {
-      --bg: #ffffff;
-      --panel: #f5f5f5;
-      --text: #111;
-      --muted: #555;
-      --border: #ddd;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: "Inter", "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-    header {
-      text-align: center;
-      padding: 3.5rem 1.5rem 2rem;
-      background: linear-gradient(135deg, var(--accent1), var(--accent2));
-      color: #fff;
-      position: relative;
-      overflow: hidden;
-    }
-    header h1 { font-size: 2.8rem; margin-bottom: 0.4rem; }
-    header p { font-weight: 500; font-size: 1.1rem; opacity: 0.95; }
-    header img {
-      max-width: 880px; width: 90%;
-      margin-top: 2rem; border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    }
-    .theme-toggle {
-      position: absolute; top: 1.2rem; right: 1.5rem;
-      background: rgba(255,255,255,0.2);
-      color: #fff; border: none; border-radius: 50px;
-      padding: 0.4rem 1rem; cursor: pointer; font-size: 0.9rem;
-      transition: background 0.3s ease;
-    }
-    .theme-toggle:hover { background: rgba(255,255,255,0.35); }
-    section { max-width: 1080px; margin: 3rem auto; padding: 0 1.5rem; }
-    h2 { text-align: center; margin-bottom: 1rem; font-size: 1.8rem; color: var(--accent1); }
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 2rem;
-      margin: 2rem 0;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-    .card:hover { transform: translateY(-4px); box-shadow: 0 8px 22px rgba(0,0,0,0.35); }
-    .card h2 {
-      font-size: 1.5rem;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .card h2 a { color: var(--accent1); text-decoration: none; }
-    .devopsmind h2 a { color: var(--accent2); }
-    .logo { width: 80px; border-radius: 12px; display: block; margin: 1rem 0; }
-    p { margin-bottom: 0.5rem; font-size: 1rem; }
-    a { color: #58a6ff; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .markdown {
-      background: var(--bg);
-      border-radius: 8px;
-      padding: 1rem;
-      border: 1px solid var(--border);
-      margin-top: 1rem;
-      font-size: 0.95rem;
-      overflow-x: auto;
-    }
-    blockquote {
-      border-left: 4px solid var(--accent2);
-      padding-left: 12px;
-      color: var(--text);
-      font-style: italic;
-      background: var(--panel);
-      border-radius: 4px;
-      margin: 1rem auto;
-      max-width: 700px;
-    }
-    footer {
-      text-align: center;
-      padding: 2rem 1rem;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-    @media (max-width: 700px) {
-      header h1 { font-size: 2.2rem; }
-      .card { padding: 1.3rem; }
-    }
+    :root { --bg:#0d1117; --panel:#0f1623; --panel-2:#161b22; --text:#e6edf3; --muted:#9aa4b2; --border:#263041; --accent1:#00c7c7; --accent2:#a259ff; --accent3:#58a6ff; --glow: 0 0 40px rgba(162,89,255,0.2), 0 0 60px rgba(0,199,199,0.12); }
+    [data-theme="light"] { --bg:#ffffff; --panel:#f7f7fb; --panel-2:#f1f3f8; --text:#0d1117; --muted:#58606b; --border:#dfe3ea; --accent3:#0b61ff; }
+    * { box-sizing:border-box; }
+    html, body { margin:0; padding:0; }
+    body { font-family: Inter, Segoe UI, Roboto, system-ui, -apple-system, sans-serif; background:radial-gradient(1100px 700px at 20% -10%, rgba(162,89,255,.18), transparent 60%), radial-gradient(800px 500px at 120% 10%, rgba(0,199,199,.18), transparent 60%), var(--bg); color:var(--text); line-height:1.65; }
+
+    .topbar { position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px); background:linear-gradient(180deg, rgba(15,22,35,.85), rgba(15,22,35,.55)); border-bottom:1px solid var(--border); }
+    .nav { max-width:1200px; margin:auto; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 18px; }
+    .brand { display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.3px; }
+    .brand img { width:34px; height:34px; border-radius:8px; box-shadow: var(--glow); }
+    .brand span { font-size:1.02rem; }
+    .nav-actions { display:flex; align-items:center; gap:8px; }
+    .btn { display:inline-flex; align-items:center; gap:.5rem; border:1px solid var(--border); background:linear-gradient(180deg, var(--panel), var(--panel-2)); color:var(--text); padding:.55rem .9rem; border-radius:999px; font-weight:600; text-decoration:none; font-size:.95rem; box-shadow:0 4px 16px rgba(0,0,0,.25); transition:transform .15s ease, box-shadow .3s ease, border-color .2s ease; }
+    .btn:hover { transform:translateY(-1px); box-shadow:0 10px 28px rgba(0,0,0,.35); border-color:rgba(162,89,255,.45); }
+    .btn.primary { border-color:transparent; background:linear-gradient(135deg, var(--accent1), var(--accent2)); color:#fff; }
+    .btn.ghost { background:transparent; }
+
+    header.hero { position:relative; overflow:hidden; padding:72px 18px 48px; text-align:center; }
+    .headline { font-size:clamp(2rem, 3.6vw, 3rem); font-weight:900; letter-spacing:.2px; line-height:1.15; margin:0 auto .6rem; max-width:1024px; }
+    .tag { font-size:1.05rem; color:var(--muted); margin-bottom:22px; }
+    .banner { max-width:980px; width:92%; margin:24px auto 0; border-radius:16px; border:1px solid var(--border); box-shadow:0 12px 40px rgba(0,0,0,.45), var(--glow); }
+
+    section { max-width:1200px; margin:42px auto; padding:0 18px; }
+    h2.section-title { text-align:center; font-size:1.55rem; color:var(--accent1); margin:0 0 18px; }
+
+    .about { max-width:900px; margin: 0 auto; text-align:center; }
+    .about p { margin:.4rem auto; font-size:1.05rem; }
+
+    .grid { display:grid; grid-template-columns:repeat(12, 1fr); gap:22px; }
+    .card { grid-column: span 12; background:linear-gradient(180deg, rgba(88,166,255,.06), rgba(0,0,0,0)); border:1px solid var(--border); border-radius:16px; padding:22px; box-shadow:0 8px 28px rgba(0,0,0,.25); transition:transform .2s ease, box-shadow .25s ease; }
+    .card:hover { transform: translateY(-4px); box-shadow:0 16px 40px rgba(0,0,0,.35); }
+    .card h3 { display:flex; align-items:center; gap:.6rem; margin:.2rem 0 .6rem; font-size:1.25rem; }
+    .logo { width:72px; height:72px; border-radius:14px; border:1px solid var(--border); box-shadow: var(--glow); }
+    .card p { margin:.4rem 0 .8rem; }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:.6rem; }
+
+    .badges { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+    .chip { border:1px solid var(--border); background:linear-gradient(180deg, var(--panel), var(--panel-2)); padding:.25rem .6rem; border-radius:999px; font-size:.85rem; color:var(--muted); }
+
+    .philosophy { background: linear-gradient(180deg, rgba(162,89,255,.06), rgba(0,0,0,0)); border:1px solid var(--border); border-radius:16px; padding:22px; max-width:900px; margin: 0 auto; }
+    blockquote { margin:0; padding:14px 16px; border-left:4px solid var(--accent2); background: var(--panel-2); border-radius:6px; font-style:italic; }
+
+    footer { text-align:center; padding:28px 16px 42px; color:var(--muted); border-top:1px solid var(--border); margin-top:48px; }
+
+    @media (min-width: 720px){ .card { grid-column: span 6; } }
+    @media (prefers-reduced-motion: no-preference){ .floaty { animation: floaty 6s ease-in-out infinite; } @keyframes floaty { 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(-6px) } } }
   </style>
 </head>
 
 <body>
-  <header>
-    <button class="theme-toggle" id="themeToggle">🌙 Dark</button>
-    <h1>🧩 InfraForgeLabs</h1>
-    <p>Free · Local · Open · Forever</p>
-    <img
-      src="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png"
-      alt="InfraForgeLabs Banner"
-    />
+  <div class="topbar">
+    <nav class="nav">
+      <a class="brand" href="#"><img src="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png" alt="InfraForgeLabs" /><span>InfraForgeLabs</span></a>
+      <div class="nav-actions">
+        <a class="btn ghost" href="#contact">Contact</a>
+        <button class="btn" id="themeToggle" type="button">🌙 Dark</button>
+      </div>
+    </nav>
+  </div>
+
+  <header class="hero">
+    <h1 class="headline">🧩 InfraForgeLabs<br/>Free · Local · Open · Forever</h1>
+    <p class="tag">We build open, local‑first <strong>DevSecOps ecosystems</strong> that run offline — forever.</p>
+    <img class="banner floaty" src="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png" alt="InfraForgeLabs banner" />
+    <div style="margin-top:18px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap">
+      <a class="btn primary" href="https://infraforgelabs.in">Visit InfraForgeLabs</a>
+      <a class="btn" href="https://github.com/InfraForgeLabs" target="_blank">GitHub Org</a>
+    </div>
   </header>
 
   <section>
-    <h2>🧱 About</h2>
-    <p align="center" style="max-width:700px;margin:auto;">
-      <strong>InfraForgeLabs</strong> builds next-generation <strong>DevSecOps ecosystems</strong> that are local-first,
-      offline-ready, and open-source forever.
-    </p>
-    <p align="center" style="max-width:700px;margin:0.6rem auto;">
-      We exist to make infrastructure automation and DevOps education
-      <strong>free from cloud lock-in and corporate dependence.</strong>
-    </p>
-  </section>
-
-  <section>
-    <div class="card">
-      <h2>⚙️ <a href="https://github.com/InfraForgeLabs/InfraForge">InfraForge</a></h2>
-      <img
-        src="https://raw.githubusercontent.com/InfraForgeLabs/InfraForge/main/assets/logo.png"
-        alt="InfraForge Logo"
-        class="logo"
-      />
-      <p>A modular <strong>infrastructure automation platform</strong> evolving from integration → independence.</p>
-      <p>
-        <img src="https://img.shields.io/github/v/tag/InfraForgeLabs/InfraForge?sort=semver&color=00BFFF" alt="InfraForge Tag" />
-      </p>
-      <div id="infraforge-readme" class="markdown">Loading InfraForge README...</div>
-    </div>
-
-    <div class="card devopsmind">
-      <h2>🧠 <a href="https://github.com/InfraForgeLabs/DevOpsMind">DevOpsMind</a></h2>
-      <img
-        src="https://raw.githubusercontent.com/InfraForgeLabs/DevOpsMind/main/docs/logo.png"
-        alt="DevOpsMind Logo"
-        class="logo"
-      />
-      <p>A gamified, offline <strong>DevSecOps learning engine</strong> evolving from learning → intelligence.</p>
-      <p>
-        <img src="https://img.shields.io/github/v/tag/InfraForgeLabs/DevOpsMind?sort=semver&color=8A2BE2" alt="DevOpsMind Tag" />
-      </p>
-      <div id="devopsmind-readme" class="markdown">Loading DevOpsMind README...</div>
+    <h2 class="section-title">🧱 About</h2>
+    <div class="about">
+      <p><strong>InfraForgeLabs</strong> builds next‑generation DevSecOps platforms with one promise: <em>no telemetry, no cloud lock‑in, and no paywalls for fundamentals.</em></p>
+      <p>Everything we ship is designed to be <strong>free, local, open, and offline‑ready</strong> — from infrastructure automation to hands‑on learning.</p>
     </div>
   </section>
 
   <section>
-    <h2>🌍 Philosophy</h2>
-    <blockquote>
-      “No telemetry. No SaaS lock-in. No paywalls for fundamentals.”<br />
-      Everything InfraForgeLabs builds can run locally, forever.
-    </blockquote>
+    <h2 class="section-title">🚀 Core Projects</h2>
+    <div class="grid">
+      <article class="card" aria-labelledby="infraforge-title">
+        <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap">
+          <img class="logo" src="https://raw.githubusercontent.com/InfraForgeLabs/InfraForge/main/assets/logo.png" alt="InfraForge logo">
+          <div>
+            <h3 id="infraforge-title">⚙️ <a href="https://infraforge.infraforgelabs.in/" title="Visit InfraForge site">InfraForge</a></h3>
+            <p>A modular <strong>infrastructure automation platform</strong> evolving from <em>integration → independence</em>.</p>
+          </div>
+        </div>
+        <div class="badges"><span class="chip">Terraform</span><span class="chip">Ansible</span><span class="chip">Docker</span><span class="chip">Helm</span><span class="chip">Kubernetes</span><span class="chip">Jenkins</span><span class="chip">Monitoring</span><span class="chip">Security</span><span class="chip">ArgoCD</span></div>
+        <div class="actions">
+          <a class="btn primary" href="https://infraforge.infraforgelabs.in/" target="_blank">Visit Website</a>
+          <a class="btn" href="https://github.com/InfraForgeLabs/InfraForge" target="_blank">GitHub Repo</a>
+          <img src="https://img.shields.io/github/v/tag/InfraForgeLabs/InfraForge?sort=semver&color=00BFFF" loading="lazy" alt="InfraForge version badge" />
+        </div>
+      </article>
+
+      <article class="card" aria-labelledby="devopsmind-title">
+        <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap">
+          <img class="logo" src="https://raw.githubusercontent.com/InfraForgeLabs/DevOpsMind/main/docs/logo.png" alt="DevOpsMind logo">
+          <div>
+            <h3 id="devopsmind-title">🧠 <a href="https://devopsmind.infraforgelabs.in/" title="Visit DevOpsMind site">DevOpsMind</a></h3>
+            <p>A gamified, offline <strong>DevSecOps learning engine</strong> evolving from <em>learning → intelligence</em>.</p>
+          </div>
+        </div>
+        <div class="badges"><span class="chip">Linux</span><span class="chip">Bash</span><span class="chip">Python</span><span class="chip">CI/CD</span><span class="chip">Cloud</span><span class="chip">Security</span><span class="chip">Kubernetes</span></div>
+        <div class="actions">
+          <a class="btn primary" href="https://devopsmind.infraforgelabs.in/" target="_blank">Visit Website</a>
+          <a class="btn" href="https://github.com/InfraForgeLabs/DevOpsMind" target="_blank">GitHub Repo</a>
+          <img src="https://img.shields.io/github/v/tag/InfraForgeLabs/DevOpsMind?sort=semver&color=8A2BE2" loading="lazy" alt="DevOpsMind version badge" />
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-title">🌍 Philosophy</h2>
+    <div class="philosophy">
+      <blockquote>“No telemetry. No SaaS lock‑in. No paywalls for fundamentals.”<br/>Everything InfraForgeLabs builds can run locally, forever.</blockquote>
+    </div>
   </section>
 
   <footer>
-    © 2025 <strong>InfraForgeLabs</strong> — Built for Builders.<br />
-    Free · Local · Open · Forever
+    © <span id="year"></span> <strong>InfraForgeLabs</strong> — Built for Builders.<br />Free · Local · Open · Forever
   </footer>
 
   <script>
-    // Theme toggle logic
     const toggleBtn = document.getElementById("themeToggle");
     const root = document.documentElement;
-
-    function setTheme(theme) {
-      root.setAttribute("data-theme", theme);
-      toggleBtn.textContent = theme === "dark" ? "🌙 Dark" : "☀️ Light";
-      localStorage.setItem("theme", theme);
-    }
-
-    toggleBtn.addEventListener("click", () => {
-      const current = root.getAttribute("data-theme");
-      setTheme(current === "dark" ? "light" : "dark");
-    });
-
-    const saved = localStorage.getItem("theme") || "dark";
-    setTheme(saved);
-
-    // Load repo READMEs
-    async function loadReadme(repo, elementId) {
-      const url = `https://raw.githubusercontent.com/InfraForgeLabs/${repo}/main/README.md`;
-      try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const md = await res.text();
-        document.getElementById(elementId).innerHTML = marked.parse(md);
-      } catch {
-        document.getElementById(elementId).innerHTML = `<p style='color:red'>⚠️ Unable to load ${repo} README.</p>`;
-      }
-    }
-
-    loadReadme("InfraForge", "infraforge-readme");
-    loadReadme("DevOpsMind", "devopsmind-readme");
+    function setTheme(theme){root.setAttribute("data-theme", theme);toggleBtn.textContent=theme==="dark"?"🌙 Dark":"☀️ Light";localStorage.setItem("theme",theme);}  
+    toggleBtn.addEventListener("click",()=>{const current=root.getAttribute("data-theme")||"dark";setTheme(current==="dark"?"light":"dark")});
+    setTheme(localStorage.getItem("theme")||'dark');
+    document.getElementById('year').textContent=new Date().getFullYear();
   </script>
 </body>
 </html>
