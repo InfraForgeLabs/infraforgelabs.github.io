@@ -7,84 +7,161 @@
   <link rel="icon" href="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png" />
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
-    body {
-      font-family: "Segoe UI", Roboto, sans-serif;
-      background-color: #0d1117;
-      color: #e6edf3;
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --border: #30363d;
+      --accent1: #00c7c7;
+      --accent2: #a259ff;
+    }
+
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      line-height: 1.6;
     }
+
+    body {
+      font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
     header {
       text-align: center;
-      padding: 3rem 1rem;
-      background: linear-gradient(135deg, #00c7c7, #a259ff);
-      color: white;
+      padding: 3.5rem 1.5rem;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      color: #fff;
+      position: relative;
+      overflow: hidden;
     }
+
     header h1 {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
+      font-size: 2.8rem;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.3rem;
     }
-    section {
-      max-width: 950px;
-      margin: 2rem auto;
-      padding: 0 1rem;
+
+    header p {
+      font-weight: 500;
+      font-size: 1.1rem;
+      opacity: 0.9;
     }
-    .card {
-      background: #161b22;
+
+    header img {
+      max-width: 900px;
+      width: 90%;
+      margin-top: 2rem;
       border-radius: 12px;
-      padding: 1.5rem;
-      margin: 1.5rem 0;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
     }
+
+    section {
+      max-width: 1080px;
+      margin: 3rem auto;
+      padding: 0 1.5rem;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 1.8rem;
+      color: var(--accent1);
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2rem;
+      margin: 2rem 0;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+    }
+
     .card h2 {
-      color: #00c7c7;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .card.devopsmind h2 {
-      color: #a259ff;
+
+    .card h2 a {
+      color: var(--accent1);
+      text-decoration: none;
     }
+
+    .devopsmind h2 a {
+      color: var(--accent2);
+    }
+
+    .logo {
+      width: 80px;
+      border-radius: 12px;
+      display: block;
+      margin: 1rem 0;
+    }
+
+    p {
+      color: var(--text);
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+
     a {
       color: #58a6ff;
       text-decoration: none;
     }
+
     a:hover {
       text-decoration: underline;
     }
+
+    .markdown {
+      background: #0d1117;
+      border-radius: 8px;
+      padding: 1rem;
+      border: 1px solid var(--border);
+      margin-top: 1rem;
+      font-size: 0.95rem;
+      overflow-x: auto;
+    }
+
+    blockquote {
+      border-left: 4px solid var(--accent2);
+      padding-left: 12px;
+      color: #c9d1d9;
+      font-style: italic;
+      background: #161b22;
+      border-radius: 4px;
+      margin: 1rem auto;
+      max-width: 700px;
+    }
+
     footer {
       text-align: center;
       padding: 2rem 1rem;
-      border-top: 1px solid #30363d;
-      color: #8b949e;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
       font-size: 0.9rem;
+      letter-spacing: 0.3px;
     }
-    img.logo {
-      width: 90px;
-      margin-top: 0.5rem;
-    }
-    .markdown {
-      background: #0d1117;
-      color: #e6edf3;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-top: 1rem;
-      overflow-x: auto;
-    }
-    blockquote {
-      border-left: 4px solid #a259ff;
-      padding-left: 10px;
-      color: #c9d1d9;
-      font-style: italic;
-    }
-    code, pre {
-      background: #161b22;
-      color: #d2a8ff;
-      border-radius: 5px;
-      padding: 2px 5px;
-      font-family: monospace;
-    }
-    pre {
-      padding: 1rem;
-      overflow-x: auto;
+
+    @media (max-width: 700px) {
+      header h1 {
+        font-size: 2.2rem;
+      }
+      .card {
+        padding: 1.3rem;
+      }
     }
   </style>
 </head>
@@ -92,22 +169,20 @@
 <body>
   <header>
     <h1>🧩 InfraForgeLabs</h1>
-    <p><strong>Free · Local · Open · Forever</strong></p>
+    <p>Free · Local · Open · Forever</p>
     <img
       src="https://raw.githubusercontent.com/InfraForgeLabs/.github/main/infraforgelabs-banner.png"
-      width="100%"
       alt="InfraForgeLabs Banner"
     />
   </header>
 
   <section>
-    <h2 align="center">🧱 About</h2>
-    <p align="center">
-      <strong>InfraForgeLabs</strong> builds next-generation
-      <strong>DevSecOps ecosystems</strong> that are fully local, offline-ready,
-      and open-source forever.
+    <h2>🧱 About</h2>
+    <p align="center" style="max-width:700px;margin:auto;">
+      <strong>InfraForgeLabs</strong> builds next-generation <strong>DevSecOps ecosystems</strong> that are local-first,
+      offline-ready, and open-source forever.
     </p>
-    <p align="center">
+    <p align="center" style="max-width:700px;margin:0.6rem auto;">
       We exist to make infrastructure automation and DevOps education
       <strong>free from cloud lock-in and corporate dependence.</strong>
     </p>
@@ -156,8 +231,8 @@
   </section>
 
   <section>
-    <h2 align="center">🌍 Philosophy</h2>
-    <blockquote align="center">
+    <h2>🌍 Philosophy</h2>
+    <blockquote>
       “No telemetry. No SaaS lock-in. No paywalls for fundamentals.”<br />
       Everything InfraForgeLabs builds can run locally, forever.
     </blockquote>
@@ -182,7 +257,6 @@
           `<p style='color:red'>⚠️ Unable to load ${repo} README.</p>`;
       }
     }
-
     loadReadme("InfraForge", "infraforge-readme");
     loadReadme("DevOpsMind", "devopsmind-readme");
   </script>
