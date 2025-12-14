@@ -20,7 +20,7 @@
 
   <style>
     :root {
-      --bg: #0d1117;
+      --bg: linear-gradient(160deg, #0d1117 0%, #1a1f2e 40%, #22293b 100%);
       --panel: #161b22;
       --text: #e6edf3;
       --muted: #8b949e;
@@ -31,28 +31,37 @@
     body {
       font-family: "Inter", "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
+      background-attachment: fixed;
       color: var(--text);
       line-height: 1.7;
     }
     header {
       text-align: center;
       padding: 3.5rem 1.5rem 2rem;
-      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      background: radial-gradient(circle at 30% 10%, rgba(162,89,255,0.2), transparent 60%),
+                  radial-gradient(circle at 80% 50%, rgba(0,199,199,0.15), transparent 60%),
+                  linear-gradient(135deg, var(--accent1), var(--accent2));
       color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    header .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      font-size: 2.8rem;
+      font-weight: 900;
     }
     header img.logo {
-      width: 90px;
-      border-radius: 16px;
-      margin-bottom: 1rem;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    }
-    header h1 {
-      font-size: 2.8rem;
-      margin-bottom: 0.4rem;
+      width: 75px;
+      border-radius: 14px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
     }
     header p {
       font-weight: 500;
       font-size: 1.1rem;
+      margin-top: 0.5rem;
     }
     section { max-width: 1080px; margin: 3rem auto; padding: 0 1.5rem; }
     h2.section-title { text-align: center; font-size: 1.8rem; color: var(--accent1); margin-bottom: 1rem; }
@@ -62,7 +71,7 @@
       border-radius: 14px;
       padding: 2rem;
       margin: 2rem 0;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
     }
     .card h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
     .logo-sm { width: 72px; border-radius: 12px; margin-bottom: 0.8rem; }
@@ -88,8 +97,10 @@
 </head>
 <body>
   <header>
-    <img src="logo.png" alt="InfraForgeLabs Logo" class="logo" />
-    <h1>🧩 InfraForgeLabs</h1>
+    <div class="brand">
+      <img src="logo.png" alt="InfraForgeLabs Logo" class="logo" />
+      <span>InfraForgeLabs</span>
+    </div>
     <p>Free · Local · Open · Forever</p>
   </header>
 
@@ -100,7 +111,7 @@
       <h3>⚙️ <a href="https://infraforge.infraforgelabs.in/">InfraForge</a></h3>
       <img src="https://raw.githubusercontent.com/InfraForgeLabs/InfraForge/main/assets/logo.png" alt="InfraForge Logo" class="logo-sm" />
       <p>A modular <strong>infrastructure automation platform</strong> evolving from <em>integration → independence</em>.</p>
-      <div class="badges"><span class="chip">v1.0.0</span><span class="chip">Terraform</span><span class="chip">Ansible</span><span class="chip">Kubernetes</span></div>
+      <div class="badges"><span class="chip">Terraform</span><span class="chip">Ansible</span><span class="chip">Kubernetes</span></div>
       <p><a class="btn" href="https://infraforge.infraforgelabs.in/">Visit Website</a> <a class="btn" href="https://github.com/InfraForgeLabs/InfraForge">GitHub</a></p>
     </div>
 
@@ -108,7 +119,7 @@
       <h3>🧠 <a href="https://devopsmind.infraforgelabs.in/">DevOpsMind</a></h3>
       <img src="https://raw.githubusercontent.com/InfraForgeLabs/DevOpsMind/main/docs/logo.png" alt="DevOpsMind Logo" class="logo-sm" />
       <p>A gamified, offline <strong>DevSecOps learning engine</strong> evolving from <em>learning → intelligence</em>.</p>
-      <div class="badges"><span class="chip">v0.9.0</span><span class="chip">Linux</span><span class="chip">Bash</span><span class="chip">CI/CD</span><span class="chip">Security</span></div>
+      <div class="badges"><span class="chip">Linux</span><span class="chip">Bash</span><span class="chip">CI/CD</span><span class="chip">Security</span></div>
       <p><a class="btn" href="https://devopsmind.infraforgelabs.in/">Visit Website</a> <a class="btn" href="https://github.com/InfraForgeLabs/DevOpsMind">GitHub</a></p>
     </div>
 
