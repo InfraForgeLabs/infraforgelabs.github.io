@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://infraforge.infraforgelabs.in/sitemap.xml
