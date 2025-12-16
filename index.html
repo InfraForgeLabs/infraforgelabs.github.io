@@ -3,19 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>InfraForge Labs — Free · Local · Open · Forever</title>
-  <meta name="description" content="InfraForge Labs builds open, local-first DevSecOps ecosystems — including InfraForge, DevOpsMind, and Ember — guided by the philosophy Free · Local · Open · Forever." />
-  <meta name="keywords" content="InfraForge Labs, InfraForge, DevOpsMind, Ember, DevSecOps, Open Source, Infrastructure Automation, CI/CD, Local-first" />
+
+  <title>InfraForge Labs — Open Source DevOps & Infrastructure Automation</title>
+
+  <meta name="description"
+    content="InfraForge Labs is an open-source organization building InfraForge and DevOpsMind — local-first DevOps and infrastructure automation platforms. Free · Local · Open · Forever." />
+
   <meta name="author" content="InfraForge Labs" />
   <meta name="theme-color" content="#0d1117" />
 
   <link rel="icon" type="image/png" sizes="512x512" href="logo.png" />
   <link rel="apple-touch-icon" href="logo.png" />
-  <meta property="og:title" content="InfraForge Labs — Free · Local · Open · Forever" />
-  <meta property="og:description" content="Building the next generation of DevSecOps ecosystems — InfraForge, DevOpsMind, and Ember — designed to run locally, forever." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="InfraForge Labs — Open Source DevOps & Infrastructure Automation" />
+  <meta property="og:description"
+    content="InfraForge Labs builds InfraForge and DevOpsMind — free, local-first platforms for DevOps, security, and infrastructure automation." />
   <meta property="og:image" content="logo.png" />
   <meta property="og:url" content="https://infraforgelabs.in" />
   <meta property="og:type" content="website" />
+
+  <!-- Organization Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "InfraForge Labs",
+    "url": "https://infraforgelabs.in",
+    "logo": "https://infraforgelabs.in/logo.png",
+    "sameAs": [
+      "https://github.com/InfraForgeLabs",
+      "https://www.linkedin.com/company/infraforgelabs"
+    ]
+  }
+  </script>
 
   <style>
     :root {
@@ -35,7 +56,6 @@
       color: var(--text);
       line-height: 1.7;
       margin: 0;
-      padding: 0;
       overflow-x: hidden;
       scroll-behavior: smooth;
     }
@@ -46,80 +66,15 @@
       100% { background-position: 0% 50%; }
     }
     @keyframes hueRotate {
-      0% { filter: hue-rotate(0deg); }
-      100% { filter: hue-rotate(360deg); }
+      from { filter: hue-rotate(0deg); }
+      to { filter: hue-rotate(360deg); }
     }
 
-    /* ✨ Header + Aura */
     header {
       position: relative;
       text-align: center;
       padding: 8rem 1.5rem 3rem;
-      color: #fff;
       overflow: hidden;
-      background: radial-gradient(circle at 30% 10%, rgba(162,89,255,0.18), transparent 60%),
-                  radial-gradient(circle at 80% 50%, rgba(0,199,199,0.12), transparent 60%);
-    }
-
-    header::before {
-      content: "";
-      position: absolute;
-      top: -40%;
-      left: -40%;
-      width: 180%;
-      height: 180%;
-      background: radial-gradient(circle at center,
-        rgba(162,89,255,0.15) 0%,
-        rgba(0,199,199,0.1) 35%,
-        transparent 70%);
-      filter: blur(120px);
-      z-index: 0;
-      animation: auraPulse 12s ease-in-out infinite alternate;
-    }
-
-    @keyframes auraPulse {
-      0% { opacity: 0.4; transform: scale(1); }
-      50% { opacity: 0.65; transform: scale(1.08); }
-      100% { opacity: 0.4; transform: scale(1); }
-    }
-
-    header::after {
-      content: "";
-      position: absolute;
-      top: 0; left: 0;
-      width: 300%; height: 300%;
-      background-image:
-        radial-gradient(2px 2px at 20% 20%, rgba(255,255,255,0.9) 0%, transparent 60%),
-        radial-gradient(1.5px 1.5px at 80% 60%, rgba(162,89,255,0.8) 0%, transparent 60%),
-        radial-gradient(2px 2px at 50% 80%, rgba(0,199,199,0.7) 0%, transparent 60%),
-        radial-gradient(1.2px 1.2px at 70% 40%, rgba(255,255,255,0.8) 0%, transparent 60%),
-        radial-gradient(2px 2px at 90% 10%, rgba(162,89,255,0.6) 0%, transparent 60%);
-      background-repeat: repeat;
-      background-size: 300px 300px;
-      z-index: 0;
-      opacity: 0.4;
-      animation: starDrift 80s linear infinite, twinkle 5s ease-in-out infinite alternate;
-    }
-
-    @keyframes starDrift {
-      from { transform: translate3d(0,0,0); }
-      to { transform: translate3d(-300px, -600px, 0); }
-    }
-    @keyframes twinkle {
-      0%, 100% { opacity: 0.35; }
-      50% { opacity: 0.55; }
-    }
-
-    /* Fade-in Header */
-    header .brand, header p {
-      opacity: 0;
-      transform: translateY(30px);
-      animation: fadeInUp 1.6s ease forwards;
-    }
-    header p { animation-delay: 0.4s; }
-    @keyframes fadeInUp {
-      0% { opacity: 0; transform: translateY(30px); }
-      100% { opacity: 1; transform: translateY(0); }
     }
 
     .brand {
@@ -128,62 +83,45 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       gap: 18px;
-      font-size: 3.3rem;
-      font-weight: 900;
-      color: #ffffff;
-      text-shadow: 0 0 15px rgba(162,89,255,0.7), 0 0 30px rgba(0,199,199,0.5);
-      animation: titleGlow 4s ease-in-out infinite;
-    }
-
-    @keyframes titleGlow {
-      0%, 100% {
-        text-shadow: 0 0 12px rgba(162,89,255,0.6), 0 0 25px rgba(0,199,199,0.4);
-      }
-      50% {
-        text-shadow: 0 0 22px rgba(162,89,255,0.9), 0 0 45px rgba(0,199,199,0.6);
-      }
     }
 
     img.logo {
       width: 150px;
-      height: 150px;
       border-radius: 14px;
-      object-fit: contain;
-      animation: floatLogo 6s ease-in-out infinite, glowPulse 4s ease-in-out infinite;
-      filter: drop-shadow(0 0 14px rgba(162,89,255,0.7)) drop-shadow(0 0 28px rgba(0,199,199,0.5));
+      filter: drop-shadow(0 0 18px rgba(162,89,255,0.8));
+      animation: floatLogo 6s ease-in-out infinite;
     }
 
-    @keyframes glowPulse {
-      0%, 100% {
-        filter: drop-shadow(0 0 10px rgba(162,89,255,0.6)) drop-shadow(0 0 20px rgba(0,199,199,0.5));
-        transform: scale(1);
-      }
-      50% {
-        filter: drop-shadow(0 0 20px rgba(162,89,255,0.9)) drop-shadow(0 0 40px rgba(0,199,199,0.7));
-        transform: scale(1.04);
-      }
-    }
     @keyframes floatLogo {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-10px); }
     }
 
-    header p {
-      font-weight: 500;
-      font-size: 1.1rem;
-      margin-top: 0.5rem;
-      opacity: 0.95;
-      z-index: 2;
-      position: relative;
+    h1 {
+      font-size: 3.2rem;
+      font-weight: 900;
+      margin: 0;
+      text-shadow: 0 0 25px rgba(162,89,255,0.7);
     }
 
-    /* Content */
+    header p {
+      color: var(--muted);
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
+    }
+
     section {
       max-width: 1080px;
       margin: 3rem auto;
       padding: 0 1.5rem;
+    }
+
+    .intro {
+      text-align: center;
+      max-width: 900px;
+      margin: 0 auto;
+      color: #c9d1d9;
     }
 
     h2.section-title {
@@ -193,36 +131,13 @@
       margin-bottom: 1rem;
     }
 
-    /* 🌊 Scroll Fade-in Animations */
-    @keyframes scrollFadeUp {
-      0% { opacity: 0; transform: translateY(30px); }
-      30% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-
     .card {
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 2rem;
       margin: 2rem 0;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      opacity: 0;
-      transform: translateY(30px);
-      animation: scrollFadeUp 1s ease forwards;
-      animation-timeline: view();
-      animation-range: entry 0% cover 40%;
-    }
-
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 28px rgba(0,0,0,0.35);
-    }
-
-    .card h3 {
-      font-size: 1.5rem;
-      margin-bottom: 0.5rem;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.3);
     }
 
     .logo-sm {
@@ -250,29 +165,12 @@
     a.btn {
       background: linear-gradient(135deg, var(--accent1), var(--accent2));
       color: #fff;
-      border: none;
       padding: 0.5rem 1rem;
       border-radius: 999px;
       text-decoration: none;
       font-weight: 600;
+      margin-right: 8px;
       display: inline-block;
-      margin-top: 0.8rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      transition: transform 0.2s ease, box-shadow 0.3s ease;
-    }
-
-    a.btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    }
-
-    blockquote {
-      margin: 0;
-      padding: 1rem 1.2rem;
-      border-left: 4px solid var(--accent2);
-      background: var(--panel);
-      border-radius: 8px;
-      font-style: italic;
     }
 
     footer {
@@ -286,53 +184,101 @@
 </head>
 
 <body>
-  <header>
-    <div class="brand">
-      <img src="logo.png" alt="InfraForge Labs Logo" class="logo" loading="eager" />
-      <span>InfraForge Labs</span>
+
+<header>
+  <div class="brand">
+    <img src="logo.png" alt="InfraForge Labs Logo" class="logo" />
+    <h1>InfraForge Labs</h1>
+  </div>
+  <p>Free · Local · Open · Forever</p>
+</header>
+
+<section>
+  <p class="intro">
+    <strong>InfraForge Labs</strong> is an open-source engineering collective building
+    <a href="https://infraforge.infraforgelabs.in"><strong>InfraForge</strong></a> and
+    <a href="https://devopsmind.infraforgelabs.in"><strong>DevOpsMind</strong></a> —
+    local-first platforms for infrastructure automation, DevOps learning, and secure system design.
+    <br /><br />
+    Everything we build follows one principle:
+    <strong>Free · Local · Open · Forever</strong>.
+  </p>
+</section>
+
+<section>
+  <h2 class="section-title">Core Projects</h2>
+
+  <div class="card">
+    <h3><a href="https://infraforge.infraforgelabs.in/">InfraForge</a></h3>
+    <img src="https://raw.githubusercontent.com/InfraForgeLabs/InfraForge/main/assets/logo.png"
+      alt="InfraForge Logo" class="logo-sm" />
+    <p>
+      <strong>InfraForge</strong> is a production-grade
+      <strong>infrastructure automation platform</strong> designed to evolve from integration
+      to full independence — supporting Terraform, Ansible, Docker, Helm, Kubernetes,
+      CI/CD pipelines, security tooling, and GitOps workflows.
+    </p>
+    <div class="badges">
+      <span class="chip">Terraform</span>
+      <span class="chip">Ansible</span>
+      <span class="chip">Kubernetes</span>
+      <span class="chip">CI/CD</span>
+      <span class="chip">Security</span>
     </div>
-    <p>Free · Local · Open · Forever</p>
-  </header>
+    <p>
+      <a class="btn" href="https://infraforge.infraforgelabs.in/">Website</a>
+      <a class="btn" href="https://github.com/InfraForgeLabs/InfraForge">GitHub</a>
+    </p>
+  </div>
 
-  <section>
-    <h2 class="section-title">Core Projects</h2>
-
-    <div class="card">
-      <h3><a href="https://infraforge.infraforgelabs.in/">InfraForge</a></h3>
-      <img src="https://raw.githubusercontent.com/InfraForgeLabs/InfraForge/main/assets/logo.png" alt="InfraForge Logo" class="logo-sm" />
-      <p>A modular <strong>infrastructure automation platform</strong> evolving from <em>integration → independence</em>.</p>
-      <div class="badges"><span class="chip">Terraform</span><span class="chip">Ansible</span><span class="chip">Kubernetes</span></div>
-      <p><a class="btn" href="https://infraforge.infraforgelabs.in/">Visit Website</a> <a class="btn" href="https://github.com/InfraForgeLabs/InfraForge">GitHub</a></p>
+  <div class="card">
+    <h3><a href="https://devopsmind.infraforgelabs.in/">DevOpsMind</a></h3>
+    <img src="https://raw.githubusercontent.com/InfraForgeLabs/DevOpsMind/main/docs/logo.png"
+      alt="DevOpsMind Logo" class="logo-sm" />
+    <p>
+      <strong>DevOpsMind</strong> is an offline-first,
+      <strong>hands-on DevSecOps learning engine</strong> that teaches Linux,
+      CI/CD, cloud, containers, Kubernetes, and security through real-world challenges —
+      not passive tutorials.
+    </p>
+    <div class="badges">
+      <span class="chip">Linux</span>
+      <span class="chip">Docker</span>
+      <span class="chip">Kubernetes</span>
+      <span class="chip">Security</span>
     </div>
+    <p>
+      <a class="btn" href="https://devopsmind.infraforgelabs.in/">Website</a>
+      <a class="btn" href="https://github.com/InfraForgeLabs/DevOpsMind">GitHub</a>
+    </p>
+  </div>
 
-    <div class="card">
-      <h3><a href="https://devopsmind.infraforgelabs.in/">DevOpsMind</a></h3>
-      <img src="https://raw.githubusercontent.com/InfraForgeLabs/DevOpsMind/main/docs/logo.png" alt="DevOpsMind Logo" class="logo-sm" />
-      <p>A gamified, offline <strong>DevSecOps learning engine</strong> evolving from <em>learning → intelligence</em>.</p>
-      <div class="badges"><span class="chip">Linux</span><span class="chip">Bash</span><span class="chip">CI/CD</span><span class="chip">Security</span></div>
-      <p><a class="btn" href="https://devopsmind.infraforgelabs.in/">Visit Website</a> <a class="btn" href="https://github.com/InfraForgeLabs/DevOpsMind">GitHub</a></p>
+  <div class="card">
+    <h3>Ember (Planned)</h3>
+    <p>
+      <strong>Ember</strong> is the future agentic intelligence core of the InfraForge Labs ecosystem.
+      It will provide local reasoning, simulation, and automation planning for InfraForge
+      and DevOpsMind — fully offline, explainable, and user-controlled.
+    </p>
+    <div class="badges">
+      <span class="chip">Local AI</span>
+      <span class="chip">Agentic</span>
+      <span class="chip">Explainable</span>
     </div>
+  </div>
+</section>
 
-    <div class="card">
-      <h3>Ember (Launching 2029)</h3>
-      <p><strong>Ember</strong> is the <em>agentic local intelligence core</em> powering InfraForge and DevOpsMind. It brings reasoning, simulation, and automation planning fully offline — preserving the <strong>Free · Local · Open · Forever</strong> philosophy.</p>
-      <div class="badges"><span class="chip">Planned 2029</span><span class="chip">Local AI</span><span class="chip">Agentic Automation</span><span class="chip">Explainable</span></div>
-    </div>
-  </section>
+<footer>
+  <p>
+    © <span id="year"></span> <strong>InfraForge Labs</strong><br />
+    Building open, local-first DevOps and infrastructure automation platforms.<br />
+    <em>Free · Local · Open · Forever</em>
+  </p>
+</footer>
 
-  <section>
-    <h2 class="section-title">Philosophy</h2>
-    <div class="card">
-      <blockquote>“No telemetry. No SaaS lock-in. No paywalls for fundamentals.”<br />Everything InfraForge Labs builds can run locally, forever.</blockquote>
-    </div>
-  </section>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
 
-  <footer>
-    <p>© <span id="year"></span> <strong>InfraForge Labs</strong> — Built for Builders.<br />Free · Local · Open · Forever</p>
-  </footer>
-
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
 </body>
 </html>
