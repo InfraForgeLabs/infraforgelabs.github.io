@@ -33,17 +33,65 @@
     content="InfraForge Labs builds InfraForge and DevOpsMind — local-first DevOps platforms." />
   <meta name="twitter:image" content="https://infraforgelabs.in/logo.png" />
 
-  <!-- Organization Schema -->
+  <!-- Organization + Core Projects Schema -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "InfraForge Labs",
-    "url": "https://infraforgelabs.in",
-    "logo": "https://infraforgelabs.in/logo.png",
-    "sameAs": [
-      "https://github.com/InfraForgeLabs",
-      "https://www.linkedin.com/company/infraforgelabs"
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://infraforgelabs.in/#organization",
+        "name": "InfraForge Labs",
+        "url": "https://infraforgelabs.in",
+        "logo": "https://infraforgelabs.in/logo.png",
+        "description": "InfraForge Labs is an open-source engineering organization building local-first, offline-capable DevSecOps tools and learning platforms.",
+        "foundingLocation": {
+          "@type": "Country",
+          "name": "India"
+        },
+        "sameAs": [
+          "https://github.com/InfraForgeLabs",
+          "https://www.linkedin.com/company/infraforgelabs"
+        ],
+        "hasPart": [
+          {
+            "@id": "https://infraforge.infraforgelabs.in/#software"
+          },
+          {
+            "@id": "https://devopsmind.infraforgelabs.in/#software"
+          }
+        ]
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://infraforge.infraforgelabs.in/#software",
+        "name": "InfraForge",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Linux, macOS",
+        "url": "https://infraforge.infraforgelabs.in",
+        "description": "InfraForge is a local-first infrastructure automation platform that generates and orchestrates DevSecOps templates without cloud lock-in.",
+        "isPartOf": {
+          "@id": "https://infraforgelabs.in/#organization"
+        },
+        "sameAs": [
+          "https://github.com/InfraForgeLabs/InfraForge"
+        ]
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://devopsmind.infraforgelabs.in/#software",
+        "name": "DevOpsMind",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Linux, macOS",
+        "url": "https://devopsmind.infraforgelabs.in",
+        "description": "DevOpsMind is an offline, gamified DevSecOps learning engine designed to help engineers master infrastructure, CI/CD, cloud, and security skills locally.",
+        "isPartOf": {
+          "@id": "https://infraforgelabs.in/#organization"
+        },
+        "sameAs": [
+          "https://github.com/InfraForgeLabs/DevOpsMind"
+        ]
+      }
     ]
   }
   </script>
