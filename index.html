@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>InfraForge Labs — Open Source, Local-First DevOps Tools</title>
+  <title>InfraForge Labs — Build Infrastructure. Build Engineers.</title>
 
   <meta name="description"
-    content="InfraForge Labs builds open source, local-first DevOps tools for infrastructure automation and offline DevSecOps learning. Free · Local · Open · Forever." />
+    content="InfraForge Labs builds open-source, local-first DevOps tools for infrastructure creation and hands-on learning. No SaaS. No dashboards. Free · Local · Open · Forever." />
 
   <link rel="canonical" href="https://infraforgelabs.in/" />
   <meta name="theme-color" content="#0d1117" />
@@ -26,13 +26,13 @@
 
     header {
       text-align: center;
-      padding: 6rem 1.5rem 3rem;
+      padding: 6rem 1.5rem 4rem;
     }
 
     img.logo {
       width: 140px;
       border-radius: 14px;
-      margin-bottom: 1rem;
+      margin-bottom: 1.2rem;
     }
 
     h1 {
@@ -43,34 +43,86 @@
 
     p.subtitle {
       color: #8b949e;
-      font-size: 1.05rem;
+      font-size: 1.1rem;
+      max-width: 720px;
+      margin: 1rem auto 0;
     }
 
     section {
       max-width: 900px;
-      margin: 3rem auto;
+      margin: 3.5rem auto;
       padding: 0 1.5rem;
       text-align: center;
     }
 
-    .cta {
-      margin-top: 2.5rem;
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
     }
 
-    a {
-      color: #58a6ff;
+    .philosophy {
+      color: #8b949e;
+      font-size: 0.95rem;
+      margin-top: 0.8rem;
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .card {
+      border: 1px solid #30363d;
+      border-radius: 14px;
+      padding: 2rem;
+      text-align: left;
+      background: #0d1117;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      font-size: 1.4rem;
+    }
+
+    .card p {
+      color: #c9d1d9;
+      font-size: 0.95rem;
+    }
+
+    .card ul {
+      margin-top: 1rem;
+      padding-left: 1.2rem;
+      color: #8b949e;
+      font-size: 0.9rem;
+    }
+
+    .card ul li {
+      margin-bottom: 0.4rem;
+    }
+
+    .card a {
+      display: inline-block;
+      margin-top: 1.2rem;
       font-weight: 700;
+      color: #58a6ff;
       text-decoration: none;
-      font-size: 1.05rem;
     }
 
-    a:hover {
+    .card a:hover {
       text-decoration: underline;
     }
 
-    footer {
+    .boundary {
       margin-top: 4rem;
-      padding: 2rem 1.5rem;
+      font-size: 0.95rem;
+      color: #8b949e;
+    }
+
+    footer {
+      margin-top: 5rem;
+      padding: 2.5rem 1.5rem;
       text-align: center;
       color: #8b949e;
       font-size: 0.9rem;
@@ -83,30 +135,70 @@
 
 <header>
   <img src="logo.png" alt="InfraForge Labs Logo" class="logo" />
-  <h1>InfraForge Labs</h1>
-  <p class="subtitle">Free · Local · Open · Forever</p>
+  <h1>Build Infrastructure.<br />Build Engineers.</h1>
+  <p class="subtitle">
+    InfraForge Labs builds local-first, open-source DevOps tools focused on
+    <strong>creation and learning</strong> — not dashboards, not SaaS platforms,
+    and not black-box automation.
+  </p>
+  <div class="philosophy">
+    Free · Local · Open · Forever
+  </div>
 </header>
 
 <section>
-  <p>
-    InfraForge Labs builds <strong>open source DevOps tools</strong> that run locally,
-    work offline, and avoid cloud lock-in.
+  <h2>Our Products</h2>
+
+  <p class="subtitle">
+    We solve two problems — with two products.<br />
+    No overlap. No confusion.
   </p>
 
-  <p>
-    Our platforms help engineers automate infrastructure and learn DevSecOps
-    with full ownership and transparency.
-  </p>
+  <div class="products">
 
-  <div class="cta">
-    👉 <a href="/open-source-devops-tools.html">
-      Read the Complete Guide to Open Source DevOps Tools →
-    </a>
+    <div class="card">
+      <h3>🏗️ InfraForge</h3>
+      <p>
+        InfraForge helps engineers <strong>design and generate infrastructure</strong>
+        safely before it ever reaches production.
+      </p>
+      <ul>
+        <li>Local-first infrastructure templates</li>
+        <li>Terraform, Docker, Helm, Jenkins, Security & more</li>
+        <li>No monitoring, no incident response</li>
+        <li>Human-in-control by design</li>
+      </ul>
+      <a href="/infraforge/">Explore InfraForge →</a>
+    </div>
+
+    <div class="card">
+      <h3>🎮 DevOpsMind</h3>
+      <p>
+        DevOpsMind builds <strong>real DevOps skill</strong> through offline,
+        hands-on challenges and simulations.
+      </p>
+      <ul>
+        <li>Offline-first learning platform</li>
+        <li>Real tools, real configs, real failures</li>
+        <li>No production systems, no SaaS lock-in</li>
+        <li>Learning by doing — safely</li>
+      </ul>
+      <a href="/devopsmind/">Explore DevOpsMind →</a>
+    </div>
+
   </div>
+
+  <p class="boundary">
+    InfraForge builds <strong>systems</strong>.<br />
+    DevOpsMind builds <strong>engineers</strong>.<br />
+    Everything else is intentionally out of scope.
+  </p>
 </section>
 
 <footer>
-  © <span id="year"></span> InfraForge Labs
+  Built by <strong>InfraForge Labs</strong> · © <span id="year"></span><br />
+  We deliberately do not build observability platforms, incident tools, or SaaS-only DevOps products.<br />
+  <a href="/open-source-devops-tools.html" style="color:#58a6ff;">Why local-first DevOps?</a>
 </footer>
 
 <script>
