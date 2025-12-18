@@ -4,36 +4,35 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>InfraForge Labs — Open Source DevOps & Infrastructure Automation</title>
+  <title>Open Source DevOps Tools & Infrastructure Automation | InfraForge Labs</title>
 
   <meta name="description"
-    content="InfraForge Labs is an open-source organization building InfraForge and DevOpsMind — local-first DevOps and infrastructure automation platforms. Free · Local · Open · Forever." />
+    content="InfraForge Labs builds open source DevOps tools for local-first infrastructure automation and offline DevSecOps learning. Free · Local · Open · Forever." />
 
   <meta name="author" content="InfraForge Labs" />
   <meta name="theme-color" content="#0d1117" />
 
-  <!-- Canonical -->
   <link rel="canonical" href="https://infraforgelabs.in/" />
 
   <link rel="icon" type="image/png" sizes="512x512" href="logo.png" />
   <link rel="apple-touch-icon" href="logo.png" />
 
   <!-- Open Graph -->
-  <meta property="og:title" content="InfraForge Labs — Open Source DevOps & Infrastructure Automation" />
+  <meta property="og:title" content="Open Source DevOps Tools | InfraForge Labs" />
   <meta property="og:description"
-    content="InfraForge Labs builds InfraForge and DevOpsMind — free, local-first platforms for DevOps, security, and infrastructure automation." />
+    content="Local-first open source DevOps tools for infrastructure automation and offline DevSecOps learning." />
   <meta property="og:image" content="https://infraforgelabs.in/logo.png" />
   <meta property="og:url" content="https://infraforgelabs.in" />
   <meta property="og:type" content="website" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="InfraForge Labs — Open Source DevOps & Infrastructure Automation" />
+  <meta name="twitter:title" content="Open Source DevOps Tools | InfraForge Labs" />
   <meta name="twitter:description"
-    content="InfraForge Labs builds InfraForge and DevOpsMind — local-first DevOps platforms." />
+    content="Free, local-first DevOps tools for infrastructure automation and learning." />
   <meta name="twitter:image" content="https://infraforgelabs.in/logo.png" />
 
-  <!-- Organization + Core Projects Schema -->
+  <!-- Schema -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -44,41 +43,12 @@
         "name": "InfraForge Labs",
         "url": "https://infraforgelabs.in",
         "logo": "https://infraforgelabs.in/logo.png",
-        "description": "InfraForge Labs is an open-source infrastructure engineering organization building local-first, offline-capable DevSecOps tools and learning platforms.",
-        "foundingLocation": {
-          "@type": "Country",
-          "name": "India"
-        },
+        "description": "InfraForge Labs builds open source, local-first DevOps tools for infrastructure automation and learning.",
+        "foundingLocation": { "@type": "Country", "name": "India" },
         "sameAs": [
           "https://github.com/InfraForgeLabs",
           "https://www.linkedin.com/company/infraforgelabs"
-        ],
-        "hasPart": [
-          { "@id": "https://infraforge.infraforgelabs.in/#software" },
-          { "@id": "https://devopsmind.infraforgelabs.in/#software" }
         ]
-      },
-      {
-        "@type": "SoftwareApplication",
-        "@id": "https://infraforge.infraforgelabs.in/#software",
-        "name": "InfraForge",
-        "applicationCategory": "DeveloperApplication",
-        "operatingSystem": "Linux, macOS",
-        "url": "https://infraforge.infraforgelabs.in",
-        "description": "InfraForge is a local-first infrastructure automation platform that generates and orchestrates DevSecOps templates without cloud lock-in.",
-        "isPartOf": { "@id": "https://infraforgelabs.in/#organization" },
-        "sameAs": [ "https://github.com/InfraForgeLabs/InfraForge" ]
-      },
-      {
-        "@type": "SoftwareApplication",
-        "@id": "https://devopsmind.infraforgelabs.in/#software",
-        "name": "DevOpsMind",
-        "applicationCategory": "EducationalApplication",
-        "operatingSystem": "Linux, macOS",
-        "url": "https://devopsmind.infraforgelabs.in",
-        "description": "DevOpsMind is an offline, gamified DevSecOps learning engine designed to help engineers master infrastructure, CI/CD, cloud, and security skills locally.",
-        "isPartOf": { "@id": "https://infraforgelabs.in/#organization" },
-        "sameAs": [ "https://github.com/InfraForgeLabs/DevOpsMind" ]
       }
     ]
   }
@@ -96,26 +66,18 @@
     }
 
     body {
-      font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+      font-family: Inter, Segoe UI, Roboto, sans-serif;
       background:
         radial-gradient(1200px 600px at 50% -10%, rgba(88,166,255,0.08), transparent 60%),
         linear-gradient(180deg, var(--bg-soft), var(--bg-main));
       color: var(--text);
       line-height: 1.7;
       margin: 0;
-      overflow-x: hidden;
     }
 
     header {
       text-align: center;
       padding: 7rem 1.5rem 3rem;
-    }
-
-    .brand {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
     }
 
     img.logo {
@@ -133,13 +95,7 @@
     h1 {
       font-size: 3rem;
       font-weight: 800;
-      margin: 0;
-    }
-
-    header p {
-      color: var(--muted);
-      font-size: 1.05rem;
-      margin-top: 0.6rem;
+      margin: 1rem 0 0;
     }
 
     section {
@@ -155,108 +111,12 @@
       color: #c9d1d9;
     }
 
-    .products h2 {
-      text-align: center;
-      font-size: 2.2rem;
-      font-weight: 800;
-      margin-bottom: 0.5rem;
-    }
-
-    .subtitle {
-      text-align: center;
-      color: var(--muted);
-      margin-bottom: 3rem;
-    }
-
-    .product-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-    }
-
-    .product-card {
+    .panel {
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 2rem;
-      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-    }
-
-    .product-card:hover {
-      transform: translateY(-6px);
-      border-color: var(--accent);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.35);
-    }
-
-    .product-card h3 {
-      font-size: 1.5rem;
-      margin-top: 0;
-    }
-
-    .tagline {
-      color: var(--muted);
-      margin-bottom: 1.2rem;
-    }
-
-    .product-card ul {
-      padding-left: 1.2rem;
-    }
-
-    .product-card li {
-      margin-bottom: 0.5rem;
-    }
-
-    .audience {
-      margin-top: 1.2rem;
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
-
-    .philosophy {
-      margin-top: 4rem;
-      background: linear-gradient(180deg, rgba(88,166,255,0.06), transparent);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      padding: 3rem 1.5rem;
-    }
-
-    .philosophy h2 {
-      text-align: center;
-      font-size: 2rem;
-      font-weight: 800;
-      margin-bottom: 2rem;
-    }
-
-    .principles {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 2rem;
-      max-width: 1080px;
-      margin: 0 auto;
-    }
-
-    .principle {
-      text-align: center;
-      padding: 1.5rem;
-    }
-
-    .principle h3 {
-      margin-bottom: 0.6rem;
-      font-size: 1.2rem;
-    }
-
-    .principle p {
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    @media (max-width: 640px) {
-      header { padding: 5rem 1.2rem 2.5rem; }
-      h1 { font-size: 2.3rem; }
-      section { margin: 2.2rem auto; }
-      .products h2 { font-size: 1.9rem; }
-      .philosophy h2 { font-size: 1.8rem; }
-      .product-card { padding: 1.5rem; }
+      margin-top: 2.5rem;
     }
 
     footer {
@@ -267,123 +127,74 @@
       font-size: 0.9rem;
     }
 
-    .lab-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 1.2rem;
-      padding: 0.5rem 0.9rem;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: var(--panel);
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    .lab-badge img {
-      width: 22px;
-      height: 22px;
-      border-radius: 6px;
-    }
-
-    .lab-badge a {
-      font-weight: 600;
-    }
-    }
-
     a {
       color: var(--accent);
-      text-decoration: none;
       font-weight: 600;
+      text-decoration: none;
     }
-
     a:hover { text-decoration: underline; }
   </style>
 </head>
+
 <body>
 
 <header>
-  <div class="brand">
-    <img src="logo.png" alt="InfraForge Labs Logo" class="logo" />
-    <h1>InfraForge Labs</h1>
-  </div>
-  <p>Free · Local · Open · Forever</p>
+  <img src="logo.png" alt="Open source DevOps tools by InfraForge Labs" class="logo" />
+  <h1>Open Source DevOps Tools for Local-First Infrastructure Automation</h1>
+  <p class="intro">Free · Local · Open · Forever</p>
 </header>
 
 <section>
   <p class="intro">
-    <strong>InfraForge Labs</strong> is an open-source infrastructure engineering collective that
-    develops and maintains
-    <a href="https://infraforge.infraforgelabs.in"><strong>InfraForge</strong></a> and
-    <a href="https://devopsmind.infraforgelabs.in"><strong>DevOpsMind</strong></a> —
-    local-first platforms for infrastructure automation and hands-on DevSecOps learning.
+    <strong>InfraForge Labs</strong> builds <strong>open source DevOps tools</strong> that run locally,
+    work offline, and eliminate cloud lock-in.
+    Our platforms help engineers automate infrastructure and master DevSecOps skills
+    using deterministic, transparent, and community-driven tooling.
   </p>
 </section>
 
-<section class="products">
-  <h2>Products</h2>
-  <p class="subtitle">Two products. One philosophy.</p>
-
-  <div class="product-grid">
-    <div class="product-card">
-      <h3>InfraForge</h3>
-      <p class="tagline">Infrastructure Automation Platform</p>
-      <p>Build, generate, and orchestrate infrastructure using local-first, open templates and automation engines.</p>
-      <ul>
-        <li>Infrastructure as Code templates</li>
-        <li>CI/CD and pipeline generation</li>
-        <li>Docker, Kubernetes, Terraform, Helm</li>
-        <li>Deterministic local execution</li>
-      </ul>
-      <p class="audience"><strong>Audience:</strong> DevOps Engineers · Platform Engineers · SREs</p>
-      <a href="https://infraforge.infraforgelabs.in">Explore InfraForge →</a>
-    </div>
-
-    <div class="product-card">
-      <h3>DevOpsMind</h3>
-      <p class="tagline">Hands-on DevSecOps Learning Platform</p>
-      <p>Learn DevOps by solving real challenges in safe, offline-first environments with skill-based progression.</p>
-      <ul>
-        <li>Docker, Kubernetes, CI/CD, Cloud & Security</li>
-        <li>Offline challenge execution</li>
-        <li>XP-based learning progression</li>
-        <li>Safe sandbox environments</li>
-      </ul>
-      <p class="audience"><strong>Audience:</strong> Learners · Career Switchers · Practicing Engineers</p>
-      <a href="https://devopsmind.infraforgelabs.in">Explore DevOpsMind →</a>
-    </div>
-  </div>
+<section class="panel">
+  <h2>Why Local-First Open Source DevOps Tools Matter</h2>
+  <p>
+    Modern DevOps platforms increasingly depend on cloud services, subscriptions,
+    and opaque automation. InfraForge Labs takes a different approach —
+    fully open source, offline-capable DevOps tools that give engineers complete control
+    over their infrastructure and learning environments.
+  </p>
 </section>
 
-<section class="philosophy">
-  <h2>Philosophy & Principles</h2>
-  <div class="principles">
-    <div class="principle">
-      <h3>Free</h3>
-      <p>No paywalls. No artificial limits. Core functionality remains free forever.</p>
-    </div>
-    <div class="principle">
-      <h3>Local‑First</h3>
-      <p>Your tools run on your machine. Your data stays with you.</p>
-    </div>
-    <div class="principle">
-      <h3>Open</h3>
-      <p>Source code, roadmaps, and decisions are transparent and community‑driven.</p>
-    </div>
-    <div class="principle">
-      <h3>Forever</h3>
-      <p>Built for longevity, not trends. Sustainable engineering over hype.</p>
-    </div>
-  </div>
+<section class="panel">
+  <h2>Open Source DevOps Tools by InfraForge Labs</h2>
+  <ul>
+    <li>
+      <a href="https://infraforge.infraforgelabs.in">
+        Open source infrastructure automation platform
+      </a>
+      for Docker, Kubernetes, Terraform, Helm, and CI/CD
+    </li>
+    <li>
+      <a href="https://devopsmind.infraforgelabs.in">
+        Offline DevOps learning platform
+      </a>
+      with real-world challenges and sandboxed execution
+    </li>
+    <li>No subscriptions, telemetry, or cloud lock-in</li>
+    <li>Deterministic local execution with full transparency</li>
+  </ul>
+</section>
+
+<section class="panel">
+  <h2>InfraForge vs Cloud-Based DevOps Platforms</h2>
+  <p>
+    Unlike cloud-centric DevOps tools, InfraForge Labs platforms run entirely on your machine.
+    Your data never leaves your system, your workflows remain predictable,
+    and your tooling stays usable even without internet access.
+  </p>
 </section>
 
 <footer>
   © <span id="year"></span> <strong>InfraForge Labs</strong><br />
   Building open, local-first DevOps and infrastructure automation platforms.
-  <div class="lab-badge">
-    <img src="logo.png" alt="InfraForge Labs Logo" />
-    <span>Built by <a href="https://infraforgelabs.in">InfraForge Labs</a></span>
-  </div>
 </footer>
 
 <script>
