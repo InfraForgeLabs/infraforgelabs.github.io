@@ -267,6 +267,30 @@
       font-size: 0.9rem;
     }
 
+    .lab-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 1.2rem;
+      padding: 0.5rem 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--panel);
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .lab-badge img {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+    }
+
+    .lab-badge a {
+      font-weight: 600;
+    }
+    }
+
     a {
       color: var(--accent);
       text-decoration: none;
@@ -339,12 +363,12 @@
       <p>No paywalls. No artificial limits. Core functionality remains free forever.</p>
     </div>
     <div class="principle">
-      <h3>Local-First</h3>
+      <h3>Local‑First</h3>
       <p>Your tools run on your machine. Your data stays with you.</p>
     </div>
     <div class="principle">
       <h3>Open</h3>
-      <p>Source code, roadmaps, and decisions are transparent and community-driven.</p>
+      <p>Source code, roadmaps, and decisions are transparent and community‑driven.</p>
     </div>
     <div class="principle">
       <h3>Forever</h3>
@@ -356,6 +380,10 @@
 <footer>
   © <span id="year"></span> <strong>InfraForge Labs</strong><br />
   Building open, local-first DevOps and infrastructure automation platforms.
+  <div class="lab-badge">
+    <img src="logo.png" alt="InfraForge Labs Logo" />
+    <span>Built by <a href="https://infraforgelabs.in">InfraForge Labs</a></span>
+  </div>
 </footer>
 
 <script>
