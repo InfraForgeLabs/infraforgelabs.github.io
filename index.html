@@ -1,68 +1,117 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Open Source DevOps Tools & Infrastructure Automation | InfraForge Labs</title>
+  <title>InfraForge Labs — Open Source, Local-First DevOps Tools</title>
 
   <meta name="description"
-    content="InfraForge Labs builds open source, local-first DevOps tools for infrastructure automation and offline DevSecOps learning." />
+    content="InfraForge Labs builds open source, local-first DevOps tools for infrastructure automation and offline DevSecOps learning. Free · Local · Open · Forever." />
 
   <link rel="canonical" href="https://infraforgelabs.in/" />
   <meta name="theme-color" content="#0d1117" />
 
+  <link rel="icon" href="logo.png" />
+  <link rel="apple-touch-icon" href="logo.png" />
+
   <style>
     body {
       font-family: Inter, Segoe UI, Roboto, sans-serif;
-      background:#0d1117;
-      color:#e6edf3;
-      margin:0;
-      line-height:1.7;
+      background: #0d1117;
+      color: #e6edf3;
+      margin: 0;
+      line-height: 1.7;
     }
+
     header {
-      text-align:center;
-      padding:6rem 1.5rem 3rem;
+      text-align: center;
+      padding: 6rem 1.5rem 3rem;
     }
-    img {
-      width:140px;
-      border-radius:14px;
+
+    img.logo {
+      width: 140px;
+      border-radius: 14px;
+      margin-bottom: 1rem;
     }
+
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      margin: 0.5rem 0;
+    }
+
+    p.subtitle {
+      color: #8b949e;
+      font-size: 1.05rem;
+    }
+
     section {
-      max-width:1000px;
-      margin:3rem auto;
-      padding:0 1.5rem;
-      text-align:center;
+      max-width: 900px;
+      margin: 3rem auto;
+      padding: 0 1.5rem;
+      text-align: center;
     }
+
+    .cta {
+      margin-top: 2.5rem;
+    }
+
     a {
-      color:#58a6ff;
-      font-weight:700;
-      text-decoration:none;
+      color: #58a6ff;
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 1.05rem;
     }
-    a:hover { text-decoration:underline; }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      margin-top: 4rem;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      color: #8b949e;
+      font-size: 0.9rem;
+      border-top: 1px solid #30363d;
+    }
   </style>
 </head>
 
 <body>
 
 <header>
-  <img src="logo.png" alt="InfraForge Labs Logo" />
-  <h1>Open Source DevOps Tools</h1>
-  <p>Free · Local · Open · Forever</p>
+  <img src="logo.png" alt="InfraForge Labs Logo" class="logo" />
+  <h1>InfraForge Labs</h1>
+  <p class="subtitle">Free · Local · Open · Forever</p>
 </header>
 
 <section>
   <p>
-    InfraForge Labs builds <strong>local-first DevOps platforms</strong>
-    that work offline and avoid cloud lock-in.
+    InfraForge Labs builds <strong>open source DevOps tools</strong> that run locally,
+    work offline, and avoid cloud lock-in.
   </p>
 
   <p>
-    👉 <a href="/devops-tools-hub.html">
-      Explore DevOps Without Cloud (Hub)
-    </a>
+    Our platforms help engineers automate infrastructure and learn DevSecOps
+    with full ownership and transparency.
   </p>
+
+  <div class="cta">
+    👉 <a href="/open-source-devops-tools.html">
+      Read the Complete Guide to Open Source DevOps Tools →
+    </a>
+  </div>
 </section>
+
+<footer>
+  © <span id="year"></span> InfraForge Labs
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
 
 </body>
 </html>
