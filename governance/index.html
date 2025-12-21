@@ -1,31 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Governance – InfraForgeLabs</title>
-  <meta name="description" content="Governance, sustainability, and trust model for InfraForgeLabs projects.">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Governance – InfraForge Labs</title>
+
+  <style>
+    :root {
+      --bg-main: #0d1117;
+      --bg-elevated: #161b22;
+      --border-subtle: #30363d;
+      --text-main: #e6edf3;
+      --text-muted: #8b949e;
+      --blue-accent: #58a6ff;
+    }
+
+    body {
+      font-family: Inter, Segoe UI, Roboto, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 50% -200px, rgba(88,166,255,0.08), transparent 60%),
+        var(--bg-main);
+      color: var(--text-main);
+      margin: 0;
+      line-height: 1.7;
+    }
+
+    header {
+      text-align: center;
+      padding: 4rem 1.5rem 3rem;
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      max-width: 720px;
+      margin: 0.8rem auto 0;
+    }
+
+    section {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 1.8rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+
+    a {
+      color: var(--blue-accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .back {
+      display: inline-block;
+      margin-top: 2rem;
+    }
+
+    footer {
+      margin-top: 4rem;
+      padding: 2rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-subtle);
+    }
+  </style>
 </head>
+
 <body>
 
-<h1>Governance</h1>
+<header>
+  <h1>Governance</h1>
+  <p class="subtitle">
+    InfraForgeLabs publishes its governance, sustainability, and maintainer rules
+    openly to ensure long-term trust across all projects.
+  </p>
+</header>
 
-<p>
-InfraForgeLabs publishes its governance, sustainability, and maintainer policies
-to ensure long-term openness, stability, and trust across all projects.
-</p>
+<section>
+  <div class="card">
+    <ul>
+      <li><a href="philosophy.html">Project Philosophy</a></li>
+      <li><a href="sustainability.html">Sustainability & Funding</a></li>
+      <li><a href="maintainers.html">Maintainers & Escalation</a></li>
+      <li><a href="faq.html">Frequently Asked Questions</a></li>
+    </ul>
 
-<ul>
-  <li><a href="philosophy.html">Project Philosophy</a></li>
-  <li><a href="sustainability.html">Sustainability & Funding</a></li>
-  <li><a href="maintainers.html">Maintainers & Escalation</a></li>
-  <li><a href="faq.html">Frequently Asked Questions</a></li>
-</ul>
+    <a class="back" href="/">← Back to InfraForge Labs</a>
+  </div>
+</section>
 
-<p>
-Source of truth lives on GitHub:
-<br>
-<a href="https://github.com/InfraForgeLabs">https://github.com/InfraForgeLabs</a>
-</p>
+<footer>
+  InfraForgeLabs Governance · Free · Local · Open · Forever
+</footer>
 
 </body>
 </html>
