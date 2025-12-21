@@ -16,6 +16,7 @@
 <body>
 
 <header>
+  <!-- Small logo + brand (same as governance) -->
   <div class="header-bar">
     <a href="/">
       <img src="/logo.png" alt="InfraForge Labs Logo">
@@ -23,6 +24,7 @@
     <strong>InfraForge Labs</strong>
   </div>
 
+  <!-- Breadcrumb -->
   <nav class="breadcrumb">
     <a href="/">Home</a><span>›</span>
     <span>Open Source DevOps Tools</span>
@@ -30,18 +32,33 @@
 
   <h1>Open Source DevOps Tools</h1>
   <p class="subtitle">Modern DevOps without cloud lock-in.</p>
+
+  <!-- Internal anchor navigation -->
+  <nav class="breadcrumb" style="margin-top:1rem;">
+    <a href="#infraforge">InfraForge</a><span>›</span>
+    <a href="#devopsmind">DevOpsMind</a>
+  </nav>
 </header>
 
 <main>
 
-<div class="section">
+<!-- InfraForge Section -->
+<div id="infraforge" class="section">
   <h2>InfraForge</h2>
 
   <div class="card infraforge">
     <p>
-      InfraForge helps engineers design and validate infrastructure locally
-      using Terraform, Docker, Helm, and Jenkins — before production.
+      InfraForge is a local-first infrastructure design and generation engine.
+      It helps engineers scaffold, validate, and reason about infrastructure
+      before it ever reaches production.
     </p>
+
+    <ul>
+      <li>Terraform, Docker, Helm, Jenkins templates</li>
+      <li>Security-first and CI/CD-ready scaffolding</li>
+      <li>No cloud dependency or hidden execution</li>
+      <li>Human-in-control by design</li>
+    </ul>
 
     <a href="https://infraforge.infraforgelabs.in/" target="_blank" rel="noopener">
       Visit InfraForge →
@@ -49,14 +66,23 @@
   </div>
 </div>
 
-<div class="section">
+<!-- DevOpsMind Section -->
+<div id="devopsmind" class="section">
   <h2>DevOpsMind</h2>
 
   <div class="card devopsmind">
     <p>
-      DevOpsMind enables offline-first DevOps learning through real,
-      hands-on challenges and safe local environments.
+      DevOpsMind is an offline-first DevOps learning platform built around
+      real tools, real configurations, and real failure scenarios —
+      without risk.
     </p>
+
+    <ul>
+      <li>Hands-on CLI-based DevOps challenges</li>
+      <li>Docker, CI/CD, Linux, Kubernetes & security labs</li>
+      <li>No cloud accounts required</li>
+      <li>Safe local sandbox environments</li>
+    </ul>
 
     <a href="https://devopsmind.infraforgelabs.in/" target="_blank" rel="noopener">
       Visit DevOpsMind →
