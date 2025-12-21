@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Project Philosophy – InfraForge Labs</title>
-  <meta name="description" content="The core philosophy behind InfraForgeLabs: Free, Local, Open, and Forever.">
+
+  <title>Philosophy – InfraForge Labs</title>
+  <meta name="description" content="The core philosophy behind InfraForge Labs projects.">
+
   <link rel="canonical" href="https://infraforgelabs.in/governance/philosophy.html">
   <link rel="stylesheet" href="/style.css">
 </head>
@@ -12,10 +14,7 @@
 <body>
 
 <header>
-  <div class="header-bar">
-    <a href="/"><img src="/logo.png" alt="InfraForge Labs Logo"></a>
-    <strong>InfraForge Labs</strong>
-  </div>
+  <img src="/logo.png" alt="InfraForge Labs Logo" class="logo juggle">
 
   <nav class="breadcrumb">
     <a href="/">Home</a><span>›</span>
@@ -24,35 +23,37 @@
   </nav>
 
   <h1>Project Philosophy</h1>
-  <p class="subtitle">Free · Local · Open · Forever</p>
 </header>
 
 <section>
   <div class="card">
     <p>
-      InfraForgeLabs exists to build DevOps and infrastructure tools that remain
-      permanently open, local-first, and controlled by engineers.
+      InfraForge Labs exists to build DevOps and infrastructure tools that remain
+      permanently open, local-first, and engineer-controlled.
     </p>
 
     <ul>
       <li>No feature gating based on payment</li>
-      <li>No license bait-and-switch</li>
       <li>No forced cloud dependency</li>
-      <li>No hidden execution logic</li>
+      <li>No opaque execution logic</li>
+      <li>No license bait-and-switch</li>
     </ul>
 
     <p>
-      These principles apply to all current and future projects under
-      InfraForgeLabs.
+      These principles apply to all current and future projects under InfraForge Labs.
     </p>
 
-    <a class="back" href="/governance/">← Back to Governance</a>
+    <a href="/governance/">← Back to Governance</a>
   </div>
 </section>
 
 <footer>
-  InfraForgeLabs · Free · Local · Open · Forever
+  © <span id="year"></span> InfraForge Labs
 </footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
 
 </body>
 </html>
