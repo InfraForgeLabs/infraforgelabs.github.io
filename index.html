@@ -16,7 +16,7 @@
 <body>
 
 <header>
-  <!-- SMALL + JUGGLING LOGO -->
+  <!-- Small logo with subtle motion -->
   <img src="logo.png" alt="InfraForge Labs Logo" class="logo juggle">
 
   <h1>Build Infrastructure.<br>Build Engineers.</h1>
@@ -29,28 +29,60 @@
   <div class="philosophy">
     Free · Local · Open · Forever
   </div>
+
+  <!-- Internal anchor navigation -->
+  <nav class="breadcrumb" style="margin-top:1.5rem;">
+    <a href="#products">Products</a><span>›</span>
+    <a href="#infraforge">InfraForge</a><span>›</span>
+    <a href="#devopsmind">DevOpsMind</a><span>›</span>
+    <a href="#who">Who it’s for</a><span>›</span>
+    <a href="#not">Who it’s NOT for</a><span>›</span>
+    <a href="#community">Community</a>
+  </nav>
 </header>
 
-<section>
+<!-- Products -->
+<section id="products">
   <h2>Our Products</h2>
 
   <!-- InfraForge -->
-  <div class="card infraforge">
+  <div id="infraforge" class="card infraforge">
     <h3>🏗️ InfraForge</h3>
+
     <p>
-      Infrastructure generation and validation — locally, before production.
+      InfraForge is a local-first infrastructure design and generation engine.
+      It helps engineers scaffold, validate, and reason about infrastructure
+      <strong>before it ever reaches production</strong>.
     </p>
+
+    <ul>
+      <li>Terraform, Docker, Helm, Jenkins templates</li>
+      <li>Security-first and CI/CD-ready scaffolding</li>
+      <li>No cloud dependency, no hidden execution</li>
+      <li>Human-in-control by design</li>
+    </ul>
+
     <a href="https://infraforge.infraforgelabs.in/" target="_blank" rel="noopener">
       Visit InfraForge →
     </a>
   </div>
 
   <!-- DevOpsMind -->
-  <div class="card devopsmind">
+  <div id="devopsmind" class="card devopsmind">
     <h3>🎮 DevOpsMind</h3>
+
     <p>
-      Offline-first DevOps learning through real hands-on challenges.
+      DevOpsMind is an offline-first DevOps learning platform built around
+      real tools, real configurations, and real failure scenarios — without risk.
     </p>
+
+    <ul>
+      <li>Hands-on CLI-based DevOps challenges</li>
+      <li>Docker, CI/CD, Linux, Kubernetes & security labs</li>
+      <li>No cloud accounts required</li>
+      <li>Safe local sandbox environments</li>
+    </ul>
+
     <a href="https://devopsmind.infraforgelabs.in/" target="_blank" rel="noopener">
       Visit DevOpsMind →
     </a>
@@ -62,9 +94,75 @@
   </p>
 </section>
 
+<!-- Who is this for -->
+<section id="who">
+  <h2>Who is this for?</h2>
+
+  <div class="card">
+    <ul>
+      <li><strong>DevOps & Platform Engineers</strong> who want full control over infrastructure and pipelines</li>
+      <li><strong>Security-conscious teams</strong> that need local, auditable, predictable tooling</li>
+      <li><strong>Students & career switchers</strong> learning DevOps through real tools, not slides</li>
+      <li><strong>Educators & trainers</strong> building offline-first labs and curricula</li>
+      <li><strong>Teams avoiding cloud lock-in</strong> or operating in restricted / air-gapped environments</li>
+    </ul>
+
+    <p>
+      If you prefer understanding how systems work — instead of clicking through dashboards —
+      InfraForge Labs is built for you.
+    </p>
+  </div>
+</section>
+
+<!-- Who this is NOT for -->
+<section id="not">
+  <h2>Who this is NOT for</h2>
+
+  <div class="card">
+    <ul>
+      <li>Teams looking for a managed SaaS platform or hosted dashboards</li>
+      <li>Users who expect “one-click production deploys” without understanding the system</li>
+      <li>Organizations that require vendor-locked, opaque automation</li>
+      <li>People who prefer GUIs over learning how infrastructure actually works</li>
+    </ul>
+
+    <p>
+      InfraForge Labs intentionally avoids abstraction that hides responsibility.
+      If you want convenience over clarity, these tools may not be a good fit.
+    </p>
+  </div>
+</section>
+
+<!-- Community / Contribution -->
+<section id="community">
+  <h2>Community & Contributions</h2>
+
+  <div class="card">
+    <p>
+      InfraForge Labs is built in the open and grows through community involvement.
+      Contributions are welcome — code, documentation, feedback, and ideas.
+    </p>
+
+    <ul>
+      <li>Open issues and discussions on GitHub</li>
+      <li>Clear contribution guidelines and governance</li>
+      <li>Beginner-friendly areas alongside advanced system design work</li>
+      <li>No contribution quotas, no pressure — quality over volume</li>
+    </ul>
+
+    <p>
+      Whether you are fixing a typo, improving a template, or designing a new workflow,
+      you are welcome here.
+    </p>
+
+    <a href="/governance/">Read governance & contribution rules →</a>
+  </div>
+</section>
+
 <footer>
   © <span id="year"></span> InfraForge Labs ·
-  <a href="/governance/">Governance</a>
+  <a href="/governance/">Governance</a> ·
+  <a href="/open-source-devops-tools.html">Why local-first DevOps?</a>
 </footer>
 
 <script>
