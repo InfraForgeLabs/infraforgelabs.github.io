@@ -15,152 +15,8 @@
   <link rel="icon" href="logo.png" />
   <link rel="apple-touch-icon" href="logo.png" />
 
-  <style>
-    :root {
-      --bg-main: #0d1117;
-      --bg-elevated: #161b22;
-      --border-subtle: #30363d;
-
-      --text-main: #e6edf3;
-      --text-muted: #8b949e;
-
-      --blue-accent: #58a6ff;
-      --purple-accent: #c77dff;
-    }
-
-    body {
-      font-family: Inter, Segoe UI, Roboto, sans-serif;
-      background:
-        radial-gradient(1200px 600px at 50% -200px, rgba(88,166,255,0.08), transparent 60%),
-        var(--bg-main);
-      color: var(--text-main);
-      margin: 0;
-      line-height: 1.7;
-    }
-
-    header {
-      text-align: center;
-      padding: 6rem 1.5rem 4rem;
-    }
-
-    img.logo {
-      width: 140px;
-      border-radius: 14px;
-      margin-bottom: 1.2rem;
-    }
-
-    h1 {
-      font-size: 2.9rem;
-      font-weight: 800;
-      margin: 0.5rem 0;
-      letter-spacing: -0.02em;
-    }
-
-    p.subtitle {
-      color: var(--text-muted);
-      font-size: 1.1rem;
-      max-width: 720px;
-      margin: 1rem auto 0;
-    }
-
-    .philosophy {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      margin-top: 0.8rem;
-    }
-
-    section {
-      max-width: 900px;
-      margin: 3.5rem auto;
-      padding: 0 1.5rem;
-      text-align: center;
-    }
-
-    h2 {
-      font-size: 2.1rem;
-      margin-bottom: 1rem;
-      letter-spacing: -0.01em;
-    }
-
-    .products {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 2rem;
-      margin-top: 3rem;
-    }
-
-    .card {
-      border: 1px solid var(--border-subtle);
-      border-radius: 14px;
-      padding: 2rem;
-      text-align: left;
-      background: var(--bg-elevated);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.45);
-    }
-
-    .card.infraforge {
-      border-left: 3px solid var(--blue-accent);
-    }
-
-    .card.devopsmind {
-      border-left: 3px solid var(--purple-accent);
-    }
-
-    .card h3 {
-      margin-top: 0;
-      font-size: 1.4rem;
-    }
-
-    .card p {
-      color: #c9d1d9;
-      font-size: 0.95rem;
-    }
-
-    .card ul {
-      margin-top: 1rem;
-      padding-left: 1.2rem;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-
-    .card ul li {
-      margin-bottom: 0.4rem;
-    }
-
-    .card a {
-      display: inline-block;
-      margin-top: 1.2rem;
-      font-weight: 700;
-      color: var(--blue-accent);
-      text-decoration: none;
-    }
-
-    .card a:hover {
-      text-decoration: underline;
-    }
-
-    .boundary {
-      margin-top: 4rem;
-      font-size: 0.95rem;
-      color: var(--text-muted);
-    }
-
-    footer {
-      margin-top: 5rem;
-      padding: 3rem 1.5rem;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      border-top: 1px solid var(--border-subtle);
-      background: linear-gradient(to top, rgba(255,255,255,0.02), transparent);
-    }
-  </style>
+  <!-- Shared styles -->
+  <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
@@ -168,11 +24,13 @@
 <header>
   <img src="logo.png" alt="InfraForge Labs Logo" class="logo" />
   <h1>Build Infrastructure.<br />Build Engineers.</h1>
+
   <p class="subtitle">
     InfraForge Labs builds local-first, open-source DevOps tools focused on
     <strong>creation and learning</strong> — not dashboards, not SaaS platforms,
     and not black-box automation.
   </p>
+
   <div class="philosophy">
     Free · Local · Open · Forever
   </div>
@@ -233,10 +91,9 @@
 
 <footer>
   Built by <strong>InfraForge Labs</strong> · © <span id="year"></span><br />
-  All projects follow open governance and sustainability rules published openly.<br />
-  <a href="/governance/" style="color:#58a6ff;">Governance & Sustainability</a>
+  <a href="/governance/">Governance & Sustainability</a>
   ·
-  <a href="/open-source-devops-tools.html" style="color:#58a6ff;">Why local-first DevOps?</a>
+  <a href="/open-source-devops-tools.html">Why local-first DevOps?</a>
 </footer>
 
 <script>
