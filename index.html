@@ -16,10 +16,24 @@
   <link rel="apple-touch-icon" href="logo.png" />
 
   <style>
+    :root {
+      --bg-main: #0d1117;
+      --bg-elevated: #161b22;
+      --border-subtle: #30363d;
+
+      --text-main: #e6edf3;
+      --text-muted: #8b949e;
+
+      --blue-accent: #58a6ff;
+      --purple-accent: #c77dff;
+    }
+
     body {
       font-family: Inter, Segoe UI, Roboto, sans-serif;
-      background: #0d1117;
-      color: #e6edf3;
+      background:
+        radial-gradient(1200px 600px at 50% -200px, rgba(88,166,255,0.08), transparent 60%),
+        var(--bg-main);
+      color: var(--text-main);
       margin: 0;
       line-height: 1.7;
     }
@@ -36,16 +50,23 @@
     }
 
     h1 {
-      font-size: 2.8rem;
+      font-size: 2.9rem;
       font-weight: 800;
       margin: 0.5rem 0;
+      letter-spacing: -0.02em;
     }
 
     p.subtitle {
-      color: #8b949e;
+      color: var(--text-muted);
       font-size: 1.1rem;
       max-width: 720px;
       margin: 1rem auto 0;
+    }
+
+    .philosophy {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 0.8rem;
     }
 
     section {
@@ -56,14 +77,9 @@
     }
 
     h2 {
-      font-size: 2rem;
+      font-size: 2.1rem;
       margin-bottom: 1rem;
-    }
-
-    .philosophy {
-      color: #8b949e;
-      font-size: 0.95rem;
-      margin-top: 0.8rem;
+      letter-spacing: -0.01em;
     }
 
     .products {
@@ -74,11 +90,26 @@
     }
 
     .card {
-      border: 1px solid #30363d;
+      border: 1px solid var(--border-subtle);
       border-radius: 14px;
       padding: 2rem;
       text-align: left;
-      background: #0d1117;
+      background: var(--bg-elevated);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.45);
+    }
+
+    .card.infraforge {
+      border-left: 3px solid var(--blue-accent);
+    }
+
+    .card.devopsmind {
+      border-left: 3px solid var(--purple-accent);
     }
 
     .card h3 {
@@ -94,7 +125,7 @@
     .card ul {
       margin-top: 1rem;
       padding-left: 1.2rem;
-      color: #8b949e;
+      color: var(--text-muted);
       font-size: 0.9rem;
     }
 
@@ -106,7 +137,7 @@
       display: inline-block;
       margin-top: 1.2rem;
       font-weight: 700;
-      color: #58a6ff;
+      color: var(--blue-accent);
       text-decoration: none;
     }
 
@@ -117,16 +148,17 @@
     .boundary {
       margin-top: 4rem;
       font-size: 0.95rem;
-      color: #8b949e;
+      color: var(--text-muted);
     }
 
     footer {
       margin-top: 5rem;
-      padding: 2.5rem 1.5rem;
+      padding: 3rem 1.5rem;
       text-align: center;
-      color: #8b949e;
+      color: var(--text-muted);
       font-size: 0.9rem;
-      border-top: 1px solid #30363d;
+      border-top: 1px solid var(--border-subtle);
+      background: linear-gradient(to top, rgba(255,255,255,0.02), transparent);
     }
   </style>
 </head>
@@ -156,7 +188,7 @@
 
   <div class="products">
 
-    <div class="card">
+    <div class="card infraforge">
       <h3>🏗️ InfraForge</h3>
       <p>
         InfraForge helps engineers <strong>design and generate infrastructure</strong>
@@ -173,7 +205,7 @@
       </a>
     </div>
 
-    <div class="card">
+    <div class="card devopsmind">
       <h3>🎮 DevOpsMind</h3>
       <p>
         DevOpsMind builds <strong>real DevOps skill</strong> through offline,
@@ -202,13 +234,9 @@
 <footer>
   Built by <strong>InfraForge Labs</strong> · © <span id="year"></span><br />
   All projects follow open governance and sustainability rules published openly.<br />
-  <a href="/governance/" style="color:#58a6ff;">
-    Governance & Sustainability
-  </a>
+  <a href="/governance/" style="color:#58a6ff;">Governance & Sustainability</a>
   ·
-  <a href="/open-source-devops-tools.html" style="color:#58a6ff;">
-    Why local-first DevOps?
-  </a>
+  <a href="/open-source-devops-tools.html" style="color:#58a6ff;">Why local-first DevOps?</a>
 </footer>
 
 <script>
