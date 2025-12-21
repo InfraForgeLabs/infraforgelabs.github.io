@@ -3,36 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Open Source DevOps Tools — Local & Offline</title>
-  <meta name="description" content="A practical guide to local-first and offline open-source DevOps tools.">
+
+  <meta name="description"
+        content="A practical guide to local-first and offline open-source DevOps tools without cloud lock-in." />
+
   <link rel="canonical" href="https://infraforgelabs.in/open-source-devops-tools.html">
   <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
-<main>
 
-<h1>Open Source DevOps Tools</h1>
-<p class="subtitle">Modern DevOps without cloud lock-in.</p>
+<header>
+  <div class="header-bar">
+    <a href="/">
+      <img src="/logo.png" alt="InfraForge Labs Logo">
+    </a>
+    <strong>InfraForge Labs</strong>
+  </div>
+
+  <nav class="breadcrumb">
+    <a href="/">Home</a><span>›</span>
+    <span>Open Source DevOps Tools</span>
+  </nav>
+
+  <h1>Open Source DevOps Tools</h1>
+  <p class="subtitle">Modern DevOps without cloud lock-in.</p>
+</header>
+
+<main>
 
 <div class="section">
   <h2>InfraForge</h2>
+
   <div class="card infraforge">
-    <p>Design infrastructure locally using Terraform, Docker, Helm, Jenkins.</p>
+    <p>
+      InfraForge helps engineers design and validate infrastructure locally
+      using Terraform, Docker, Helm, and Jenkins — before production.
+    </p>
+
+    <a href="https://infraforge.infraforgelabs.in/" target="_blank" rel="noopener">
+      Visit InfraForge →
+    </a>
   </div>
 </div>
 
 <div class="section">
   <h2>DevOpsMind</h2>
+
   <div class="card devopsmind">
-    <p>Offline DevOps skill-building with real tools and challenges.</p>
+    <p>
+      DevOpsMind enables offline-first DevOps learning through real,
+      hands-on challenges and safe local environments.
+    </p>
+
+    <a href="https://devopsmind.infraforgelabs.in/" target="_blank" rel="noopener">
+      Visit DevOpsMind →
+    </a>
   </div>
 </div>
 
 <footer>
+  © <span id="year"></span> InfraForge Labs · Free · Local · Open · Forever<br>
   <a href="/">← Back to homepage</a>
 </footer>
 
 </main>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
 </body>
 </html>
