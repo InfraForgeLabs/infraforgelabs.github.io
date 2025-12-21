@@ -13,12 +13,28 @@
   <meta name="theme-color" content="#0d1117" />
 
   <style>
+    :root {
+      --bg-main: #0d1117;
+      --bg-elevated: #161b22;
+      --border-subtle: #30363d;
+
+      --text-main: #e6edf3;
+      --text-muted: #8b949e;
+
+      --blue-accent: #58a6ff;
+      --green-accent: #3fb950;
+      --orange-accent: #f0883e;
+      --purple-accent: #c77dff;
+    }
+
     body {
       font-family: Inter, Segoe UI, Roboto, sans-serif;
-      background: #0d1117;
-      color: #e6edf3;
+      background:
+        radial-gradient(1200px 600px at 50% -200px, rgba(88,166,255,0.08), transparent 60%),
+        var(--bg-main);
+      color: var(--text-main);
       margin: 0;
-      padding: 2.5rem 1.5rem;
+      padding: 3rem 1.5rem;
       line-height: 1.75;
     }
 
@@ -30,21 +46,23 @@
     h1, h2, h3 {
       font-weight: 800;
       line-height: 1.3;
-      margin-top: 2.2rem;
+      letter-spacing: -0.02em;
+      margin-top: 2.4rem;
     }
 
-    h1 { font-size: 2.7rem; }
-    h2 { font-size: 1.9rem; }
-    h3 { font-size: 1.3rem; }
+    h1 { font-size: 2.8rem; margin-top: 0; }
+    h2 { font-size: 2rem; }
+    h3 { font-size: 1.35rem; }
 
     p {
       color: #c9d1d9;
-      margin: 1rem 0;
+      margin: 1.1rem 0;
     }
 
     ul {
       padding-left: 1.4rem;
       margin: 1rem 0;
+      color: var(--text-muted);
     }
 
     li {
@@ -52,7 +70,7 @@
     }
 
     a {
-      color: #58a6ff;
+      color: var(--blue-accent);
       font-weight: 600;
       text-decoration: none;
     }
@@ -62,17 +80,26 @@
     }
 
     .section {
-      border-top: 1px solid #30363d;
-      padding-top: 2rem;
-      margin-top: 3rem;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 2.5rem;
+      margin-top: 3.5rem;
     }
 
     .card {
-      background: #161b22;
-      border: 1px solid #30363d;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
       border-radius: 14px;
-      padding: 1.8rem;
-      margin-top: 1.8rem;
+      padding: 2rem;
+      margin-top: 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+
+    .card.infraforge {
+      border-left: 3px solid var(--blue-accent);
+    }
+
+    .card.devopsmind {
+      border-left: 3px solid var(--purple-accent);
     }
 
     .badges {
@@ -84,21 +111,35 @@
 
     .badge {
       font-size: 0.75rem;
-      padding: 0.25rem 0.7rem;
+      padding: 0.25rem 0.75rem;
       border-radius: 999px;
-      border: 1px solid #30363d;
+      border: 1px solid var(--border-subtle);
       font-weight: 700;
+      background: rgba(255,255,255,0.02);
     }
 
-    .local { color: #58a6ff; border-color: #58a6ff; }
-    .offline { color: #3fb950; border-color: #3fb950; }
-    .open { color: #f0883e; border-color: #f0883e; }
+    .local {
+      color: var(--blue-accent);
+      border-color: var(--blue-accent);
+    }
+
+    .offline {
+      color: var(--green-accent);
+      border-color: var(--green-accent);
+    }
+
+    .open {
+      color: var(--orange-accent);
+      border-color: var(--orange-accent);
+    }
 
     footer {
-      margin-top: 4rem;
+      margin-top: 5rem;
+      padding-top: 2.5rem;
       text-align: center;
-      color: #8b949e;
+      color: var(--text-muted);
       font-size: 0.9rem;
+      border-top: 1px solid var(--border-subtle);
     }
   </style>
 </head>
@@ -172,7 +213,7 @@ Offline DevOps means those tools continue working without an internet connection
 <div class="section">
 <h2>Open Source DevOps Tools by InfraForge Labs</h2>
 
-<div class="card">
+<div class="card infraforge">
   <h3>InfraForge</h3>
 
   <div class="badges">
@@ -194,7 +235,7 @@ Offline DevOps means those tools continue working without an internet connection
   </ul>
 </div>
 
-<div class="card">
+<div class="card devopsmind">
   <h3>DevOpsMind</h3>
 
   <div class="badges">
@@ -234,7 +275,7 @@ InfraForge Labs exists for exactly that.
 
 <footer>
   © <span id="year"></span> InfraForge Labs · Free · Local · Open · Forever<br />
-  <a href="/">Back to homepage</a>
+  <a href="/">← Back to homepage</a>
 </footer>
 
 </main>
