@@ -4,214 +4,63 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Open Source DevOps Tools (2025) — Local, Offline & Cloud-Free</title>
+  <title>Open Source DevOps Tools (2025) — Local & Offline</title>
 
   <meta name="description"
-    content="A practical 2025 guide to open source DevOps tools. Learn local-first DevOps, offline DevOps, and how to run DevOps without cloud lock-in using InfraForge and DevOpsMind." />
+    content="A practical 2025 guide to open source DevOps tools. Learn local-first and offline DevOps without cloud lock-in using InfraForge and DevOpsMind." />
 
   <link rel="canonical" href="https://infraforgelabs.in/open-source-devops-tools.html" />
   <meta name="theme-color" content="#0d1117" />
 
-  <style>
-    :root {
-      --bg-main: #0d1117;
-      --bg-elevated: #161b22;
-      --border-subtle: #30363d;
-
-      --text-main: #e6edf3;
-      --text-muted: #8b949e;
-
-      --blue-accent: #58a6ff;
-      --green-accent: #3fb950;
-      --orange-accent: #f0883e;
-      --purple-accent: #c77dff;
-    }
-
-    body {
-      font-family: Inter, Segoe UI, Roboto, sans-serif;
-      background:
-        radial-gradient(1200px 600px at 50% -200px, rgba(88,166,255,0.08), transparent 60%),
-        var(--bg-main);
-      color: var(--text-main);
-      margin: 0;
-      padding: 3rem 1.5rem;
-      line-height: 1.75;
-    }
-
-    main {
-      max-width: 900px;
-      margin: auto;
-    }
-
-    h1, h2, h3 {
-      font-weight: 800;
-      line-height: 1.3;
-      letter-spacing: -0.02em;
-      margin-top: 2.4rem;
-    }
-
-    h1 { font-size: 2.8rem; margin-top: 0; }
-    h2 { font-size: 2rem; }
-    h3 { font-size: 1.35rem; }
-
-    p {
-      color: #c9d1d9;
-      margin: 1.1rem 0;
-    }
-
-    ul {
-      padding-left: 1.4rem;
-      margin: 1rem 0;
-      color: var(--text-muted);
-    }
-
-    li {
-      margin-bottom: 0.6rem;
-    }
-
-    a {
-      color: var(--blue-accent);
-      font-weight: 600;
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    .section {
-      border-top: 1px solid var(--border-subtle);
-      padding-top: 2.5rem;
-      margin-top: 3.5rem;
-    }
-
-    .card {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border-subtle);
-      border-radius: 14px;
-      padding: 2rem;
-      margin-top: 2rem;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-    }
-
-    .card.infraforge {
-      border-left: 3px solid var(--blue-accent);
-    }
-
-    .card.devopsmind {
-      border-left: 3px solid var(--purple-accent);
-    }
-
-    .badges {
-      display: flex;
-      gap: 0.6rem;
-      flex-wrap: wrap;
-      margin: 0.8rem 0 1.2rem;
-    }
-
-    .badge {
-      font-size: 0.75rem;
-      padding: 0.25rem 0.75rem;
-      border-radius: 999px;
-      border: 1px solid var(--border-subtle);
-      font-weight: 700;
-      background: rgba(255,255,255,0.02);
-    }
-
-    .local {
-      color: var(--blue-accent);
-      border-color: var(--blue-accent);
-    }
-
-    .offline {
-      color: var(--green-accent);
-      border-color: var(--green-accent);
-    }
-
-    .open {
-      color: var(--orange-accent);
-      border-color: var(--orange-accent);
-    }
-
-    footer {
-      margin-top: 5rem;
-      padding-top: 2.5rem;
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      border-top: 1px solid var(--border-subtle);
-    }
-  </style>
+  <!-- Shared styles -->
+  <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
+
 <main>
 
-<h1>Open Source DevOps Tools: The Complete 2025 Guide</h1>
+<h1>Open Source DevOps Tools: The 2025 Guide</h1>
 
-<p>
-Modern DevOps does not require mandatory cloud platforms, SaaS dashboards,
-or vendor lock-in. In 2025, the most resilient DevOps workflows are
-<strong>open source</strong>, <strong>local-first</strong>, and
-<strong>offline-capable</strong>.
-</p>
-
-<p>
-This guide explains what open source DevOps tools are, why cloud-dependent
-platforms are becoming a liability, and how
-<strong>InfraForge Labs</strong> supports DevOps that engineers fully own.
+<p class="subtitle">
+  Open source DevOps is moving away from mandatory cloud platforms and SaaS
+  dashboards — toward tools engineers fully control.
 </p>
 
 <div class="section">
 <h2>What Are Open Source DevOps Tools?</h2>
 
 <p>
-Open source DevOps tools are software systems with publicly available source
-code used to automate infrastructure, CI/CD pipelines, containers, and security
-workflows — without hidden execution or forced subscriptions.
+Open source DevOps tools are systems with publicly available source code
+used to automate infrastructure, CI/CD, containers, and security —
+without vendor lock-in.
 </p>
 
 <ul>
   <li>Infrastructure as Code (Terraform, Ansible)</li>
-  <li>CI/CD automation (Jenkins, pipelines)</li>
+  <li>CI/CD automation (Jenkins)</li>
   <li>Containers & orchestration (Docker, Kubernetes)</li>
-  <li>Security and DevSecOps tooling</li>
+  <li>Security & DevSecOps tooling</li>
 </ul>
 </div>
 
 <div class="section">
-<h2>Why DevOps Without Cloud Is Gaining Popularity</h2>
+<h2>Why Local-First DevOps Matters</h2>
 
 <p>
-Cloud platforms often introduce recurring costs, vendor lock-in,
-mandatory internet access, and opaque execution models.
+Local-first DevOps tools run on your machine by default and continue working
+even without internet access.
 </p>
 
 <ul>
-  <li>Lower long-term cost</li>
-  <li>Offline and air-gapped operation</li>
-  <li>Better security and compliance</li>
-  <li>Full ownership of workflows and data</li>
+  <li>Offline & air-gapped environments</li>
+  <li>Lower cost and better security</li>
+  <li>Predictable, reproducible automation</li>
 </ul>
 </div>
 
 <div class="section">
-<h2>Local-First & Offline DevOps Explained</h2>
-
-<p>
-Local-first DevOps means tools run on your machine by default.
-Offline DevOps means those tools continue working without an internet connection.
-</p>
-
-<ul>
-  <li>Predictable and reproducible automation</li>
-  <li>Resilience during outages</li>
-  <li>Ideal for labs, learning, and secure environments</li>
-</ul>
-</div>
-
-<div class="section">
-<h2>Open Source DevOps Tools by InfraForge Labs</h2>
+<h2>InfraForge Labs Tools</h2>
 
 <div class="card infraforge">
   <h3>InfraForge</h3>
@@ -223,15 +72,14 @@ Offline DevOps means those tools continue working without an internet connection
   </div>
 
   <p>
-    <a href="/infraforge/">InfraForge</a>
-    is an open source infrastructure generation platform that helps teams
-    design and render DevOps templates locally — before production.
+    InfraForge generates infrastructure templates locally before production,
+    keeping humans fully in control.
   </p>
 
   <ul>
-    <li>Terraform, Docker, Helm, Jenkins templates</li>
-    <li>Security and CI/CD scaffolding</li>
-    <li>No monitoring, no incident response</li>
+    <li>Terraform, Docker, Helm, Jenkins</li>
+    <li>Security-first scaffolding</li>
+    <li>No monitoring or incident tooling</li>
   </ul>
 </div>
 
@@ -245,32 +93,15 @@ Offline DevOps means those tools continue working without an internet connection
   </div>
 
   <p>
-    <a href="/devopsmind/">DevOpsMind</a>
-    is an offline DevOps learning platform that teaches real-world skills
-    through sandboxed challenges.
+    DevOpsMind teaches real DevOps skills through offline, sandboxed challenges.
   </p>
 
   <ul>
     <li>No cloud accounts required</li>
-    <li>Hands-on CI/CD, Docker, Kubernetes & security labs</li>
-    <li>Safe, reproducible local environments</li>
+    <li>Hands-on CI/CD, Docker & Kubernetes</li>
+    <li>Safe learning environments</li>
   </ul>
 </div>
-</div>
-
-<div class="section">
-<h2>Final Thoughts</h2>
-
-<p>
-The future of DevOps is not more dashboards or deeper cloud lock-in.
-It is <strong>open</strong>, <strong>local</strong>, and
-<strong>engineer-owned</strong>.
-</p>
-
-<p>
-If you want to build systems or build skills — without giving up control —
-InfraForge Labs exists for exactly that.
-</p>
 </div>
 
 <footer>
