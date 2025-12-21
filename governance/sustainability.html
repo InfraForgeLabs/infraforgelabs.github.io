@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sustainability & Funding – InfraForge Labs</title>
-  <meta name="description" content="How InfraForgeLabs sustains open-source projects without paywalls or feature restrictions.">
+
+  <title>Sustainability – InfraForge Labs</title>
+  <meta name="description" content="How InfraForge Labs sustains open-source development responsibly.">
+
   <link rel="canonical" href="https://infraforgelabs.in/governance/sustainability.html">
   <link rel="stylesheet" href="/style.css">
 </head>
@@ -12,10 +14,7 @@
 <body>
 
 <header>
-  <div class="header-bar">
-    <a href="/"><img src="/logo.png" alt="InfraForge Labs Logo"></a>
-    <strong>InfraForge Labs</strong>
-  </div>
+  <img src="/logo.png" alt="InfraForge Labs Logo" class="logo juggle">
 
   <nav class="breadcrumb">
     <a href="/">Home</a><span>›</span>
@@ -29,33 +28,35 @@
 <section>
   <div class="card">
     <p>
-      All InfraForgeLabs projects are free to use.
-      Payment is never required to access functionality.
+      All InfraForge Labs projects are free to use. Payment is never required
+      to access functionality.
     </p>
 
-    <p>
-      Optional paid offerings exist only to support:
-    </p>
+    <p>Optional paid offerings support:</p>
 
     <ul>
-      <li>Long-term maintenance and stability</li>
-      <li>Documentation and learning material</li>
-      <li>Security reviews and quality assurance</li>
-      <li>Support and response guarantees</li>
+      <li>Long-term maintenance</li>
+      <li>Documentation & education</li>
+      <li>Security reviews & QA</li>
+      <li>Support guarantees</li>
     </ul>
 
     <p>
-      Paid offerings never unlock features or alter execution behavior.
+      Paid offerings never unlock features or change execution behavior.
       All users run the same code.
     </p>
 
-    <a class="back" href="/governance/">← Back to Governance</a>
+    <a href="/governance/">← Back to Governance</a>
   </div>
 </section>
 
 <footer>
-  InfraForgeLabs Governance
+  © <span id="year"></span> InfraForge Labs
 </footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
 
 </body>
 </html>
