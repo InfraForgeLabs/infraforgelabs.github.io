@@ -4,30 +4,41 @@
    ========================= */
 
 :root {
-  --bg-main: #0d1117;
-  --bg-elevated: #161b22;
-  --border-subtle: #30363d;
+  --ifl-bg: #0a0c10;
+  --ifl-bg-soft: #0f1218;
 
-  --text-main: #e6edf3;
-  --text-muted: #8b949e;
+  --ifl-text: #e6edf3;
+  --ifl-muted: #9aa4af;
 
-  --blue-accent: #58a6ff;
-  --purple-accent: #c77dff;
-  --green-accent: #3fb950;
-  --orange-accent: #f0883e;
+  --ifl-border: #1f2630;
+
+  /* neutral accent ONLY for dividers & breadcrumbs */
+  --ifl-accent: #8b949e;
 }
+
 
 /* ---------- Base ---------- */
 
 body {
-  font-family: Inter, Segoe UI, Roboto, sans-serif;
-  background:
-    radial-gradient(1200px 600px at 50% -200px, rgba(88,166,255,0.08), transparent 60%),
-    var(--bg-main);
-  color: var(--text-main);
   margin: 0;
-  line-height: 1.7;
+  min-height: 100vh;
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  color: #e6edf3;
+
+  background:
+    radial-gradient(
+      1200px 600px at top,
+      rgba(255,255,255,0.06),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      #0a0c10 0%,
+      #0f1218 60%,
+      #0a0c10 100%
+    );
 }
+
 
 a {
   color: var(--blue-accent);
@@ -144,20 +155,19 @@ p {
 /* ---------- Cards ---------- */
 
 .card {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
-  border-radius: 14px;
-  padding: 2rem;
-  margin-top: 2rem;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+  background: linear-gradient(180deg, #0f1218, #0a0c10);
+  border: 1px solid var(--ifl-border);
+  border-radius: 16px;
+  padding: 1.6rem;
 }
 
-.card.infraforge {
-  border-left: 3px solid var(--blue-accent);
+
+.card.infraforge h3 {
+  color: #ff8c42; /* InfraForge orange */
 }
 
-.card.devopsmind {
-  border-left: 3px solid var(--purple-accent);
+.card.devopsmind h3 {
+  color: #79c0ff; /* DevOpsMind blue */
 }
 
 .card a {
@@ -185,3 +195,15 @@ p {
   padding-top: 2.5rem;
   margin-top: 3.5rem;
 }
+
+header h1 {
+  font-size: 2.4rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  max-width: 720px;
+  margin: 1rem auto;
+  color: var(--ifl-muted);
+}
+
