@@ -187,10 +187,21 @@ p {
 }
 
 .boundary {
-  margin-top: 3.5rem;
+  text-align: center;
+  margin: 3.5rem auto 2rem;
   font-size: 0.95rem;
   color: var(--text-muted);
+  max-width: 40rem;
 }
+.boundary::before {
+  content: "";
+  display: block;
+  width: 64px;
+  height: 2px;
+  margin: 0 auto 1.25rem;
+  background: var(--border-subtle);
+}
+
 
 .section {
   border-top: 1px solid var(--border-subtle);
