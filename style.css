@@ -161,6 +161,8 @@ p {
   border: 1px solid var(--ifl-border);
   border-radius: 16px;
   padding: 1.6rem;
+
+  margin-bottom: 2rem;
 }
 
 
@@ -188,19 +190,26 @@ p {
 
 .boundary {
   text-align: center;
-  margin: 3.5rem auto 2rem;
-  font-size: 0.95rem;
-  color: var(--text-muted);
-  max-width: 40rem;
+  margin: 4rem auto 3rem;
+  max-width: 36rem;
+
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+
+  color: var(--ifl-text);
+  opacity: 0.9;
 }
+
 .boundary::before {
   content: "";
   display: block;
-  width: 64px;
+  width: 72px;
   height: 2px;
-  margin: 0 auto 1.25rem;
-  background: var(--border-subtle);
+  margin: 0 auto 1.4rem;
+  background: var(--ifl-border);
 }
+
 
 
 .section {
