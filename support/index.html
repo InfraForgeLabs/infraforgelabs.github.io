@@ -144,21 +144,26 @@ function showApp() {
   loadTickets();
 }
 
-/* -------- CREATE -------- */
+/* -------- CREATE (FIXED) -------- */
 createBtn.onclick = async () => {
   const fd = new FormData();
-  fd.append("fullName", fullName.value);
-  fd.append("email", email.value);
-  fd.append("password", password.value);
   fd.append("subject", subject.value);
   fd.append("message", message.value);
   if (file.files[0]) fd.append("file", file.files[0]);
 
-  const res = await fetch(`${API}/ticket`, { method:"POST", body:fd });
+  const res = await fetch(`${API}/user/ticket`, {
+    method:"POST",
+    headers:{ Authorization:`Bearer ${token}` },
+    body: fd
+  });
+
   const data = await res.json();
   if (!data.ok) return createMsg.textContent = data.error;
 
   createMsg.textContent = "Ticket created: " + data.ticketCode;
+  subject.value = "";
+  message.value = "";
+  file.value = "";
   loadTickets();
 };
 
@@ -175,7 +180,7 @@ async function loadTickets() {
       <p onclick="openTicket('${t.ticket_code}')">
         ${t.subject}
         <span class="badge ${t.status==='closed'?'closed':''}">${t.status}</span>
-        ${t.unread ? `<span class="badge unread">NEW</span>` : ""}
+        ${t.has_unread_user ? `<span class="badge unread">NEW</span>` : ""}
       </p>
     `).join("");
 }
@@ -205,7 +210,7 @@ async function openTicket(code) {
     reopenBtn.classList.add("hidden");
   }
 
-  loadTickets(); // clears unread badge
+  loadTickets();
 }
 
 /* -------- REPLY -------- */
@@ -227,13 +232,9 @@ replyBtn.onclick = async () => {
 
 /* -------- REOPEN -------- */
 reopenBtn.onclick = async () => {
-  await fetch(`${API}/user/close`, {
+  await fetch(`${API}/user/close/${activeTicket}`, {
     method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      Authorization:`Bearer ${token}`
-    },
-    body:JSON.stringify({ ticketCode: activeTicket, reopen:true })
+    headers:{ Authorization:`Bearer ${token}` }
   });
 
   openTicket(activeTicket);
