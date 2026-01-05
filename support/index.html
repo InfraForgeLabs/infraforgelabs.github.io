@@ -6,313 +6,147 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="/style.css" />
   <style>
-    .card { max-width: 760px; margin: auto; }
-    input, textarea, button {
-      width: 100%;
-      margin: 8px 0;
-      padding: 10px;
-    }
-    .ticket-item {
-      cursor: pointer;
-      padding: 6px 0;
-      border-bottom: 1px solid #333;
-    }
-    .ticket-item:hover { text-decoration: underline; }
-    .badge {
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-size: 12px;
-      margin-left: 6px;
-      background: #2563eb;
-      color: #fff;
-    }
-    .badge.unread { background: #dc2626; }
-    .badge.closed { background: #374151; }
-    .logout {
-      float: right;
-      cursor: pointer;
-      color: #f87171;
-      font-size: 14px;
-    }
-    button[disabled] {
-      opacity: .5;
-      cursor: not-allowed;
-    }
-    hr { margin: 24px 0; }
+    .card { max-width: 720px; margin: auto; }
+    input, textarea, button { width: 100%; padding: 10px; margin: 8px 0; }
+    .hidden { display: none; }
+    .badge { font-size: 12px; padding: 2px 8px; border-radius: 6px; background:#2563eb; }
+    .logout { float:right; color:#ef4444; cursor:pointer; }
   </style>
 </head>
-
 <body>
 
 <header>
-  <img src="/logo.png" class="logo" alt="InfraForge Labs">
+  <img src="/logo.png" class="logo" />
   <h1>Support</h1>
   <p class="subtitle">InfraForge · DevOpsMind · InfraForge Labs</p>
 </header>
 
 <main>
+  <a href="/">← Back to InfraForge Labs</a>
 
-  <div class="breadcrumb">
-    <a href="/">← Back to InfraForge Labs</a>
-  </div>
-
-  <!-- ================= LOGIN ================= -->
-  <section id="loginSection">
-    <div class="card">
-      <h3>Password Login</h3>
-
-      <input id="loginFullName" placeholder="Full name">
-      <input id="loginEmail" type="email" placeholder="Email">
-      <input id="loginPassword" type="password" placeholder="Password">
-
-      <button onclick="login()">Login</button>
-      <p id="loginResult"></p>
-
-      <hr>
-
-      <h3>Magic-Link Login</h3>
-      <input id="magicEmail" type="email" placeholder="Email">
-      <button onclick="sendMagicLink()">Send Magic Link</button>
-      <p id="magicResult"></p>
-    </div>
+  <!-- LOGIN -->
+  <section id="login" class="card">
+    <h3>Login / Register</h3>
+    <input id="fullName" placeholder="Full name" />
+    <input id="email" placeholder="Email" />
+    <input id="password" type="password" placeholder="Password" />
+    <button onclick="login()">Login</button>
+    <p id="loginMsg"></p>
   </section>
 
-  <!-- ================= DASHBOARD ================= -->
-  <section id="dashboardSection" style="display:none;">
+  <!-- APP -->
+  <section id="app" class="hidden">
 
-    <!-- CREATE TICKET -->
     <div class="card">
-      <h3>
-        Create Ticket
-        <span class="logout" onclick="logout()">Logout</span>
-      </h3>
-
-      <input id="subject" placeholder="Subject">
-      <textarea id="message" rows="4" placeholder="Describe your issue"></textarea>
-      <input id="file" type="file" accept="image/*">
-
+      <h3>Create Ticket <span class="logout" onclick="logout()">Logout</span></h3>
+      <input id="subject" placeholder="Subject" />
+      <textarea id="message" placeholder="Describe your issue"></textarea>
+      <input id="file" type="file" />
       <button onclick="createTicket()">Submit Ticket</button>
-      <p id="createResult"></p>
+      <p id="createMsg"></p>
     </div>
 
-    <hr>
-
-    <!-- MY TICKETS -->
     <div class="card">
       <h3>My Tickets</h3>
       <div id="tickets">Loading…</div>
     </div>
 
-    <hr>
-
-    <!-- CONVERSATION -->
     <div class="card">
       <h3>Conversation</h3>
       <div id="conversation">Select a ticket</div>
-
-      <button id="closeBtn"
-        style="display:none;background:#dc2626"
-        onclick="closeTicket()">Close Ticket</button>
-
-      <button id="reopenBtn"
-        style="display:none;background:#16a34a"
-        onclick="reopenTicket()">Reopen Ticket</button>
-
-      <textarea id="replyText" rows="4" placeholder="Reply…"></textarea>
-      <button id="replyBtn" onclick="sendReply()">Send Reply</button>
     </div>
 
   </section>
-
 </main>
-
-<footer>
-  © InfraForge Labs · Support
-</footer>
 
 <script>
 const API = "/support/api";
 let token = localStorage.getItem("support_token");
-let selectedCode = null;
-let selectedStatus = null;
+let selected = null;
 
-/* ================= LOGIN ================= */
+if (token) showApp();
+
+/* ---------- AUTH ---------- */
 async function login() {
-  if (!loginFullName.value || !loginEmail.value || !loginPassword.value) {
-    loginResult.textContent = "All fields are required";
-    return;
-  }
-
   const res = await fetch(`${API}/user/auth`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type":"application/json" },
     body: JSON.stringify({
-      fullName: loginFullName.value,
-      email: loginEmail.value,
-      password: loginPassword.value
+      fullName: fullName.value,
+      email: email.value,
+      password: password.value
     })
   });
 
   const data = await res.json();
-  if (!data.ok) {
-    loginResult.textContent = data.error;
-    return;
-  }
+  if (!data.ok) return loginMsg.textContent = data.error;
 
   localStorage.setItem("support_token", data.token);
-  token = data.token;
-  showDashboard();
+  showApp();
 }
 
-/* ================= MAGIC LINK ================= */
-async function sendMagicLink() {
-  if (!magicEmail.value) {
-    magicResult.textContent = "Email required";
-    return;
-  }
-
-  const res = await fetch(`${API}/user/token-login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: magicEmail.value })
-  });
-
-  const data = await res.json();
-  magicResult.textContent =
-    data.ok ? "Magic link sent to your email" : data.error;
-}
-
-/* ================= LOGOUT ================= */
 function logout() {
-  localStorage.clear();
-  location.href = "/support/";
+  localStorage.removeItem("support_token");
+  location.reload();
 }
 
-/* ================= DASHBOARD ================= */
-function showDashboard() {
-  loginSection.style.display = "none";
-  dashboardSection.style.display = "block";
+function showApp() {
+  login.classList.add("hidden");
+  app.classList.remove("hidden");
   loadTickets();
 }
 
-/* ================= CREATE TICKET ================= */
+/* ---------- CREATE TICKET ---------- */
 async function createTicket() {
-  if (!subject.value.trim() || !message.value.trim()) {
-    createResult.textContent = "Subject and message are required";
-    return;
-  }
-
   const form = new FormData();
+  form.append("fullName", fullName.value);
+  form.append("email", email.value);
+  form.append("password", password.value);
   form.append("subject", subject.value);
   form.append("message", message.value);
   if (file.files[0]) form.append("file", file.files[0]);
 
   const res = await fetch(`${API}/ticket`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
+    method:"POST",
     body: form
   });
 
   const data = await res.json();
-  if (!data.ok) {
-    createResult.textContent = data.error || "Failed to create ticket";
-    return;
-  }
+  if (!data.ok) return createMsg.textContent = data.error;
 
-  createResult.textContent = "Ticket created: " + data.ticketCode;
-  subject.value = "";
-  message.value = "";
-  file.value = "";
+  createMsg.textContent = "Ticket created: " + data.ticketCode;
   loadTickets();
 }
 
-/* ================= LOAD TICKETS ================= */
+/* ---------- MY TICKETS ---------- */
 async function loadTickets() {
   const res = await fetch(`${API}/user/tickets`, {
-    headers: { Authorization: `Bearer ${token}` }
+    headers:{ Authorization:`Bearer ${localStorage.getItem("support_token")}` }
   });
-
   const data = await res.json();
-  tickets.innerHTML =
-    data.tickets.length === 0
-      ? "No tickets"
-      : data.tickets.map(t => `
-        <div class="ticket-item" onclick="openTicket('${t.ticket_code}')">
-          ${t.subject}
-          <span class="badge ${t.has_unread_user ? "unread" : t.status}">
-            ${t.has_unread_user ? "NEW" : t.status.toUpperCase()}
-          </span>
-        </div>
-      `).join("");
+
+  tickets.innerHTML = data.tickets.length === 0
+    ? "No tickets"
+    : data.tickets.map(t =>
+        `<p onclick="openTicket('${t.ticket_code}')">
+          ${t.subject} <span class="badge">${t.status}</span>
+        </p>`
+      ).join("");
 }
 
-/* ================= OPEN TICKET ================= */
+/* ---------- OPEN TICKET ---------- */
 async function openTicket(code) {
-  selectedCode = code;
+  selected = code;
 
   const res = await fetch(`${API}/user/ticket/${code}`, {
-    headers: { Authorization: `Bearer ${token}` }
+    headers:{ Authorization:`Bearer ${localStorage.getItem("support_token")}` }
   });
-
   const data = await res.json();
-  selectedStatus = data.ticket.status;
 
-  conversation.innerHTML =
-    data.replies.map(r =>
-      `<div><strong>${r.author_name}</strong><br>${r.body}</div>`
-    ).join("");
-
-  replyText.disabled = replyBtn.disabled = selectedStatus === "closed";
-  closeBtn.style.display = selectedStatus === "open" ? "block" : "none";
-  reopenBtn.style.display = selectedStatus === "closed" ? "block" : "none";
+  conversation.innerHTML = data.replies.map(r =>
+    `<p><strong>${r.author_name}</strong><br>${r.body}</p>`
+  ).join("");
 }
-
-/* ================= REPLY ================= */
-async function sendReply() {
-  if (selectedStatus === "closed") return;
-
-  const form = new FormData();
-  form.append("message", replyText.value);
-
-  await fetch(`${API}/user/reply/${selectedCode}`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: form
-  });
-
-  replyText.value = "";
-  openTicket(selectedCode);
-}
-
-/* ================= STATUS ================= */
-async function closeTicket() {
-  await systemMessage("[User closed ticket]");
-  loadTickets();
-}
-async function reopenTicket() {
-  await systemMessage("[User reopened ticket]");
-  loadTickets();
-}
-async function systemMessage(msg) {
-  const form = new FormData();
-  form.append("message", msg);
-
-  await fetch(`${API}/user/reply/${selectedCode}`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: form
-  });
-}
-
-/* ================= MAGIC LINK AUTO LOGIN ================= */
-const qs = new URLSearchParams(location.search);
-if (qs.get("token")) {
-  localStorage.setItem("support_token", qs.get("token"));
-  token = qs.get("token");
-  history.replaceState({}, "", "/support/");
-}
-
-if (token) showDashboard();
 </script>
 
 </body>
