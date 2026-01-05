@@ -14,15 +14,16 @@
     }
     .ticket-item { cursor: pointer; padding: 6px 0; }
     .ticket-item:hover { text-decoration: underline; }
+
     .badge {
       padding: 2px 8px;
       border-radius: 6px;
       font-size: 12px;
       margin-left: 6px;
       background: #2563eb;
+      color: #fff;
     }
-    .badge.unread { background: #dc2626; }
-    .badge.closed { background: #374151; }
+    .badge.unread { background:#dc2626 }
     .logout {
       float: right;
       cursor: pointer;
@@ -30,9 +31,10 @@
       font-size: 14px;
     }
     button[disabled] {
-      opacity: 0.5;
+      opacity: .5;
       cursor: not-allowed;
     }
+    hr { margin: 20px 0; }
   </style>
 </head>
 
@@ -49,52 +51,66 @@
     <a href="/">← Back to InfraForge Labs</a>
   </div>
 
-  <!-- LOGIN -->
+  <!-- ================= LOGIN ================= -->
   <section id="loginSection">
     <div class="card">
-      <h3>Login</h3>
+      <h3>Password Login</h3>
+      <input id="loginFullName" placeholder="Full name">
       <input id="loginEmail" type="email" placeholder="Email">
       <input id="loginPassword" type="password" placeholder="Password">
       <button onclick="login()">Login</button>
       <p id="loginResult"></p>
+
+      <hr>
+
+      <h3>Magic-Link Login</h3>
+      <input id="magicEmail" type="email" placeholder="Email">
+      <button onclick="sendMagicLink()">Send Magic Link</button>
+      <p id="magicResult"></p>
     </div>
   </section>
 
-  <!-- DASHBOARD -->
+  <!-- ================= DASHBOARD ================= -->
   <section id="dashboardSection" style="display:none;">
+
+    <!-- CREATE TICKET -->
     <div class="card">
       <h3>
         Create Ticket
         <span class="logout" onclick="logout()">Logout</span>
       </h3>
+
       <input id="subject" placeholder="Subject">
       <textarea id="message" rows="4" placeholder="Describe your issue"></textarea>
       <button onclick="createTicket()">Submit Ticket</button>
       <p id="createResult"></p>
     </div>
 
-    <br>
+    <hr>
 
+    <!-- MY TICKETS -->
     <div class="card">
       <h3>My Tickets</h3>
-      <div id="tickets"></div>
+      <div id="tickets">Loading…</div>
     </div>
 
-    <br>
+    <hr>
 
+    <!-- CONVERSATION -->
     <div class="card">
       <h3>Conversation</h3>
       <div id="conversation">Select a ticket</div>
 
-      <button id="closeBtn" style="display:none;background:#dc2626;"
+      <button id="closeBtn" style="display:none;background:#dc2626"
         onclick="closeTicket()">Close Ticket</button>
 
-      <button id="reopenBtn" style="display:none;background:#16a34a;"
+      <button id="reopenBtn" style="display:none;background:#16a34a"
         onclick="reopenTicket()">Reopen Ticket</button>
 
       <textarea id="replyText" rows="4" placeholder="Reply…"></textarea>
       <button id="replyBtn" onclick="sendReply()">Send Reply</button>
     </div>
+
   </section>
 </main>
 
@@ -106,99 +122,144 @@ let token = localStorage.getItem("support_token");
 let selectedCode = null;
 let selectedStatus = null;
 
-/* ---------- AUTH ---------- */
+/* ================= PASSWORD LOGIN ================= */
 async function login() {
+  if (!loginFullName.value || !loginEmail.value || !loginPassword.value) {
+    loginResult.textContent = "All fields required";
+    return;
+  }
+
   const res = await fetch(`${API}/user/auth`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
+      fullName: loginFullName.value,
       email: loginEmail.value,
-      password: loginPassword.value,
-      fullName: "login"
+      password: loginPassword.value
     })
   });
+
   const data = await res.json();
   if (!data.ok) return loginResult.textContent = data.error;
+
   localStorage.setItem("support_token", data.token);
   token = data.token;
   showDashboard();
 }
 
+/* ================= MAGIC LINK ================= */
+async function sendMagicLink() {
+  if (!magicEmail.value) {
+    magicResult.textContent = "Email required";
+    return;
+  }
+
+  const res = await fetch(`${API}/user/token-login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: magicEmail.value })
+  });
+
+  const data = await res.json();
+  magicResult.textContent =
+    data.ok
+      ? "Magic link sent to your email"
+      : data.error || "Failed";
+}
+
+/* ================= LOGOUT ================= */
 function logout() {
   localStorage.clear();
   location.href = "/support/";
 }
 
-/* ---------- DASHBOARD ---------- */
+/* ================= DASHBOARD ================= */
 function showDashboard() {
   loginSection.style.display = "none";
   dashboardSection.style.display = "block";
   loadTickets();
 }
 
-/* ---------- CREATE ---------- */
+/* ================= CREATE TICKET ================= */
 async function createTicket() {
+  const form = new FormData();
+  form.append("subject", subject.value);
+  form.append("message", message.value);
+
   const res = await fetch(`${API}/ticket`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
-    body: JSON.stringify({
-      subject: subject.value,
-      message: message.value
-    })
+    body: form
   });
+
   const data = await res.json();
   if (!data.ok) return createResult.textContent = data.error;
-  createResult.textContent = "Created: " + data.ticketCode;
+
+  createResult.textContent = "Ticket created: " + data.ticketCode;
+  subject.value = "";
+  message.value = "";
   loadTickets();
 }
 
-/* ---------- LOAD ---------- */
+/* ================= LOAD TICKETS ================= */
 async function loadTickets() {
   const res = await fetch(`${API}/user/tickets`, {
     headers: { Authorization: `Bearer ${token}` }
   });
+
   const data = await res.json();
-  tickets.innerHTML = data.tickets.map(t => `
-    <div class="ticket-item" onclick="openTicket('${t.ticket_code}')">
-      ${t.subject}
-      <span class="badge ${t.unread ? "unread" : ""}">
-        ${t.unread ? "NEW" : t.status.toUpperCase()}
-      </span>
-    </div>
-  `).join("");
+  tickets.innerHTML =
+    data.tickets.length === 0
+      ? "No tickets"
+      : data.tickets.map(t => `
+        <div class="ticket-item" onclick="openTicket('${t.ticket_code}')">
+          ${t.subject}
+          <span class="badge ${t.has_unread_user ? "unread" : ""}">
+            ${t.has_unread_user ? "NEW" : t.status.toUpperCase()}
+          </span>
+        </div>
+      `).join("");
 }
 
-/* ---------- OPEN ---------- */
+/* ================= OPEN TICKET ================= */
 async function openTicket(code) {
   selectedCode = code;
+
   const res = await fetch(`${API}/user/ticket/${code}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   const data = await res.json();
 
   selectedStatus = data.ticket.status;
-  conversation.innerHTML = data.replies.map(r =>
-    `<div><strong>${r.author_name}</strong><br>${r.body}</div>`
-  ).join("");
+
+  conversation.innerHTML =
+    data.replies.map(r =>
+      `<div><strong>${r.author_name}</strong><br>${r.body}</div>`
+    ).join("");
 
   replyText.disabled = replyBtn.disabled = selectedStatus === "closed";
   closeBtn.style.display = selectedStatus === "open" ? "block" : "none";
   reopenBtn.style.display = selectedStatus === "closed" ? "block" : "none";
 }
 
-/* ---------- REPLY ---------- */
+/* ================= REPLY ================= */
 async function sendReply() {
   if (selectedStatus === "closed") return;
+
+  const f = new FormData();
+  f.append("message", replyText.value);
+
   await fetch(`${API}/user/reply/${selectedCode}`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
-    body: new URLSearchParams({ message: replyText.value })
+    body: f
   });
+
   replyText.value = "";
   openTicket(selectedCode);
 }
 
-/* ---------- STATUS ---------- */
+/* ================= STATUS ================= */
 async function closeTicket() {
   await sendSystem("[User closed ticket]");
   loadTickets();
@@ -208,20 +269,24 @@ async function reopenTicket() {
   loadTickets();
 }
 async function sendSystem(msg) {
+  const f = new FormData();
+  f.append("message", msg);
+
   await fetch(`${API}/user/reply/${selectedCode}`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
-    body: new URLSearchParams({ message: msg })
+    body: f
   });
 }
 
-/* ---------- DEEP LINK ---------- */
+/* ================= MAGIC LINK AUTO LOGIN ================= */
 const qs = new URLSearchParams(location.search);
 if (qs.get("token")) {
   localStorage.setItem("support_token", qs.get("token"));
   token = qs.get("token");
   history.replaceState({}, "", "/support/");
 }
+
 if (token) showDashboard();
 </script>
 
