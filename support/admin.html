@@ -15,15 +15,18 @@
       border-radius: 6px;
       font-size: 12px;
       margin-left: 6px;
+      color: #fff;
     }
-    .priority-low { background: #334155; }
-    .priority-normal { background: #2563eb; }
-    .priority-high { background: #f59e0b; }
-    .priority-urgent { background: #dc2626; }
+
+    .priority-low { background:#334155 }
+    .priority-normal { background:#2563eb }
+    .priority-high { background:#f59e0b }
+    .priority-urgent { background:#dc2626 }
 
     .status {
       font-size: 12px;
       color: #9ca3af;
+      margin-top: 2px;
     }
 
     img {
@@ -93,6 +96,7 @@ async function loadTickets() {
 
 function renderTickets() {
   const q = search.value.toLowerCase();
+
   const list = tickets.filter(t =>
     t.ticket_code.toLowerCase().includes(q) ||
     t.subject.toLowerCase().includes(q)
