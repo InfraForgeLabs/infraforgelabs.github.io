@@ -519,4 +519,15 @@ header h1 {
   }
 
 }
+.badge {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+.open { background:#2563eb }
+.resolved { background:#16a34a }
+.closed { background:#6b7280 }
+
 
