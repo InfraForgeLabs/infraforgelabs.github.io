@@ -7,221 +7,130 @@
   <link rel="stylesheet" href="/style.css">
   <style>
     .card { max-width: 720px; margin: auto; }
-    input, textarea, button {
-      width: 100%;
-      margin: 8px 0;
-      padding: 10px;
-    }
-    .reply {
-      border-top: 1px solid #333;
-      padding-top: 12px;
-      margin-top: 12px;
-    }
-    .ticket {
-      padding: 8px;
-      border-bottom: 1px solid #333;
-      cursor: pointer;
-    }
+    input, textarea, button { width: 100%; margin: 8px 0; padding: 10px; }
+
+    .ticket { padding: 8px; border-bottom: 1px solid #333; cursor:pointer }
+    .reply { border-top:1px solid #333; padding-top:10px; margin-top:10px }
+
     .badge {
       padding: 2px 8px;
       border-radius: 12px;
       font-size: 12px;
+      margin-left: 6px;
+      color: #fff;
     }
-    .open { background: #2563eb; }
-    .resolved { background: #16a34a; }
-    .closed { background: #6b7280; }
+
+    .open { background:#2563eb }
+    .resolved { background:#16a34a }
+    .closed { background:#6b7280 }
+
+    .unread {
+      background:#dc2626;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity:1 }
+      50% { opacity:0.5 }
+      100% { opacity:1 }
+    }
+
+    .danger { background:#dc2626; color:#fff }
   </style>
 </head>
 
 <body>
-
 <header>
   <img src="/logo.png" class="logo">
   <h1>Support</h1>
-  <p class="subtitle">InfraForge · DevOpsMind · InfraForge Labs</p>
 </header>
 
 <main>
+<div class="breadcrumb">
+  <a href="/">← Back to InfraForge Labs</a>
+</div>
 
-  <div class="breadcrumb">
-    <a href="/">← Back to InfraForge Labs</a>
+<section id="ticketsSection">
+  <div class="card">
+    <h3>My Tickets</h3>
+    <div id="ticketList"></div>
   </div>
+</section>
 
-  <!-- CREATE TICKET -->
-  <section id="createSection">
-    <div class="card">
-      <h3>Create Support Ticket</h3>
+<section id="ticketSection" style="display:none;">
+  <div class="card">
+    <h3>Conversation</h3>
+    <div id="conversation"></div>
 
-      <input id="fullName" placeholder="Full name">
-      <input id="email" type="email" placeholder="Email">
-      <input id="password" type="password" placeholder="Password">
+    <button class="danger" onclick="closeTicket()">Close Ticket</button>
 
-      <input id="subject" placeholder="Subject">
-      <textarea id="message" rows="5" placeholder="Describe your issue"></textarea>
-      <input id="file" type="file" accept="image/*">
-
-      <button onclick="createTicket()">Submit Ticket</button>
-      <p id="createResult"></p>
-    </div>
-  </section>
-
-  <!-- LOGIN -->
-  <section id="loginSection">
-    <div class="card">
-      <h3>Login to View Tickets</h3>
-
-      <input id="loginEmail" type="email" placeholder="Email">
-      <input id="loginPassword" type="password" placeholder="Password">
-
-      <button onclick="login()">Login</button>
-      <p id="loginResult"></p>
-    </div>
-  </section>
-
-  <!-- MY TICKETS -->
-  <section id="ticketsSection" style="display:none;">
-    <div class="card">
-      <h3>My Tickets</h3>
-      <div id="ticketList"></div>
-    </div>
-  </section>
-
-  <!-- CONVERSATION -->
-  <section id="ticketSection" style="display:none;">
-    <div class="card">
-      <h3>Ticket Conversation</h3>
-      <div id="conversation"></div>
-
-      <h4>Reply</h4>
-      <textarea id="replyText"></textarea>
-      <input id="replyFile" type="file" accept="image/*">
-      <button onclick="sendReply()">Send Reply</button>
-    </div>
-  </section>
-
+    <hr>
+    <textarea id="replyText"></textarea>
+    <button onclick="sendReply()">Send Reply</button>
+  </div>
+</section>
 </main>
 
-<footer>© InfraForge Labs · Support</footer>
-
 <script>
-const API = "/support/api";
-let token = localStorage.getItem("support_token");
-let currentTicket = null;
+const API="/support/api";
+const token=localStorage.getItem("support_token");
+let currentTicket=null;
 
-/* ---------------- CREATE TICKET ---------------- */
-
-async function createTicket() {
-  const form = new FormData();
-  form.append("fullName", fullName.value);
-  form.append("email", email.value);
-  form.append("password", password.value);
-  form.append("subject", subject.value);
-  form.append("message", message.value);
-  if (file.files[0]) form.append("file", file.files[0]);
-
-  const res = await fetch(API + "/ticket", { method: "POST", body: form });
-  const data = await res.json();
-
-  if (!data.ok) {
-    createResult.textContent = data.error;
-    return;
-  }
-
-  localStorage.setItem("support_token", data.token);
-  token = data.token;
-  loadTickets();
-}
-
-/* ---------------- LOGIN ---------------- */
-
-async function login() {
-  const res = await fetch(API + "/user/auth", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      email: loginEmail.value,
-      password: loginPassword.value,
-      fullName: "existing"
-    })
-  });
-
-  const data = await res.json();
-  if (!data.ok) {
-    loginResult.textContent = data.error;
-    return;
-  }
-
-  localStorage.setItem("support_token", data.token);
-  token = data.token;
-  loadTickets();
-}
-
-/* ---------------- LOAD USER TICKETS ---------------- */
-
+/* LOAD TICKETS */
 async function loadTickets() {
-  const res = await fetch(API + "/user/tickets", {
-    headers: { Authorization: "Bearer " + token }
-  });
-  const data = await res.json();
-  if (!data.ok) return;
+  const res=await fetch(API+"/user/tickets",{headers:{Authorization:"Bearer "+token}});
+  const data=await res.json();
 
-  createSection.style.display = "none";
-  loginSection.style.display = "none";
-  ticketsSection.style.display = "block";
-
-  ticketList.innerHTML = data.tickets.map(t => `
+  ticketList.innerHTML=data.tickets.map(t=>`
     <div class="ticket" onclick="openTicket('${t.ticket_code}')">
-      <strong>${t.subject}</strong><br>
+      ${t.subject}
       <span class="badge ${t.status}">${t.status}</span>
+      ${t.has_unread_user?'<span class="badge unread">NEW</span>':""}
     </div>
   `).join("");
 }
 
-/* ---------------- OPEN TICKET ---------------- */
-
+/* OPEN TICKET */
 async function openTicket(code) {
-  currentTicket = code;
+  currentTicket=code;
+  const res=await fetch(API+"/user/ticket/"+code,{headers:{Authorization:"Bearer "+token}});
+  const data=await res.json();
 
-  const res = await fetch(API + "/user/ticket/" + code, {
-    headers: { Authorization: "Bearer " + token }
-  });
-  const data = await res.json();
-  if (!data.ok) return;
+  ticketSection.style.display="block";
 
-  ticketSection.style.display = "block";
-
-  conversation.innerHTML = data.replies.map(r => `
+  conversation.innerHTML=data.replies.map(r=>`
     <div class="reply">
-      <strong>${r.author_name}</strong><br>
-      ${r.body}
+      <strong>${r.author_name}</strong><br>${r.body}
     </div>
   `).join("");
 }
 
-/* ---------------- SEND REPLY ---------------- */
-
+/* SEND REPLY */
 async function sendReply() {
-  const form = new FormData();
-  form.append("message", replyText.value);
-  if (replyFile.files[0]) form.append("file", replyFile.files[0]);
+  const form=new FormData();
+  form.append("message",replyText.value);
 
-  await fetch(API + "/user/reply/" + currentTicket, {
-    method: "POST",
-    headers: { Authorization: "Bearer " + token },
-    body: form
+  await fetch(API+"/user/reply/"+currentTicket,{
+    method:"POST",
+    headers:{Authorization:"Bearer "+token},
+    body:form
   });
 
-  replyText.value = "";
-  replyFile.value = "";
+  replyText.value="";
   openTicket(currentTicket);
 }
 
-/* ---------------- AUTO INIT ---------------- */
-
-if (token) {
+/* CLOSE TICKET */
+async function closeTicket() {
+  await fetch(API+"/user/close/"+currentTicket,{
+    method:"POST",
+    headers:{Authorization:"Bearer "+token}
+  });
+  ticketSection.style.display="none";
   loadTickets();
 }
-</script>
 
+loadTickets();
+</script>
 </body>
 </html>
