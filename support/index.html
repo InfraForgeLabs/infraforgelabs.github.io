@@ -1,77 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Support · InfraForge Labs</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="/style.css" />
-  <style>
-    .card { max-width: 720px; margin: auto; }
-    input, textarea, button { width: 100%; padding: 10px; margin: 8px 0; }
-    .hidden { display: none; }
-    .badge { font-size: 12px; padding: 2px 8px; border-radius: 6px; background:#2563eb; }
-    .logout { float:right; color:#ef4444; cursor:pointer; }
-  </style>
+<meta charset="UTF-8">
+<title>Support · InfraForge Labs</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/style.css">
+
+<style>
+.card { max-width: 760px; margin: 20px auto; }
+input, textarea, button { width:100%; padding:10px; margin:8px 0; }
+.hidden { display:none; }
+
+.badge {
+  font-size:12px;
+  padding:2px 8px;
+  border-radius:6px;
+  background:#2563eb;
+  color:#fff;
+  margin-left:6px;
+}
+
+.badge.unread { background:#22c55e; }
+.badge.closed { background:#dc2626; }
+
+.logout {
+  float:right;
+  cursor:pointer;
+  color:#ef4444;
+  font-size:14px;
+}
+
+button[disabled] {
+  opacity:0.5;
+  cursor:not-allowed;
+}
+</style>
 </head>
+
 <body>
 
 <header>
-  <img src="/logo.png" class="logo" />
+  <img src="/logo.png" class="logo">
   <h1>Support</h1>
   <p class="subtitle">InfraForge · DevOpsMind · InfraForge Labs</p>
 </header>
 
 <main>
-  <a href="/">← Back to InfraForge Labs</a>
+<a href="/">← Back to InfraForge Labs</a>
 
-  <!-- LOGIN -->
-  <section id="login" class="card">
-    <h3>Login / Register</h3>
-    <input id="fullName" placeholder="Full name" />
-    <input id="email" placeholder="Email" />
-    <input id="password" type="password" placeholder="Password" />
-    <button onclick="login()">Login</button>
-    <p id="loginMsg"></p>
-  </section>
+<!-- LOGIN -->
+<section id="loginSection" class="card">
+  <h3>Login / Register</h3>
+  <input id="fullName" placeholder="Full name">
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button id="loginBtn">Login</button>
+  <p id="loginMsg"></p>
+</section>
 
-  <!-- APP -->
-  <section id="app" class="hidden">
+<!-- APP -->
+<section id="appSection" class="hidden">
 
-    <div class="card">
-      <h3>Create Ticket <span class="logout" onclick="logout()">Logout</span></h3>
-      <input id="subject" placeholder="Subject" />
-      <textarea id="message" placeholder="Describe your issue"></textarea>
-      <input id="file" type="file" />
-      <button onclick="createTicket()">Submit Ticket</button>
-      <p id="createMsg"></p>
-    </div>
+  <!-- CREATE -->
+  <div class="card">
+    <h3>Create Ticket <span class="logout" id="logoutBtn">Logout</span></h3>
+    <input id="subject" placeholder="Subject">
+    <textarea id="message" placeholder="Describe your issue"></textarea>
+    <input id="file" type="file">
+    <button id="createBtn">Submit Ticket</button>
+    <p id="createMsg"></p>
+  </div>
 
-    <div class="card">
-      <h3>My Tickets</h3>
-      <div id="tickets">Loading…</div>
-    </div>
+  <!-- MY TICKETS -->
+  <div class="card">
+    <h3>My Tickets</h3>
+    <div id="ticketsList">Loading…</div>
+  </div>
 
-    <div class="card">
-      <h3>Conversation</h3>
-      <div id="conversation">Select a ticket</div>
-    </div>
+  <!-- CONVERSATION -->
+  <div class="card">
+    <h3>Conversation</h3>
+    <div id="conversation">Select a ticket</div>
 
-  </section>
+    <textarea id="replyText" placeholder="Reply…"></textarea>
+    <button id="replyBtn">Send Reply</button>
+
+    <button id="reopenBtn" class="hidden">Reopen Ticket</button>
+  </div>
+
+</section>
 </main>
 
 <script>
 const API = "/support/api";
-let token = localStorage.getItem("support_token");
-let selected = null;
 
+/* -------- DOM -------- */
+const loginSection = document.getElementById("loginSection");
+const appSection = document.getElementById("appSection");
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const createBtn = document.getElementById("createBtn");
+const replyBtn = document.getElementById("replyBtn");
+const reopenBtn = document.getElementById("reopenBtn");
+
+const ticketsList = document.getElementById("ticketsList");
+const conversation = document.getElementById("conversation");
+const replyText = document.getElementById("replyText");
+
+let token = localStorage.getItem("support_token");
+let activeTicket = null;
+let activeStatus = null;
+
+/* -------- INIT -------- */
 if (token) showApp();
 
-/* ---------- AUTH ---------- */
-async function login() {
+/* -------- AUTH -------- */
+loginBtn.onclick = async () => {
   const res = await fetch(`${API}/user/auth`, {
-    method: "POST",
-    headers: { "Content-Type":"application/json" },
-    body: JSON.stringify({
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({
       fullName: fullName.value,
       email: email.value,
       password: password.value
@@ -83,70 +131,113 @@ async function login() {
 
   localStorage.setItem("support_token", data.token);
   showApp();
-}
+};
 
-function logout() {
+logoutBtn.onclick = () => {
   localStorage.removeItem("support_token");
   location.reload();
-}
+};
 
 function showApp() {
-  login.classList.add("hidden");
-  app.classList.remove("hidden");
+  loginSection.classList.add("hidden");
+  appSection.classList.remove("hidden");
   loadTickets();
 }
 
-/* ---------- CREATE TICKET ---------- */
-async function createTicket() {
-  const form = new FormData();
-  form.append("fullName", fullName.value);
-  form.append("email", email.value);
-  form.append("password", password.value);
-  form.append("subject", subject.value);
-  form.append("message", message.value);
-  if (file.files[0]) form.append("file", file.files[0]);
+/* -------- CREATE -------- */
+createBtn.onclick = async () => {
+  const fd = new FormData();
+  fd.append("fullName", fullName.value);
+  fd.append("email", email.value);
+  fd.append("password", password.value);
+  fd.append("subject", subject.value);
+  fd.append("message", message.value);
+  if (file.files[0]) fd.append("file", file.files[0]);
 
-  const res = await fetch(`${API}/ticket`, {
-    method:"POST",
-    body: form
-  });
-
+  const res = await fetch(`${API}/ticket`, { method:"POST", body:fd });
   const data = await res.json();
   if (!data.ok) return createMsg.textContent = data.error;
 
   createMsg.textContent = "Ticket created: " + data.ticketCode;
   loadTickets();
-}
+};
 
-/* ---------- MY TICKETS ---------- */
+/* -------- MY TICKETS -------- */
 async function loadTickets() {
   const res = await fetch(`${API}/user/tickets`, {
-    headers:{ Authorization:`Bearer ${localStorage.getItem("support_token")}` }
+    headers:{ Authorization:`Bearer ${token}` }
   });
   const data = await res.json();
 
-  tickets.innerHTML = data.tickets.length === 0
+  ticketsList.innerHTML = data.tickets.length === 0
     ? "No tickets"
-    : data.tickets.map(t =>
-        `<p onclick="openTicket('${t.ticket_code}')">
-          ${t.subject} <span class="badge">${t.status}</span>
-        </p>`
-      ).join("");
+    : data.tickets.map(t => `
+      <p onclick="openTicket('${t.ticket_code}')">
+        ${t.subject}
+        <span class="badge ${t.status==='closed'?'closed':''}">${t.status}</span>
+        ${t.unread ? `<span class="badge unread">NEW</span>` : ""}
+      </p>
+    `).join("");
 }
 
-/* ---------- OPEN TICKET ---------- */
+/* -------- OPEN -------- */
 async function openTicket(code) {
-  selected = code;
+  activeTicket = code;
 
   const res = await fetch(`${API}/user/ticket/${code}`, {
-    headers:{ Authorization:`Bearer ${localStorage.getItem("support_token")}` }
+    headers:{ Authorization:`Bearer ${token}` }
   });
   const data = await res.json();
+
+  activeStatus = data.ticket.status;
 
   conversation.innerHTML = data.replies.map(r =>
     `<p><strong>${r.author_name}</strong><br>${r.body}</p>`
   ).join("");
+
+  if (activeStatus === "closed") {
+    replyText.disabled = true;
+    replyBtn.disabled = true;
+    reopenBtn.classList.remove("hidden");
+  } else {
+    replyText.disabled = false;
+    replyBtn.disabled = false;
+    reopenBtn.classList.add("hidden");
+  }
+
+  loadTickets(); // clears unread badge
 }
+
+/* -------- REPLY -------- */
+replyBtn.onclick = async () => {
+  if (!activeTicket || !replyText.value.trim()) return;
+
+  const fd = new FormData();
+  fd.append("message", replyText.value);
+
+  await fetch(`${API}/user/reply/${activeTicket}`, {
+    method:"POST",
+    headers:{ Authorization:`Bearer ${token}` },
+    body: fd
+  });
+
+  replyText.value = "";
+  openTicket(activeTicket);
+};
+
+/* -------- REOPEN -------- */
+reopenBtn.onclick = async () => {
+  await fetch(`${API}/user/close`, {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      Authorization:`Bearer ${token}`
+    },
+    body:JSON.stringify({ ticketCode: activeTicket, reopen:true })
+  });
+
+  openTicket(activeTicket);
+};
 </script>
 
 </body>
