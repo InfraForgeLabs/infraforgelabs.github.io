@@ -1,137 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Support Admin · InfraForge Labs</title>
-  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
 <body>
 
-<header>
-  <img src="/logo.png" class="logo" alt="InfraForge Labs logo">
+<header class="header">
   <h1>Support Admin</h1>
   <p class="subtitle">Internal support dashboard · InfraForge Labs</p>
+  <a href="/" class="back-link">← Back to InfraForge Labs</a>
 </header>
 
-<main>
+<main class="container">
 
-  <div class="breadcrumb">
-    <a href="/">← Back to InfraForge Labs</a>
-    <span>›</span>
-    <span>Support Admin</span>
-  </div>
+  <!-- TICKETS LIST -->
+  <section class="card">
+    <h2>Tickets</h2>
 
-  <section>
-    <div class="card">
-      <h3>Tickets</h3>
+    <input
+      type="text"
+      id="search"
+      placeholder="Search by ticket ID, subject, email…"
+      class="input"
+    />
 
-      <input
-        id="search"
-        placeholder="Search by ticket ID, subject, email, or status"
-        oninput="renderTickets()"
-      >
-
-      <div id="tickets" class="philosophy">Loading tickets…</div>
-    </div>
+    <div id="tickets">Loading tickets…</div>
   </section>
 
-  <section>
-    <div class="card">
-      <h3>Conversation</h3>
-      <div id="thread" class="philosophy">
-        Select a ticket to view details
-      </div>
+  <!-- CONVERSATION -->
+  <section class="card">
+    <h2>Conversation</h2>
+    <div id="conversation">Select a ticket to view details</div>
+
+    <div id="attachmentsSection" style="display:none">
+      <h3>Attachments</h3>
+      <div id="attachments" class="attachments"></div>
+
+      <form id="uploadForm">
+        <input type="file" name="file" accept="image/*" />
+        <button type="submit">Upload image</button>
+      </form>
     </div>
+
+    <form id="replyForm" style="display:none">
+      <textarea
+        id="replyBody"
+        placeholder="Write a reply…"
+        class="textarea"
+        required
+      ></textarea>
+
+      <button type="submit">Send reply</button>
+      <button type="button" id="closeBtn">Close ticket</button>
+    </form>
+  </section>
+
+  <!-- AUDIT LOG -->
+  <section class="card">
+    <h2>Audit Log</h2>
+    <div id="audit">Select a ticket</div>
   </section>
 
 </main>
 
-<footer>
-  Internal Use Only · InfraForge Labs
+<footer class="footer">
+  Internal use only · InfraForge Labs
 </footer>
 
 <script>
-let ALL_TICKETS = [];
+let allTickets = [];
+let currentTicketId = null;
 
 async function loadTickets() {
-  const r = await fetch("https://infraforgelabs.in/support/api/admin/tickets");
-  ALL_TICKETS = await r.json();
-  renderTickets();
+  const res = await fetch("/support/api/admin/tickets");
+  const data = await res.json();
+  allTickets = data.tickets || [];
+  renderTickets(allTickets);
 }
 
-function renderTickets() {
-  const q = (search.value || "").toLowerCase();
+function renderTickets(list) {
+  const box = document.getElementById("tickets");
 
-  const filtered = ALL_TICKETS.filter(t =>
-    t.ticket_id.toLowerCase().includes(q) ||
-    t.subject.toLowerCase().includes(q) ||
-    t.from_email.toLowerCase().includes(q) ||
-    t.status.toLowerCase().includes(q)
-  );
+  if (!list.length) {
+    box.innerHTML = "<p>No tickets</p>";
+    return;
+  }
 
-  tickets.innerHTML = filtered.map(t =>
-    `<p>
+  box.innerHTML = list.map(t => `
+    <p>
       <a href="#" onclick="openTicket('${t.ticket_id}')">
         ${t.ticket_id}
       </a>
       — ${t.subject}
-      <span class="philosophy">
-        [${t.status}]
-        ${t.sla_breached ? "⏰ SLA BREACHED" : ""}
-      </span>
-    </p>`
-  ).join("") || "<p>No tickets</p>";
-}
-
-async function openTicket(id) {
-  const r = await fetch(
-    `https://infraforgelabs.in/support/api/admin/ticket/${id}`
-  );
-  const data = await r.json();
-
-  const auditHtml = data.audit.length
-    ? `<ul>${data.audit.map(a =>
-        `<li>
-          <strong>${a.action}</strong>
-          by ${a.actor}
-          <span class="philosophy">(${a.created_at})</span>
-        </li>`
-      ).join("")}</ul>`
-    : "<p class='philosophy'>No audit events</p>";
-
-  thread.innerHTML = `
-    <p><strong>Ticket:</strong> ${id}</p>
-    <p><strong>Status:</strong> ${data.ticket.status}</p>
-    <p><strong>SLA Due:</strong> ${data.ticket.sla_due_at || "—"}</p>
-
-    <h4>Audit Log</h4>
-    ${auditHtml}
-
-    <h4>Conversation</h4>
-    <pre>${data.replies.map(r =>
-      `[${r.direction}] ${r.body}`
-    ).join("\n\n")}</pre>
-
-    <textarea id="replyBox" rows="5" placeholder="Reply to user"></textarea>
-    <p>
-      <button onclick="sendReply('${id}')">Send Reply (Auto-closes)</button>
+      <span class="status">[${t.status}]</span>
+      ${t.sla_breached ? "<span class='sla'>⏰ SLA BREACHED</span>" : ""}
     </p>
-  `;
+  `).join("");
 }
 
-async function sendReply(id) {
-  await fetch("https://infraforgelabs.in/reply", {
+document.getElementById("search").oninput = e => {
+  const q = e.target.value.toLowerCase();
+  renderTickets(
+    allTickets.filter(t =>
+      t.ticket_id.toLowerCase().includes(q) ||
+      t.subject.toLowerCase().includes(q) ||
+      t.from_email.toLowerCase().includes(q)
+    )
+  );
+};
+
+async function openTicket(ticketId) {
+  currentTicketId = ticketId;
+
+  const res = await fetch(`/support/api/admin/read?ticket_id=${ticketId}`);
+  const data = await res.json();
+
+  // Conversation
+  const conv = document.getElementById("conversation");
+  conv.innerHTML = data.replies.map(r => `
+    <div class="message ${r.direction}">
+      <strong>${r.from_email}</strong>
+      <pre>${r.body}</pre>
+      <small>${r.created_at}</small>
+    </div>
+  `).join("");
+
+  // Attachments
+  const attBox = document.getElementById("attachments");
+  const attSection = document.getElementById("attachmentsSection");
+  attSection.style.display = "block";
+
+  attBox.innerHTML = data.attachments.length
+    ? data.attachments.map(a => `
+        <img
+          src="/support/api/attachments/view?key=${encodeURIComponent(a.r2_key)}"
+          alt="${a.filename}"
+          class="attachment-img"
+        />
+      `).join("")
+    : "<p>No attachments</p>";
+
+  // Audit log
+  const auditRes = await fetch(`/support/api/admin/audit?ticket_id=${ticketId}`);
+  const audit = await auditRes.json();
+  document.getElementById("audit").innerHTML =
+    audit.logs.map(l =>
+      `<p>${l.created_at} — ${l.actor} — ${l.action}</p>`
+    ).join("");
+
+  document.getElementById("replyForm").style.display = "block";
+}
+
+// Reply
+document.getElementById("replyForm").onsubmit = async e => {
+  e.preventDefault();
+
+  await fetch("/reply", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      ticketId: id,
-      message: replyBox.value
+      ticket_id: currentTicketId,
+      body: document.getElementById("replyBody").value
+    })
+  });
+
+  document.getElementById("replyBody").value = "";
+  openTicket(currentTicketId);
+};
+
+// Close ticket
+document.getElementById("closeBtn").onclick = async () => {
+  await fetch("/support/api/admin/status", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ticket_id: currentTicketId,
+      status: "closed"
     })
   });
   loadTickets();
-  openTicket(id);
-}
+  openTicket(currentTicketId);
+};
 
+// Upload attachment
+document.getElementById("uploadForm").onsubmit = async e => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  fd.append("ticket_id", currentTicketId);
+
+  await fetch("/support/api/attachments/upload", {
+    method: "POST",
+    body: fd
+  });
+
+  e.target.reset();
+  openTicket(currentTicketId);
+};
+
+// Initial load
 loadTickets();
 </script>
 
