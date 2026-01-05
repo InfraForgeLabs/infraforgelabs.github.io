@@ -1,131 +1,73 @@
-import {
-  extractEmail,
-  normalizeMessageId,
-  extractTicketIdFromSubject
-} from "./helpers";
-import { generateTicketId } from "../util/ticket";
-import { sendBrevoMail } from "../brevo/client";
+import { validateEmailAttachment } from "../utils/emailAttachments.js";
 
-const SLA_HOURS = 48;
-const ADMIN_NOTIFY = "support@infraforgelabs.in";
+export async function processEmail(message, env, ctx) {
+  try {
+    const subject = message.headers.get("subject") || "";
+    const from = message.from || "";
 
-export async function processEmail(message, env) {
-  const fromEmail = extractEmail(message.from);
-  const subject = message.headers.get("subject") || "(no subject)";
-  const rawBody = await new Response(message.raw).text();
+    // Ignore system/bounce
+    if (/mailer-daemon|postmaster/i.test(from)) return;
 
-  const messageId =
-    normalizeMessageId(message.headers.get("message-id")) ||
-    `<${crypto.randomUUID()}@infraforgelabs.in>`;
+    // Extract ticket code
+    const match = subject.match(/\[(INF-\w+)\]/);
+    if (!match) return;
 
-  const ticketId = extractTicketIdFromSubject(subject);
+    const ticketCode = match[1];
 
-  /* ─────────────────────────────
-     INBOUND REPLY
-     ───────────────────────────── */
-
-  if (ticketId) {
     const ticket = await env.DB.prepare(
-      "SELECT * FROM tickets WHERE ticket_id = ?"
-    ).bind(ticketId).first();
+      `SELECT id FROM tickets WHERE ticket_code = ?`
+    ).bind(ticketCode).first();
 
     if (!ticket) return;
 
-    // Store inbound reply
-    await env.DB.prepare(`
-      INSERT INTO replies
-      (ticket_id, direction, from_email, body, message_id)
-      VALUES (?, 'inbound', ?, ?, ?)
-    `).bind(
-      ticketId,
-      fromEmail,
-      rawBody.slice(0, 50000),
-      messageId
-    ).run();
+    const body = await message.text();
 
-    // Reopen if closed
-    if (ticket.status === "closed") {
-      const newSlaDue = new Date(
-        Date.now() + SLA_HOURS * 60 * 60 * 1000
-      ).toISOString();
+    // Insert reply
+    const reply = await env.DB.prepare(
+      `INSERT INTO replies
+       (ticket_id, author_type, author_identifier, body)
+       VALUES (?, 'email', ?, ?)`
+    ).bind(ticket.id, from, body).run();
 
-      await env.DB.prepare(`
-        UPDATE tickets
-        SET status = 'open',
-            sla_due_at = ?,
-            sla_breached = 0
-        WHERE ticket_id = ?
-      `).bind(newSlaDue, ticketId).run();
+    // Attachments
+    for (const att of message.attachments || []) {
+      if (!validateEmailAttachment(att).ok) continue;
 
-      // Audit log
-      await env.DB.prepare(`
-        INSERT INTO audit_log
-        (ticket_id, action, actor)
-        VALUES (?, 'reopen', ?)
-      `).bind(ticketId, fromEmail).run();
+      const key =
+        `tickets/${ticketCode}/${crypto.randomUUID()}-${att.filename}`;
 
-      // Notify admin
-      await sendBrevoMail(env, {
-        to: ADMIN_NOTIFY,
-        subject: `🔁 Ticket Reopened: ${ticketId}`,
-        body: `
-Ticket ${ticketId} has been reopened by the user.
+      await env.ATTACHMENTS_BUCKET.put(
+        key,
+        att.stream(),
+        { httpMetadata: { contentType: att.contentType } }
+      );
 
-From: ${fromEmail}
-Subject: ${ticket.subject}
-
-Please review and respond.
-`
-      });
+      await env.DB.prepare(
+        `INSERT INTO attachments
+         (ticket_id, reply_id, filename, mime_type, size_bytes,
+          r2_key, public_url, source, uploaded_by)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 'email', ?)`
+      ).bind(
+        ticket.id,
+        reply.lastRowId,
+        att.filename,
+        att.contentType,
+        att.size,
+        key,
+        `https://attachments.infraforgelabs.in/${key}`,
+        from
+      ).run();
     }
 
-    return;
+    // Audit
+    await env.DB.prepare(
+      `INSERT INTO audit_log
+       (ticket_id, actor_type, actor_identifier, action)
+       VALUES (?, 'email', ?, 'email_reply_received')`
+    ).bind(ticket.id, from).run();
+
+  } catch (err) {
+    console.error("Inbound email error:", err);
   }
-
-  /* ─────────────────────────────
-     NEW TICKET
-     ───────────────────────────── */
-
-  const newTicketId = generateTicketId();
-  const slaDue = new Date(
-    Date.now() + SLA_HOURS * 60 * 60 * 1000
-  ).toISOString();
-
-  await env.DB.prepare(`
-    INSERT INTO tickets
-    (ticket_id, from_email, subject, body, message_id, status, sla_due_at, sla_breached)
-    VALUES (?, ?, ?, ?, ?, 'open', ?, 0)
-  `).bind(
-    newTicketId,
-    fromEmail,
-    subject,
-    rawBody.slice(0, 50000),
-    messageId,
-    slaDue
-  ).run();
-
-  await env.DB.prepare(`
-    INSERT INTO replies
-    (ticket_id, direction, from_email, body, message_id)
-    VALUES (?, 'inbound', ?, ?, ?)
-  `).bind(
-    newTicketId,
-    fromEmail,
-    rawBody.slice(0, 50000),
-    messageId
-  ).run();
-
-  await sendBrevoMail(env, {
-    to: fromEmail,
-    subject: `[${newTicketId}] ${subject}`,
-    body: `
-Hello,
-
-We’ve received your support request.
-
-Ticket ID: ${newTicketId}
-
-— InfraForge Labs Support
-`
-  });
 }
+

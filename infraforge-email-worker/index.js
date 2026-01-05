@@ -1,41 +1,65 @@
-import { processEmail } from "./email/inbound";
-import { handlePublicTicket } from "./api/publicTicket";
-import { handleReply } from "./api/reply";
-import { handleAdminRead } from "./api/adminRead";
-import { handleAdminStatus } from "./api/adminStatus";
+import { handleAdminTickets } from "./api/adminTickets.js";
+import { handleAdminTicket } from "./api/adminTicket.js";
+import { handleAdminAttachment } from "./api/adminAttachment.js";
+import { handleAdminStatus } from "./api/adminStatus.js";
+import { handleAdminReply } from "./api/adminReply.js";
 
-function cors(res) {
-  res.headers.set("Access-Control-Allow-Origin", "https://infraforgelabs.in");
-  res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.headers.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  return res;
-}
+import { handlePublicTicket } from "./api/publicTicket.js";
+import { handleUserAuth } from "./api/userAuth.js";
+import { handleUserTicket } from "./api/userTicket.js";
+import { handleUserTokenLogin } from "./api/userTokenLogin.js";
+import { handleUserReply } from "./api/userReply.js";
+
+import { processEmail } from "./email/inbound.js";
 
 export default {
-  async email(message, env, ctx) {
-    try { await message.forward("infraforgelabs@gmail.com"); } catch {}
-    ctx.waitUntil(processEmail(message, env));
-  },
-
-  async fetch(request, env) {
-    if (request.method === "OPTIONS") {
-      return cors(new Response(null));
-    }
-
+  fetch(request, env, ctx) {
     const url = new URL(request.url);
 
-    if (url.pathname === "/support/api/ticket" && request.method === "POST")
-      return cors(await handlePublicTicket(request, env));
+    /* ================= PUBLIC ================= */
 
-    if (url.pathname === "/reply" && request.method === "POST")
-      return cors(await handleReply(request, env));
+    if (url.pathname === "/support/api/ticket")
+      return handlePublicTicket(request, env);
+
+    if (url.pathname === "/support/api/user/auth")
+      return handleUserAuth(request, env);
+
+    if (url.pathname === "/support/api/user/token-login")
+      return handleUserTokenLogin(request, env);
+
+    if (url.pathname.startsWith("/support/api/user/ticket/")) {
+      const code = url.pathname.split("/").pop();
+      return handleUserTicket(request, env, ctx, { code });
+    }
+
+    if (url.pathname.startsWith("/support/api/user/reply/")) {
+      const code = url.pathname.split("/").pop();
+      return handleUserReply(request, env, ctx, { code });
+    }
+
+    /* ================= ADMIN ================= */
+
+    if (url.pathname === "/support/api/admin/tickets")
+      return handleAdminTickets(request, env);
+
+    if (url.pathname.startsWith("/support/api/admin/ticket/")) {
+      const code = url.pathname.split("/").pop();
+      return handleAdminTicket(request, env, ctx, { id: code });
+    }
+
+    if (url.pathname === "/support/api/admin/reply")
+      return handleAdminReply(request, env);
 
     if (url.pathname === "/support/api/admin/status")
-      return cors(await handleAdminStatus(request, env));
+      return handleAdminStatus(request, env);
 
-    if (url.pathname.startsWith("/support/api/admin"))
-      return cors(await handleAdminRead(request, env, url));
+    if (url.pathname === "/support/api/admin/attachment")
+      return handleAdminAttachment(request, env);
 
-    return new Response("Not found", { status: 404 });
+    return Response.json({ error: "Not found" }, { status: 404 });
+  },
+
+  email(message, env, ctx) {
+    return processEmail(message, env, ctx);
   }
 };

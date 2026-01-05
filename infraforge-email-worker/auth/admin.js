@@ -1,6 +1,14 @@
-export function requireAdmin(request, env) {
-  const auth = request.headers.get("authorization");
-  if (auth !== `Bearer ${env.ADMIN_REPLY_TOKEN}`) {
-    throw new Response("Unauthorized", { status: 401 });
+export function requireAdmin(request) {
+  const jwt = request.headers.get("Cf-Access-Jwt-Assertion");
+
+  if (!jwt) {
+    return Response.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    );
   }
+
+  // optional: validate JWT here
+
+  return null; // success
 }

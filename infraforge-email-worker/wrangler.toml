@@ -44,3 +44,7 @@ SMTP_FROM = "support@infraforgelabs.in"
 # 🔑 SECRETS (SET VIA CLI)
 ############################
 # BREVO_API_KEY
+
+[[r2_buckets]]
+binding = "ATTACHMENTS"
+bucket_name = "infraforgelabs-support-attachments"

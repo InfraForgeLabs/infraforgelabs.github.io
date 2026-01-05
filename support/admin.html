@@ -5,69 +5,85 @@
   <title>Support Admin · InfraForge Labs</title>
   <link rel="stylesheet" href="/style.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    .ticket-item { cursor: pointer; padding: 6px 0; }
+    .ticket-item:hover { text-decoration: underline; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      margin-left: 6px;
+    }
+    .priority-low { background: #334155; }
+    .priority-normal { background: #2563eb; }
+    .priority-high { background: #f59e0b; }
+    .priority-urgent { background: #dc2626; }
+
+    .status {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    img {
+      max-width: 320px;
+      display: block;
+      margin-top: 6px;
+      border-radius: 6px;
+    }
+  </style>
 </head>
 
 <body>
-  <main class="container">
-    <h1>Support Admin</h1>
-    <p class="subtitle">Internal support dashboard · InfraForge Labs</p>
+<main class="container">
+  <h1>Support Admin</h1>
+  <p class="subtitle">Internal support dashboard · InfraForge Labs</p>
 
-    <p>
-      ← <a href="/">Back to InfraForge Labs</a>
-    </p>
+  <p>← <a href="/">Back to InfraForge Labs</a></p>
 
-    <!-- TICKETS -->
-    <section class="card">
-      <h2>Tickets</h2>
-      <input
-        id="search"
-        placeholder="Search by ticket ID, subject, email"
-        oninput="renderTickets()"
-      />
-      <div id="tickets">Loading tickets…</div>
-    </section>
+  <!-- TICKETS -->
+  <section class="card">
+    <h2>Tickets</h2>
+    <input id="search" placeholder="Search tickets" oninput="renderTickets()" />
+    <div id="tickets">Loading tickets…</div>
+  </section>
 
-    <!-- CONVERSATION -->
-    <section class="card">
-      <h2>Conversation</h2>
-      <div id="conversation">Select a ticket to view details</div>
+  <!-- CONVERSATION -->
+  <section class="card">
+    <h2>Conversation</h2>
 
-      <hr />
+    <div id="ticketMeta"></div>
+    <div id="conversation">Select a ticket</div>
 
-      <h3>Reply</h3>
-      <textarea
-        id="replyBody"
-        rows="4"
-        placeholder="Type your reply…"
-      ></textarea>
-      <br /><br />
-      <button onclick="sendReply()">Send Reply</button>
+    <hr />
 
-      <hr />
+    <h3>Reply</h3>
+    <textarea id="replyBody" rows="4" placeholder="Type reply…"></textarea>
+    <button onclick="sendReply()">Send Reply</button>
 
-      <h3>Attachments</h3>
-      <div id="attachments">No attachments</div>
+    <hr />
 
-      <input type="file" id="fileInput" />
-      <button onclick="uploadImage()">Upload image</button>
-    </section>
+    <h3>Attachments</h3>
+    <div id="attachments">No attachments</div>
+  </section>
 
-    <!-- AUDIT LOG -->
-    <section class="card">
-      <h2>Audit Log</h2>
-      <div id="audit">Select a ticket</div>
-    </section>
+  <!-- AUDIT -->
+  <section class="card">
+    <h2>Audit Log</h2>
+    <div id="audit">Select a ticket</div>
+  </section>
 
-    <footer>
-      <p>Internal use only · InfraForge Labs</p>
-    </footer>
-  </main>
+  <footer>
+    <p>Internal use only · InfraForge Labs</p>
+  </footer>
+</main>
 
 <script>
 let tickets = [];
-let selectedTicket = null;
+let selectedCode = null;
 
-/* ---------------- LOAD TICKETS ---------------- */
+/* LOAD TICKETS */
 async function loadTickets() {
   const res = await fetch("/support/api/admin/tickets");
   const data = await res.json();
@@ -76,117 +92,105 @@ async function loadTickets() {
 }
 
 function renderTickets() {
-  const q = document.getElementById("search").value.toLowerCase();
+  const q = search.value.toLowerCase();
   const list = tickets.filter(t =>
-    t.ticket_id.toLowerCase().includes(q) ||
-    t.subject.toLowerCase().includes(q) ||
-    t.from_email.toLowerCase().includes(q)
+    t.ticket_code.toLowerCase().includes(q) ||
+    t.subject.toLowerCase().includes(q)
   );
 
-  document.getElementById("tickets").innerHTML =
+  ticketsDiv.innerHTML =
     list.length === 0
       ? "<p>No tickets</p>"
       : list.map(t => `
-        <p>
-          <a href="#" onclick="openTicket('${t.ticket_id}')">
-            ${t.ticket_id}
-          </a>
-          — ${t.subject}
-        </p>
+        <div class="ticket-item" onclick="openTicket('${t.ticket_code}')">
+          <strong>${t.ticket_code}</strong>
+          <span class="badge priority-${t.priority}">${t.priority}</span><br>
+          ${t.subject}
+          <div class="status">Status: ${t.status}</div>
+        </div>
       `).join("");
 }
 
-/* ---------------- OPEN TICKET ---------------- */
-async function openTicket(ticketId) {
-  selectedTicket = ticketId;
+/* OPEN TICKET */
+async function openTicket(code) {
+  selectedCode = code;
 
-  const res = await fetch(
-    `/support/api/admin/read?ticket_id=${ticketId}`
-  );
+  const res = await fetch(`/support/api/admin/ticket/${code}`);
   const data = await res.json();
 
-  // Conversation
-  document.getElementById("conversation").innerHTML =
+  ticketMeta.innerHTML = `
+    <strong>${data.ticket.ticket_code}</strong><br>
+    Status:
+    <select onchange="updateStatus(this.value)">
+      ${["open","resolved","closed"].map(s =>
+        `<option ${s===data.ticket.status?"selected":""}>${s}</option>`
+      ).join("")}
+    </select>
+  `;
+
+  conversation.innerHTML =
     data.replies.length === 0
       ? "No messages"
       : data.replies.map(r => `
-        <div class="message">
-          <strong>${r.from_email}</strong><br/>
-          ${r.body}<br/>
-          <small>${r.created_at || ""}</small>
+        <div>
+          <strong>${r.author_type}</strong>
+          <small>${r.created_at}</small>
+          <div>${r.body}</div>
         </div>
       `).join("");
 
-  // Attachments
-  document.getElementById("attachments").innerHTML =
+  attachments.innerHTML =
     data.attachments.length === 0
       ? "No attachments"
       : data.attachments.map(a =>
-          `<img src="https://attachments.infraforgelabs.in/${a.r2_key}"
-                style="max-width:300px; margin-bottom:10px; display:block" />`
+          a.mime_type.startsWith("image/")
+            ? `<img src="${a.public_url}">`
+            : `<a href="${a.public_url}">${a.filename}</a>`
         ).join("");
 
-  loadAudit(ticketId);
+  audit.innerHTML =
+    data.auditLog.map(a =>
+      `<p>[${a.created_at}] ${a.action}</p>`
+    ).join("");
 }
 
-/* ---------------- SEND REPLY ---------------- */
-async function sendReply() {
-  const body = document.getElementById("replyBody").value.trim();
-
-  if (!selectedTicket || !body) {
-    alert("Select a ticket and write a reply");
-    return;
-  }
-
-  await fetch("/reply", {
+/* STATUS UPDATE */
+async function updateStatus(status) {
+  await fetch("/support/api/admin/status", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      ticket_id: selectedTicket,
-      body
+      ticketCode: selectedCode,
+      status
+    })
+  });
+  loadTickets();
+}
+
+/* SEND REPLY */
+async function sendReply() {
+  if (!selectedCode || !replyBody.value.trim()) return;
+
+  await fetch("/support/api/admin/reply", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ticketCode: selectedCode,
+      message: replyBody.value
     })
   });
 
-  document.getElementById("replyBody").value = "";
-  openTicket(selectedTicket);
+  replyBody.value = "";
+  openTicket(selectedCode);
 }
 
-/* ---------------- UPLOAD IMAGE ---------------- */
-async function uploadImage() {
-  const file = document.getElementById("fileInput").files[0];
-
-  if (!selectedTicket || !file) {
-    alert("Select ticket and file");
-    return;
-  }
-
-  const form = new FormData();
-  form.append("file", file);
-  form.append("ticket_id", selectedTicket);
-
-  await fetch("/support/api/admin/upload", {
-    method: "POST",
-    body: form
-  });
-
-  document.getElementById("fileInput").value = "";
-  openTicket(selectedTicket);
-}
-
-/* ---------------- AUDIT LOG ---------------- */
-async function loadAudit(ticketId) {
-  const res = await fetch(
-    `/support/api/admin/audit?ticket_id=${ticketId}`
-  );
-  const data = await res.json();
-
-  document.getElementById("audit").innerHTML =
-    data.logs.length === 0
-      ? "No audit events"
-      : data.logs.map(l =>
-          `<p>[${l.created_at}] ${l.action} by ${l.actor}</p>`
-        ).join("");
-}
+const ticketsDiv = document.getElementById("tickets");
+const conversation = document.getElementById("conversation");
+const attachments = document.getElementById("attachments");
+const audit = document.getElementById("audit");
+const search = document.getElementById("search");
+const replyBody = document.getElementById("replyBody");
+const ticketMeta = document.getElementById("ticketMeta");
 
 loadTickets();
 </script>

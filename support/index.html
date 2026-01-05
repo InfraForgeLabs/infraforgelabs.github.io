@@ -3,7 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <title>Support · InfraForge Labs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/style.css">
+  <style>
+    .card { max-width: 720px; margin: auto; }
+    input, textarea, button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 10px;
+    }
+    .reply {
+      border-top: 1px solid #333;
+      padding-top: 12px;
+      margin-top: 12px;
+    }
+    img { max-width: 100%; border-radius: 6px; margin-top: 8px; }
+  </style>
 </head>
 <body>
 
@@ -11,60 +26,46 @@
   <img src="/logo.png" class="logo" alt="InfraForge Labs logo">
   <h1>Support</h1>
   <p class="subtitle">
-    Need help with InfraForge, DevOpsMind, or InfraForge Labs tooling?
-    Send us a message and we’ll get back to you.
+    InfraForge · DevOpsMind · InfraForge Labs
   </p>
 </header>
 
 <main>
 
-  <!-- Back link -->
   <div class="breadcrumb">
     <a href="/">← Back to InfraForge Labs</a>
   </div>
 
-  <section>
+  <!-- AUTH / CREATE TICKET -->
+  <section id="authSection">
     <div class="card">
+      <h3>Create Support Ticket</h3>
 
-      <h3>Contact Support</h3>
+      <input id="fullName" placeholder="Full name" required>
+      <input id="email" type="email" placeholder="Email" required>
+      <input id="password" type="password" placeholder="Password" required>
 
-      <form id="supportForm">
+      <input id="subject" placeholder="Subject" required>
+      <textarea id="message" rows="6" placeholder="Describe your issue" required></textarea>
 
-        <p>
-          <input
-            id="email"
-            type="email"
-            placeholder="Your email"
-            required
-          >
-        </p>
+      <input id="file" type="file" accept="image/*">
 
-        <p>
-          <input
-            id="subject"
-            type="text"
-            placeholder="Subject"
-            required
-          >
-        </p>
+      <button onclick="createTicket()">Submit Ticket</button>
 
-        <p>
-          <textarea
-            id="message"
-            rows="6"
-            placeholder="Describe your issue"
-            required
-          ></textarea>
-        </p>
+      <p id="result"></p>
+    </div>
+  </section>
 
-        <p>
-          <button type="submit">Submit Ticket</button>
-        </p>
+  <!-- TICKET VIEW -->
+  <section id="ticketSection" style="display:none;">
+    <div class="card">
+      <h3>Ticket Conversation</h3>
+      <div id="conversation"></div>
 
-      </form>
-
-      <p id="result" class="philosophy"></p>
-
+      <h4>Reply</h4>
+      <textarea id="replyText" rows="4"></textarea>
+      <input id="replyFile" type="file" accept="image/*">
+      <button onclick="sendReply()">Send Reply</button>
     </div>
   </section>
 
@@ -75,30 +76,123 @@
 </footer>
 
 <script>
-document.getElementById("supportForm").onsubmit = async (e) => {
-  e.preventDefault();
+const API = "/support/api";
+
+let token = localStorage.getItem("support_token");
+let ticketCode = null;
+
+/* ---------------- HELPERS ---------------- */
+
+function qs(name) {
+  return new URLSearchParams(location.search).get(name);
+}
+
+/* ---------------- TOKEN LOGIN (EMAIL LINK) ---------------- */
+
+async function tokenLogin(ticket, oneTimeToken) {
+  const res = await fetch(`${API}/user/token-login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token: oneTimeToken })
+  });
+
+  const data = await res.json();
+  if (!data.ok) {
+    result.textContent = "Link expired or invalid.";
+    return;
+  }
+
+  localStorage.setItem("support_token", data.token);
+  token = data.token;
+  ticketCode = data.ticketCode;
+
+  // Clean URL (remove token from address bar)
+  history.replaceState({}, "", `/support/?ticket=${ticketCode}`);
+
+  loadTicket();
+}
+
+/* ---------------- CREATE TICKET ---------------- */
+
+async function createTicket() {
+  const form = new FormData();
+  form.append("fullName", fullName.value);
+  form.append("email", email.value);
+  form.append("password", password.value);
+  form.append("subject", subject.value);
+  form.append("message", message.value);
+  if (file.files[0]) form.append("file", file.files[0]);
+
+  const res = await fetch(`${API}/ticket`, {
+    method: "POST",
+    body: form
+  });
+
+  const data = await res.json();
+
+  if (!data.ok) {
+    result.textContent = data.error || "Failed to create ticket";
+    return;
+  }
+
+  localStorage.setItem("support_token", data.token);
+  token = data.token;
+  ticketCode = data.ticketCode;
+
+  result.textContent =
+    "Ticket created successfully. Ticket ID: " + ticketCode;
+
+  loadTicket();
+}
+
+/* ---------------- LOAD TICKET ---------------- */
+
+async function loadTicket() {
+  const res = await fetch(`${API}/user/ticket/${ticketCode}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  const data = await res.json();
+  if (!data.ok) return;
+
+  authSection.style.display = "none";
+  ticketSection.style.display = "block";
+
+  conversation.innerHTML = data.replies.map(r => `
+    <div class="reply">
+      <strong>${r.author_type}</strong><br>
+      ${r.body}
+      ${(r.attachments || []).map(a =>
+        a.mime_type.startsWith("image/")
+          ? `<img src="${a.public_url}">`
+          : `<a href="${a.public_url}" target="_blank">${a.filename}</a>`
+      ).join("")}
+    </div>
+  `).join("");
+}
+
+/* ---------------- SEND REPLY ---------------- */
+
+async function sendReply() {
+  const form = new FormData();
+  form.append("message", replyText.value);
+  if (replyFile.files[0]) form.append("file", replyFile.files[0]);
 
   const res = await fetch(
-    "https://infraforgelabs.in/support/api/ticket",
+    `${API}/user/reply/${ticketCode}`,
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: email.value,
-        subject: subject.value,
-        message: message.value
-      })
+      headers: { Authorization: `Bearer ${token}` },
+      body: form
     }
   );
 
   const data = await res.json();
+  if (data.ok) {
+    replyText.value = "";
+    replyFile.value = "";
+    loadTicket();
+  }
+}
 
-  document.getElementById("result").textContent =
-    "Ticket created successfully. Ticket ID: " + data.ticketId;
-
-  e.target.reset();
-};
-</script>
-
-</body>
-</html>
+/* -*

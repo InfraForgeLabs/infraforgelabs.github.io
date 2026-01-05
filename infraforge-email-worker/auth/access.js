@@ -1,5 +1,8 @@
 export function getAdminEmailFromAccess(request) {
-  const jwt = request.headers.get("CF-Access-Jwt-Assertion");
+  const jwt =
+    request.headers.get("CF-Access-Jwt-Assertion") ||
+    request.headers.get("Cf-Access-Jwt-Assertion");
+
   if (!jwt) return "unknown-admin";
 
   try {
