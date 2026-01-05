@@ -29,11 +29,6 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
   color:#ef4444;
   font-size:14px;
 }
-
-button[disabled] {
-  opacity:0.5;
-  cursor:not-allowed;
-}
 </style>
 </head>
 
@@ -61,7 +56,6 @@ button[disabled] {
 <!-- APP -->
 <section id="appSection" class="hidden">
 
-  <!-- CREATE -->
   <div class="card">
     <h3>Create Ticket <span class="logout" id="logoutBtn">Logout</span></h3>
     <input id="subject" placeholder="Subject">
@@ -71,22 +65,9 @@ button[disabled] {
     <p id="createMsg"></p>
   </div>
 
-  <!-- MY TICKETS -->
   <div class="card">
     <h3>My Tickets</h3>
     <div id="ticketsList">Loading…</div>
-  </div>
-
-  <!-- CONVERSATION -->
-  <div class="card">
-    <h3>Conversation</h3>
-    <div id="conversation">Select a ticket</div>
-
-    <textarea id="replyText" placeholder="Reply…"></textarea>
-    <input id="replyFile" type="file">
-
-    <button id="replyBtn">Send Reply</button>
-    <button id="reopenBtn" class="hidden">Reopen Ticket</button>
   </div>
 
 </section>
@@ -95,40 +76,39 @@ button[disabled] {
 <script>
 const API = "/support/api";
 
-/* -------- DOM -------- */
+/* ---------- HELPERS ---------- */
+function getToken() {
+  return localStorage.getItem("support_token");
+}
+
+function logout() {
+  localStorage.removeItem("support_token");
+  location.reload();
+}
+
+/* ---------- DOM ---------- */
 const loginSection = document.getElementById("loginSection");
 const appSection = document.getElementById("appSection");
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
-
-const createBtn = document.getElementById("createBtn");
-const replyBtn = document.getElementById("replyBtn");
-const reopenBtn = document.getElementById("reopenBtn");
-
 const ticketsList = document.getElementById("ticketsList");
-const conversation = document.getElementById("conversation");
-const replyText = document.getElementById("replyText");
-const replyFile = document.getElementById("replyFile");
 
-let token = localStorage.getItem("support_token");
-let activeTicket = null;
+/* ---------- INIT ---------- */
+if (getToken()) showApp();
 
-/* -------- INIT -------- */
-if (token) showApp();
-
-/* -------- AUTH (FIXED) -------- */
+/* ---------- AUTH ---------- */
 loginBtn.onclick = async () => {
-  if (!fullName.value.trim() || !email.value.trim() || !password.value.trim()) {
-    loginMsg.textContent = "All fields are required";
+  if (!fullName.value || !email.value || !password.value) {
+    loginMsg.textContent = "All fields required";
     return;
   }
 
   const res = await fetch(`${API}/user/auth`, {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({
-      fullName: fullName.value.trim(),
-      email: email.value.trim(),
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      fullName: fullName.value,
+      email: email.value,
       password: password.value
     })
   });
@@ -140,47 +120,34 @@ loginBtn.onclick = async () => {
   }
 
   localStorage.setItem("support_token", data.token);
-  token = data.token; // ✅ FIX: update runtime token
-
   showApp();
 };
 
-logoutBtn.onclick = () => {
-  localStorage.removeItem("support_token");
-  location.reload();
-};
+logoutBtn.onclick = logout;
 
+/* ---------- APP ---------- */
 function showApp() {
   loginSection.classList.add("hidden");
   appSection.classList.remove("hidden");
   loadTickets();
 }
 
-/* -------- LOAD TICKETS -------- */
 async function loadTickets() {
+  const token = getToken();
+  if (!token) return logout();
+
   const res = await fetch(`${API}/user/tickets`, {
-    headers:{ Authorization:`Bearer ${token}` }
+    headers: { Authorization: `Bearer ${token}` }
   });
 
   if (res.status === 401) return logout();
 
   const data = await res.json();
 
-  ticketsList.innerHTML = data.tickets.length === 0
-    ? "No tickets"
-    : data.tickets.map(t => `
-      <p onclick="openTicket('${t.ticket_code}')">
-        ${t.subject}
-        <span class="badge ${t.status==='closed'?'closed':''}">${t.status}</span>
-        ${t.has_unread_user ? `<span class="badge unread">NEW</span>` : ""}
-      </p>
-    `).join("");
-}
-
-/* -------- LOGOUT -------- */
-function logout() {
-  localStorage.removeItem("support_token");
-  location.reload();
+  ticketsList.innerHTML =
+    data.tickets.length === 0
+      ? "No tickets"
+      : data.tickets.map(t => `<p>${t.subject}</p>`).join("");
 }
 </script>
 
