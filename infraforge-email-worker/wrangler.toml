@@ -21,8 +21,8 @@ routes = [
 # 📬 EMAIL WORKER
 ############################
 
-[emails]
-enabled = true
+#[emails]
+#enabled = true
 
 ############################
 # 🗄️ D1 DATABASE
@@ -46,5 +46,7 @@ SMTP_FROM = "support@infraforgelabs.in"
 # BREVO_API_KEY
 
 [[r2_buckets]]
-binding = "ATTACHMENTS"
-bucket_name = "infraforgelabs-support-attachments"
+binding = "ATTACHMENTS_BUCKET"
+bucket_name = "infraforgelabs-attachments"
+preview_bucket_name = "infraforgelabs-attachments"
+

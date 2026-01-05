@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="/style.css">
 
 <style>
-.card { max-width: 760px; margin: 20px auto; }
+.card { max-width:760px; margin:20px auto; }
 input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 .hidden { display:none; }
 
@@ -19,15 +19,22 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
   color:#fff;
   margin-left:6px;
 }
-
 .badge.unread { background:#22c55e; }
 .badge.closed { background:#dc2626; }
 
-.logout {
-  float:right;
-  cursor:pointer;
-  color:#ef4444;
-  font-size:14px;
+.logout { float:right; cursor:pointer; color:#ef4444; }
+
+.reply {
+  margin-bottom:12px;
+  padding-bottom:8px;
+  border-bottom:1px solid #333;
+}
+
+.attachment img {
+  max-width:200px;
+  display:block;
+  margin-top:6px;
+  border-radius:6px;
 }
 </style>
 </head>
@@ -56,6 +63,7 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 <!-- APP -->
 <section id="appSection" class="hidden">
 
+  <!-- CREATE -->
   <div class="card">
     <h3>Create Ticket <span class="logout" id="logoutBtn">Logout</span></h3>
     <input id="subject" placeholder="Subject">
@@ -65,9 +73,24 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
     <p id="createMsg"></p>
   </div>
 
+  <!-- TICKETS -->
   <div class="card">
     <h3>My Tickets</h3>
     <div id="ticketsList">Loading…</div>
+  </div>
+
+  <!-- CONVERSATION -->
+  <div class="card">
+    <h3>Conversation</h3>
+    <div id="conversation">Select a ticket</div>
+
+    <textarea id="replyText" placeholder="Reply…"></textarea>
+    <input id="replyFile" type="file">
+    <button type="button" id="replyBtn">Send Reply</button>
+
+    <p style="font-size:12px;opacity:.7">
+      You can also reply directly via email using the magic link in notifications.
+    </p>
   </div>
 
 </section>
@@ -80,7 +103,6 @@ const API = "/support/api";
 function getToken() {
   return localStorage.getItem("support_token");
 }
-
 function logout() {
   localStorage.removeItem("support_token");
   location.reload();
@@ -91,7 +113,17 @@ const loginSection = document.getElementById("loginSection");
 const appSection = document.getElementById("appSection");
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
+
+const createBtn = document.getElementById("createBtn");
+const replyBtn = document.getElementById("replyBtn");
+
 const ticketsList = document.getElementById("ticketsList");
+const conversation = document.getElementById("conversation");
+
+const replyText = document.getElementById("replyText");
+const replyFile = document.getElementById("replyFile");
+
+let activeTicket = null;
 
 /* ---------- INIT ---------- */
 if (getToken()) showApp();
@@ -104,9 +136,9 @@ loginBtn.onclick = async () => {
   }
 
   const res = await fetch(`${API}/user/auth`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({
       fullName: fullName.value,
       email: email.value,
       password: password.value
@@ -119,8 +151,8 @@ loginBtn.onclick = async () => {
     return;
   }
 
- localStorage.setItem("support_token", data.token);
-location.reload(); // 🔒 HARD RESET INTO AUTHENTICATED STATE
+  localStorage.setItem("support_token", data.token);
+  location.reload(); // 🔒 edge-safe login
 };
 
 logoutBtn.onclick = logout;
@@ -132,12 +164,34 @@ function showApp() {
   loadTickets();
 }
 
-async function loadTickets() {
-  const token = getToken();
-  if (!token) return logout();
+/* ---------- CREATE ---------- */
+createBtn.onclick = async () => {
+  const fd = new FormData();
+  fd.append("subject", subject.value);
+  fd.append("message", message.value);
+  if (file.files[0]) fd.append("file", file.files[0]);
 
+  const res = await fetch(`${API}/user/ticket`, {
+    method:"POST",
+    headers:{ Authorization:`Bearer ${getToken()}` },
+    body:fd
+  });
+
+  if (res.status === 401) return logout();
+
+  const data = await res.json();
+  if (!data.ok) return createMsg.textContent = data.error;
+
+  subject.value = "";
+  message.value = "";
+  file.value = "";
+  loadTickets();
+};
+
+/* ---------- LOAD TICKETS ---------- */
+async function loadTickets() {
   const res = await fetch(`${API}/user/tickets`, {
-    headers: { Authorization: `Bearer ${token}` }
+    headers:{ Authorization:`Bearer ${getToken()}` }
   });
 
   if (res.status === 401) return logout();
@@ -147,8 +201,68 @@ async function loadTickets() {
   ticketsList.innerHTML =
     data.tickets.length === 0
       ? "No tickets"
-      : data.tickets.map(t => `<p>${t.subject}</p>`).join("");
+      : data.tickets.map(t => `
+        <p onclick="openTicket('${t.ticket_code}')">
+          ${t.subject}
+          <span class="badge ${t.status==='closed'?'closed':''}">${t.status}</span>
+          ${t.has_unread_user ? `<span class="badge unread">NEW</span>` : ""}
+        </p>
+      `).join("");
 }
+
+/* ---------- OPEN TICKET ---------- */
+async function openTicket(code) {
+  activeTicket = code;
+
+  const res = await fetch(`${API}/user/ticket/${code}`, {
+    headers:{ Authorization:`Bearer ${getToken()}` }
+  });
+
+  if (res.status === 401) return logout();
+
+  const data = await res.json();
+
+  conversation.innerHTML = data.replies.map(r => {
+    const files = data.attachments
+      .filter(a => a.reply_id === r.id)
+      .map(a =>
+        a.mime_type.startsWith("image/")
+          ? `<div class="attachment"><img src="${a.public_url}"></div>`
+          : `<div class="attachment"><a href="${a.public_url}" target="_blank">${a.filename}</a></div>`
+      ).join("");
+
+    return `
+      <div class="reply">
+        <strong>${r.author_name}</strong><br>
+        ${r.body}
+        ${files}
+      </div>
+    `;
+  }).join("");
+
+  loadTickets();
+}
+
+/* ---------- REPLY ---------- */
+replyBtn.onclick = async () => {
+  if (!activeTicket || !replyText.value.trim()) return;
+
+  const fd = new FormData();
+  fd.append("message", replyText.value);
+  if (replyFile.files[0]) fd.append("file", replyFile.files[0]);
+
+  const res = await fetch(`${API}/user/reply/${activeTicket}`, {
+    method:"POST",
+    headers:{ Authorization:`Bearer ${getToken()}` },
+    body:fd
+  });
+
+  if (res.status === 401) return logout();
+
+  replyText.value = "";
+  replyFile.value = "";
+  openTicket(activeTicket);
+};
 </script>
 
 </body>

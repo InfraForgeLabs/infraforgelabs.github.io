@@ -1,18 +1,16 @@
 /**
  * Cloudflare Workers–safe crypto helpers
- * Uses WebCrypto PBKDF2 + SHA-256 + pepper
+ * PBKDF2 + SHA-256 + per-user salt + global pepper
  */
 
-const ITERATIONS = 310000;
+const ITERATIONS = 100000; // ⬅ MAX supported by Cloudflare Workers
 const KEY_LENGTH = 32;
 
 export async function hashEmail(email, pepper) {
   const normalized = email.trim().toLowerCase();
   const data = new TextEncoder().encode(normalized + pepper);
   const digest = await crypto.subtle.digest("SHA-256", data);
-  return [...new Uint8Array(digest)]
-    .map(b => b.toString(16).padStart(2, "0"))
-    .join("");
+  return bufferToHex(new Uint8Array(digest));
 }
 
 export async function hashPassword(password, pepper) {

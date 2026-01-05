@@ -18,6 +18,11 @@ export async function handleAdminTicket(request, env, ctx, params) {
       );
     }
 
+    /* ================= CLEAR ADMIN UNREAD ================= */
+    await env.DB.prepare(
+      `UPDATE tickets SET has_unread_admin = 0 WHERE id = ?`
+    ).bind(ticket.id).run(); // ✅ ADD
+
     const replies = await env.DB.prepare(
       `SELECT * FROM replies
        WHERE ticket_id = ?

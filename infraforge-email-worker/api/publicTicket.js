@@ -1,38 +1,86 @@
+import { hashEmail, hashPassword } from "../utils/crypto.js";
+import { signJWT } from "../utils/jwt.js";
+
+/* ================== TICKET CODE ================== */
+function generateTicketCode() {
+  const ts = Date.now().toString(36).toUpperCase();
+  const rand = crypto.randomUUID().slice(0, 6).toUpperCase();
+  return `INF-${ts}-${rand}`;
+}
+
+/* ================== CREATE PUBLIC TICKET ================== */
 export async function handlePublicTicket(request, env) {
   try {
+    if (request.method !== "POST") {
+      return Response.json(
+        { ok: false, error: "Method not allowed" },
+        { status: 405 }
+      );
+    }
+
+    /* ---------- FORM DATA ---------- */
     const form = await request.formData();
 
+    const fullName = form.get("fullName");
     const email = form.get("email");
+    const password = form.get("password");
     const subject = form.get("subject");
     const message = form.get("message");
     const file = form.get("file");
 
-    if (!email || !subject || !message) {
+    if (!fullName || !email || !password || !subject || !message) {
       return Response.json(
-        { error: "Missing fields" },
+        { ok: false, error: "All fields are required" },
         { status: 400 }
       );
     }
 
-    const ticketCode = `INF-${Date.now().toString().slice(-6)}`;
+    /* ---------- USER ---------- */
+    const emailHash = await hashEmail(email, env.EMAIL_PEPPER);
 
-    const ticket = await env.DB.prepare(
+    let user = await env.DB.prepare(
+      "SELECT id FROM users WHERE email_hash = ?"
+    ).bind(emailHash).first();
+
+    let userId;
+
+    if (!user) {
+      const passwordHash = await hashPassword(password);
+
+      const res = await env.DB.prepare(
+        `INSERT INTO users (email_hash, password_hash, full_name)
+         VALUES (?, ?, ?)`
+      ).bind(emailHash, passwordHash, fullName).run();
+
+      userId = res.lastRowId;
+    } else {
+      userId = user.id;
+    }
+
+    /* ---------- TICKET ---------- */
+    const ticketCode = generateTicketCode();
+
+    const ticketRes = await env.DB.prepare(
       `INSERT INTO tickets
-       (ticket_code, subject, requester_email, source)
-       VALUES (?, ?, ?, 'web')`
-    ).bind(ticketCode, subject, email).run();
+       (ticket_code, subject, status, priority, requester_email_hash, source)
+       VALUES (?, ?, 'open', 'normal', ?, 'web')`
+    ).bind(ticketCode, subject, emailHash).run();
 
-    const reply = await env.DB.prepare(
+    const ticketId = ticketRes.lastRowId;
+
+    /* ---------- FIRST MESSAGE ---------- */
+    const replyRes = await env.DB.prepare(
       `INSERT INTO replies
-       (ticket_id, author_type, author_email, body)
+       (ticket_id, author_type, author_identifier, body)
        VALUES (?, 'user', ?, ?)`
-    ).bind(ticket.lastRowId, email, message).run();
+    ).bind(ticketId, emailHash, message).run();
 
-    if (file && file.size > 0) {
-      const r2Key = `tickets/${ticketCode}/${crypto.randomUUID()}-${file.name}`;
+    /* ---------- ATTACHMENT ---------- */
+    if (file && file.size > 0 && env.ATTACHMENTS_BUCKET) {
+      const key = `tickets/${ticketCode}/${crypto.randomUUID()}-${file.name}`;
 
       await env.ATTACHMENTS_BUCKET.put(
-        r2Key,
+        key,
         file.stream(),
         { httpMetadata: { contentType: file.type } }
       );
@@ -43,23 +91,40 @@ export async function handlePublicTicket(request, env) {
           r2_key, public_url, source, uploaded_by)
          VALUES (?, ?, ?, ?, ?, ?, ?, 'web', ?)`
       ).bind(
-        ticket.lastRowId,
-        reply.lastRowId,
+        ticketId,
+        replyRes.lastRowId,
         file.name,
         file.type,
         file.size,
-        r2Key,
-        `https://attachments.infraforgelabs.in/${r2Key}`,
-        email
+        key,
+        `https://attachments.infraforgelabs.in/${key}`,
+        emailHash
       ).run();
     }
 
-    return Response.json({ ok: true, ticketCode });
+    /* ---------- AUDIT ---------- */
+    await env.DB.prepare(
+      `INSERT INTO audit_log
+       (ticket_id, actor_type, actor_identifier, action)
+       VALUES (?, 'user', ?, 'ticket_created')`
+    ).bind(ticketId, emailHash).run();
+
+    /* ---------- LOGIN TOKEN ---------- */
+    const token = await signJWT(
+      { uid: userId, email_hash: emailHash },
+      env.JWT_SECRET
+    );
+
+    return Response.json({
+      ok: true,
+      ticketCode,
+      token
+    });
 
   } catch (err) {
-    console.error(err);
+    console.error("Public ticket error:", err);
     return Response.json(
-      { error: "Internal error" },
+      { ok: false, error: "Internal server error" },
       { status: 500 }
     );
   }

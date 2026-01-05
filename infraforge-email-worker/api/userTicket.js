@@ -1,55 +1,57 @@
-import { verifyJWT } from "../utils/jwt.js";
-
-export async function handleUserTicket(request, env, ctx, params) {
+export async function handleUserTicket(request, env, ctx, { code }) {
   try {
-    const auth = request.headers.get("Authorization");
-    if (!auth?.startsWith("Bearer ")) {
-      return Response.json({ ok: false }, { status: 401 });
-    }
-
-    const payload = await verifyJWT(
-      auth.slice(7),
-      env.JWT_SECRET
-    );
-    if (!payload) {
-      return Response.json({ ok: false }, { status: 401 });
-    }
-
     const ticket = await env.DB.prepare(
-      `SELECT * FROM tickets
-       WHERE ticket_code = ?`
-    ).bind(params.code).first();
+      "SELECT id FROM tickets WHERE ticket_code = ?"
+    ).bind(code).first();
 
     if (!ticket) {
-      return Response.json({ ok: false }, { status: 404 });
+      return Response.json(
+        { ok: false, error: "Ticket not found" },
+        { status: 404 }
+      );
     }
 
-    // Ownership check via hashed email
-    if (ticket.requester_email_hash !== payload.email_hash) {
-      return Response.json({ ok: false }, { status: 403 });
-    }
+    /* ================= CLEAR USER UNREAD ================= */
+    await env.DB.prepare(
+      `UPDATE tickets SET has_unread_user = 0 WHERE id = ?`
+    ).bind(ticket.id).run(); // ✅ ADD
 
     const replies = await env.DB.prepare(
-      `SELECT * FROM replies
-       WHERE ticket_id = ?
-       ORDER BY created_at ASC`
+      `
+      SELECT
+        r.id,
+        r.body,
+        r.created_at,
+        r.author_type,
+        COALESCE(u.full_name, 'InfraForge Support') AS author_name
+      FROM replies r
+      LEFT JOIN users u
+        ON r.author_type = 'user'
+       AND r.author_identifier = u.email_hash
+      WHERE r.ticket_id = ?
+      ORDER BY r.created_at ASC
+      `
     ).bind(ticket.id).all();
 
     const attachments = await env.DB.prepare(
-      `SELECT * FROM attachments
-       WHERE ticket_id = ?`
+      `
+      SELECT *
+      FROM attachments
+      WHERE ticket_id = ?
+      ORDER BY created_at ASC
+      `
     ).bind(ticket.id).all();
 
     return Response.json({
       ok: true,
-      replies: replies.results,
-      attachments: attachments.results
+      replies: replies.results || [],
+      attachments: attachments.results || []
     });
 
   } catch (err) {
-    console.error(err);
+    console.error("User ticket read error:", err);
     return Response.json(
-      { ok: false },
+      { ok: false, error: "Internal error" },
       { status: 500 }
     );
   }

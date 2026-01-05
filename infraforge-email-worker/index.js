@@ -9,6 +9,9 @@ import { handleUserAuth } from "./api/userAuth.js";
 import { handleUserTicket } from "./api/userTicket.js";
 import { handleUserTokenLogin } from "./api/userTokenLogin.js";
 import { handleUserReply } from "./api/userReply.js";
+import { handleUserTickets } from "./api/userTickets.js";
+import { handleUserClose } from "./api/userClose.js";
+import { handleUserCreateTicket } from "./api/userCreateTicket.js"; // ✅ ADD
 
 import { processEmail } from "./email/inbound.js";
 
@@ -27,6 +30,14 @@ export default {
     if (url.pathname === "/support/api/user/token-login")
       return handleUserTokenLogin(request, env);
 
+    /* ================= USER ================= */
+
+    if (url.pathname === "/support/api/user/ticket")
+      return handleUserCreateTicket(request, env); // ✅ ADD
+
+    if (url.pathname === "/support/api/user/tickets")
+      return handleUserTickets(request, env);
+
     if (url.pathname.startsWith("/support/api/user/ticket/")) {
       const code = url.pathname.split("/").pop();
       return handleUserTicket(request, env, ctx, { code });
@@ -35,6 +46,11 @@ export default {
     if (url.pathname.startsWith("/support/api/user/reply/")) {
       const code = url.pathname.split("/").pop();
       return handleUserReply(request, env, ctx, { code });
+    }
+
+    if (url.pathname.startsWith("/support/api/user/close/")) {
+      const code = url.pathname.split("/").pop();
+      return handleUserClose(request, env, { code });
     }
 
     /* ================= ADMIN ================= */
