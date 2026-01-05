@@ -111,8 +111,8 @@ let token = localStorage.getItem("support_token");
 let activeTicket = null;
 let activeStatus = null;
 
-/* -------- CACHE (✅ ADD) -------- */
-const ticketStatusCache = {}; // ticket_code -> status
+/* -------- CACHE -------- */
+const ticketStatusCache = {};
 
 /* -------- INIT -------- */
 if (token) showApp();
@@ -160,6 +160,12 @@ createBtn.onclick = async () => {
     body: fd
   });
 
+  if (res.status === 401) {
+    localStorage.removeItem("support_token");
+    location.reload();
+    return;
+  }
+
   const data = await res.json();
   if (!data.ok) return createMsg.textContent = data.error;
 
@@ -170,17 +176,24 @@ createBtn.onclick = async () => {
   loadTickets();
 };
 
-/* -------- MY TICKETS -------- */
+/* -------- MY TICKETS (FIXED) -------- */
 async function loadTickets() {
   const res = await fetch(`${API}/user/tickets`, {
     headers:{ Authorization:`Bearer ${token}` }
   });
+
+  if (res.status === 401) {
+    localStorage.removeItem("support_token");
+    location.reload();
+    return;
+  }
+
   const data = await res.json();
 
   ticketsList.innerHTML = data.tickets.length === 0
     ? "No tickets"
     : data.tickets.map(t => {
-        ticketStatusCache[t.ticket_code] = t.status; // ✅ ADD
+        ticketStatusCache[t.ticket_code] = t.status;
         return `
           <p onclick="openTicket('${t.ticket_code}')">
             ${t.subject}
@@ -194,11 +207,18 @@ async function loadTickets() {
 /* -------- OPEN -------- */
 async function openTicket(code) {
   activeTicket = code;
-  activeStatus = ticketStatusCache[code]; // ✅ FIX
+  activeStatus = ticketStatusCache[code];
 
   const res = await fetch(`${API}/user/ticket/${code}`, {
     headers:{ Authorization:`Bearer ${token}` }
   });
+
+  if (res.status === 401) {
+    localStorage.removeItem("support_token");
+    location.reload();
+    return;
+  }
+
   const data = await res.json();
 
   conversation.innerHTML = data.replies.map(r =>
@@ -225,11 +245,17 @@ replyBtn.onclick = async () => {
   const fd = new FormData();
   fd.append("message", replyText.value);
 
-  await fetch(`${API}/user/reply/${activeTicket}`, {
+  const res = await fetch(`${API}/user/reply/${activeTicket}`, {
     method:"POST",
     headers:{ Authorization:`Bearer ${token}` },
     body: fd
   });
+
+  if (res.status === 401) {
+    localStorage.removeItem("support_token");
+    location.reload();
+    return;
+  }
 
   replyText.value = "";
   openTicket(activeTicket);
@@ -237,10 +263,16 @@ replyBtn.onclick = async () => {
 
 /* -------- REOPEN -------- */
 reopenBtn.onclick = async () => {
-  await fetch(`${API}/user/close/${activeTicket}`, {
+  const res = await fetch(`${API}/user/close/${activeTicket}`, {
     method:"POST",
     headers:{ Authorization:`Bearer ${token}` }
   });
+
+  if (res.status === 401) {
+    localStorage.removeItem("support_token");
+    location.reload();
+    return;
+  }
 
   loadTickets();
   openTicket(activeTicket);
