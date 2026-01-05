@@ -34,17 +34,6 @@ button[disabled] {
   opacity:0.5;
   cursor:not-allowed;
 }
-
-.attachment {
-  margin-top: 6px;
-}
-
-.attachment img {
-  max-width: 200px;
-  display: block;
-  border-radius: 6px;
-  margin-top: 4px;
-}
 </style>
 </head>
 
@@ -94,7 +83,6 @@ button[disabled] {
     <div id="conversation">Select a ticket</div>
 
     <textarea id="replyText" placeholder="Reply…"></textarea>
-    <!-- ✅ ADD: reply attachment -->
     <input id="replyFile" type="file">
 
     <button id="replyBtn">Send Reply</button>
@@ -128,7 +116,7 @@ let activeTicket = null;
 /* -------- INIT -------- */
 if (token) showApp();
 
-/* -------- AUTH -------- */
+/* -------- AUTH (FIXED) -------- */
 loginBtn.onclick = async () => {
   if (!fullName.value.trim() || !email.value.trim() || !password.value.trim()) {
     loginMsg.textContent = "All fields are required";
@@ -146,9 +134,14 @@ loginBtn.onclick = async () => {
   });
 
   const data = await res.json();
-  if (!data.ok) return loginMsg.textContent = data.error;
+  if (!data.ok) {
+    loginMsg.textContent = data.error;
+    return;
+  }
 
   localStorage.setItem("support_token", data.token);
+  token = data.token; // ✅ FIX: update runtime token
+
   showApp();
 };
 
@@ -163,31 +156,6 @@ function showApp() {
   loadTickets();
 }
 
-/* -------- CREATE -------- */
-createBtn.onclick = async () => {
-  const fd = new FormData();
-  fd.append("subject", subject.value);
-  fd.append("message", message.value);
-  if (file.files[0]) fd.append("file", file.files[0]);
-
-  const res = await fetch(`${API}/user/ticket`, {
-    method:"POST",
-    headers:{ Authorization:`Bearer ${token}` },
-    body: fd
-  });
-
-  if (res.status === 401) return logout();
-
-  const data = await res.json();
-  if (!data.ok) return createMsg.textContent = data.error;
-
-  createMsg.textContent = "Ticket created";
-  subject.value = "";
-  message.value = "";
-  file.value = "";
-  loadTickets();
-};
-
 /* -------- LOAD TICKETS -------- */
 async function loadTickets() {
   const res = await fetch(`${API}/user/tickets`, {
@@ -201,67 +169,13 @@ async function loadTickets() {
   ticketsList.innerHTML = data.tickets.length === 0
     ? "No tickets"
     : data.tickets.map(t => `
-        <p onclick="openTicket('${t.ticket_code}')">
-          ${t.subject}
-          <span class="badge ${t.status==='closed'?'closed':''}">${t.status}</span>
-          ${t.has_unread_user ? `<span class="badge unread">NEW</span>` : ""}
-        </p>
-      `).join("");
-}
-
-/* -------- OPEN -------- */
-async function openTicket(code) {
-  activeTicket = code;
-
-  const res = await fetch(`${API}/user/ticket/${code}`, {
-    headers:{ Authorization:`Bearer ${token}` }
-  });
-
-  if (res.status === 401) return logout();
-
-  const data = await res.json();
-
-  conversation.innerHTML = data.replies.map(r => {
-    const files = data.attachments
-      .filter(a => a.reply_id === r.id)
-      .map(a =>
-        a.mime_type.startsWith("image/")
-          ? `<div class="attachment"><img src="${a.public_url}"></div>`
-          : `<div class="attachment"><a href="${a.public_url}" target="_blank">${a.filename}</a></div>`
-      ).join("");
-
-    return `
-      <p>
-        <strong>${r.author_name}</strong><br>
-        ${r.body}
-        ${files}
+      <p onclick="openTicket('${t.ticket_code}')">
+        ${t.subject}
+        <span class="badge ${t.status==='closed'?'closed':''}">${t.status}</span>
+        ${t.has_unread_user ? `<span class="badge unread">NEW</span>` : ""}
       </p>
-    `;
-  }).join("");
-
-  loadTickets();
+    `).join("");
 }
-
-/* -------- REPLY -------- */
-replyBtn.onclick = async () => {
-  if (!activeTicket || !replyText.value.trim()) return;
-
-  const fd = new FormData();
-  fd.append("message", replyText.value);
-  if (replyFile.files[0]) fd.append("file", replyFile.files[0]);
-
-  const res = await fetch(`${API}/user/reply/${activeTicket}`, {
-    method:"POST",
-    headers:{ Authorization:`Bearer ${token}` },
-    body: fd
-  });
-
-  if (res.status === 401) return logout();
-
-  replyText.value = "";
-  replyFile.value = "";
-  openTicket(activeTicket);
-};
 
 /* -------- LOGOUT -------- */
 function logout() {
