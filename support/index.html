@@ -111,6 +111,9 @@ let token = localStorage.getItem("support_token");
 let activeTicket = null;
 let activeStatus = null;
 
+/* -------- CACHE (✅ ADD) -------- */
+const ticketStatusCache = {}; // ticket_code -> status
+
 /* -------- INIT -------- */
 if (token) showApp();
 
@@ -144,7 +147,7 @@ function showApp() {
   loadTickets();
 }
 
-/* -------- CREATE (FIXED) -------- */
+/* -------- CREATE -------- */
 createBtn.onclick = async () => {
   const fd = new FormData();
   fd.append("subject", subject.value);
@@ -176,25 +179,27 @@ async function loadTickets() {
 
   ticketsList.innerHTML = data.tickets.length === 0
     ? "No tickets"
-    : data.tickets.map(t => `
-      <p onclick="openTicket('${t.ticket_code}')">
-        ${t.subject}
-        <span class="badge ${t.status==='closed'?'closed':''}">${t.status}</span>
-        ${t.has_unread_user ? `<span class="badge unread">NEW</span>` : ""}
-      </p>
-    `).join("");
+    : data.tickets.map(t => {
+        ticketStatusCache[t.ticket_code] = t.status; // ✅ ADD
+        return `
+          <p onclick="openTicket('${t.ticket_code}')">
+            ${t.subject}
+            <span class="badge ${t.status==='closed'?'closed':''}">${t.status}</span>
+            ${t.has_unread_user ? `<span class="badge unread">NEW</span>` : ""}
+          </p>
+        `;
+      }).join("");
 }
 
 /* -------- OPEN -------- */
 async function openTicket(code) {
   activeTicket = code;
+  activeStatus = ticketStatusCache[code]; // ✅ FIX
 
   const res = await fetch(`${API}/user/ticket/${code}`, {
     headers:{ Authorization:`Bearer ${token}` }
   });
   const data = await res.json();
-
-  activeStatus = data.ticket.status;
 
   conversation.innerHTML = data.replies.map(r =>
     `<p><strong>${r.author_name}</strong><br>${r.body}</p>`
@@ -237,6 +242,7 @@ reopenBtn.onclick = async () => {
     headers:{ Authorization:`Bearer ${token}` }
   });
 
+  loadTickets();
   openTicket(activeTicket);
 };
 </script>
