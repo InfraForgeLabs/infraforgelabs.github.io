@@ -17,17 +17,20 @@
       padding-top: 12px;
       margin-top: 12px;
     }
-    img { max-width: 100%; border-radius: 6px; margin-top: 8px; }
+    img {
+      max-width: 100%;
+      border-radius: 6px;
+      margin-top: 8px;
+    }
   </style>
 </head>
+
 <body>
 
 <header>
   <img src="/logo.png" class="logo" alt="InfraForge Labs logo">
   <h1>Support</h1>
-  <p class="subtitle">
-    InfraForge · DevOpsMind · InfraForge Labs
-  </p>
+  <p class="subtitle">InfraForge · DevOpsMind · InfraForge Labs</p>
 </header>
 
 <main>
@@ -36,7 +39,7 @@
     <a href="/">← Back to InfraForge Labs</a>
   </div>
 
-  <!-- AUTH / CREATE TICKET -->
+  <!-- CREATE TICKET -->
   <section id="authSection">
     <div class="card">
       <h3>Create Support Ticket</h3>
@@ -50,7 +53,7 @@
 
       <input id="file" type="file" accept="image/*">
 
-      <button onclick="createTicket()">Submit Ticket</button>
+      <button id="submitBtn">Submit Ticket</button>
 
       <p id="result"></p>
     </div>
@@ -65,7 +68,7 @@
       <h4>Reply</h4>
       <textarea id="replyText" rows="4"></textarea>
       <input id="replyFile" type="file" accept="image/*">
-      <button onclick="sendReply()">Send Reply</button>
+      <button id="replyBtn">Send Reply</button>
     </div>
   </section>
 
@@ -76,123 +79,150 @@
 </footer>
 
 <script>
-const API = "/support/api";
+(function () {
+  const API = "/support/api";
 
-let token = localStorage.getItem("support_token");
-let ticketCode = null;
+  let token = localStorage.getItem("support_token");
+  let ticketCode = null;
 
-/* ---------------- HELPERS ---------------- */
+  const authSection = document.getElementById("authSection");
+  const ticketSection = document.getElementById("ticketSection");
+  const result = document.getElementById("result");
+  const conversation = document.getElementById("conversation");
 
-function qs(name) {
-  return new URLSearchParams(location.search).get(name);
-}
+  const submitBtn = document.getElementById("submitBtn");
+  const replyBtn = document.getElementById("replyBtn");
 
-/* ---------------- TOKEN LOGIN (EMAIL LINK) ---------------- */
-
-async function tokenLogin(ticket, oneTimeToken) {
-  const res = await fetch(`${API}/user/token-login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ token: oneTimeToken })
-  });
-
-  const data = await res.json();
-  if (!data.ok) {
-    result.textContent = "Link expired or invalid.";
-    return;
+  function qs(name) {
+    return new URLSearchParams(window.location.search).get(name);
   }
 
-  localStorage.setItem("support_token", data.token);
-  token = data.token;
-  ticketCode = data.ticketCode;
+  /* ---------------- TOKEN LOGIN (EMAIL LINK) ---------------- */
 
-  // Clean URL (remove token from address bar)
-  history.replaceState({}, "", `/support/?ticket=${ticketCode}`);
-
-  loadTicket();
-}
-
-/* ---------------- CREATE TICKET ---------------- */
-
-async function createTicket() {
-  const form = new FormData();
-  form.append("fullName", fullName.value);
-  form.append("email", email.value);
-  form.append("password", password.value);
-  form.append("subject", subject.value);
-  form.append("message", message.value);
-  if (file.files[0]) form.append("file", file.files[0]);
-
-  const res = await fetch(`${API}/ticket`, {
-    method: "POST",
-    body: form
-  });
-
-  const data = await res.json();
-
-  if (!data.ok) {
-    result.textContent = data.error || "Failed to create ticket";
-    return;
-  }
-
-  localStorage.setItem("support_token", data.token);
-  token = data.token;
-  ticketCode = data.ticketCode;
-
-  result.textContent =
-    "Ticket created successfully. Ticket ID: " + ticketCode;
-
-  loadTicket();
-}
-
-/* ---------------- LOAD TICKET ---------------- */
-
-async function loadTicket() {
-  const res = await fetch(`${API}/user/ticket/${ticketCode}`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-
-  const data = await res.json();
-  if (!data.ok) return;
-
-  authSection.style.display = "none";
-  ticketSection.style.display = "block";
-
-  conversation.innerHTML = data.replies.map(r => `
-    <div class="reply">
-      <strong>${r.author_type}</strong><br>
-      ${r.body}
-      ${(r.attachments || []).map(a =>
-        a.mime_type.startsWith("image/")
-          ? `<img src="${a.public_url}">`
-          : `<a href="${a.public_url}" target="_blank">${a.filename}</a>`
-      ).join("")}
-    </div>
-  `).join("");
-}
-
-/* ---------------- SEND REPLY ---------------- */
-
-async function sendReply() {
-  const form = new FormData();
-  form.append("message", replyText.value);
-  if (replyFile.files[0]) form.append("file", replyFile.files[0]);
-
-  const res = await fetch(
-    `${API}/user/reply/${ticketCode}`,
-    {
+  async function tokenLogin(ticket, oneTimeToken) {
+    const res = await fetch(API + "/user/token-login", {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: form
-    }
-  );
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: oneTimeToken })
+    });
 
-  const data = await res.json();
-  if (data.ok) {
-    replyText.value = "";
-    replyFile.value = "";
+    const data = await res.json();
+    if (!data.ok) {
+      result.textContent = "Link expired or invalid.";
+      return;
+    }
+
+    localStorage.setItem("support_token", data.token);
+    token = data.token;
+    ticketCode = data.ticketCode;
+
+    history.replaceState({}, "", "/support/?ticket=" + ticketCode);
     loadTicket();
   }
-}
 
-/* -*
+  /* ---------------- CREATE TICKET ---------------- */
+
+  async function createTicket() {
+    const form = new FormData();
+    form.append("fullName", fullName.value);
+    form.append("email", email.value);
+    form.append("password", password.value);
+    form.append("subject", subject.value);
+    form.append("message", message.value);
+    if (file.files[0]) form.append("file", file.files[0]);
+
+    const res = await fetch(API + "/ticket", {
+      method: "POST",
+      body: form
+    });
+
+    const data = await res.json();
+    if (!data.ok) {
+      result.textContent = data.error || "Failed to create ticket";
+      return;
+    }
+
+    localStorage.setItem("support_token", data.token);
+    token = data.token;
+    ticketCode = data.ticketCode;
+
+    result.textContent = "Ticket created successfully. Ticket ID: " + ticketCode;
+    loadTicket();
+  }
+
+  /* ---------------- LOAD TICKET ---------------- */
+
+  async function loadTicket() {
+    const res = await fetch(API + "/user/ticket/" + ticketCode, {
+      headers: { Authorization: "Bearer " + token }
+    });
+
+    const data = await res.json();
+    if (!data.ok) return;
+
+    authSection.style.display = "none";
+    ticketSection.style.display = "block";
+
+    conversation.innerHTML = data.replies.map(function (r) {
+      let html = "<div class='reply'><strong>" +
+        r.author_type + "</strong><br>" +
+        r.body;
+
+      if (r.attachments) {
+        r.attachments.forEach(function (a) {
+          if (a.mime_type.startsWith("image/")) {
+            html += "<img src='" + a.public_url + "'>";
+          } else {
+            html += "<a href='" + a.public_url + "'>" + a.filename + "</a>";
+          }
+        });
+      }
+
+      html += "</div>";
+      return html;
+    }).join("");
+  }
+
+  /* ---------------- SEND REPLY ---------------- */
+
+  async function sendReply() {
+    const form = new FormData();
+    form.append("message", replyText.value);
+    if (replyFile.files[0]) form.append("file", replyFile.files[0]);
+
+    const res = await fetch(API + "/user/reply/" + ticketCode, {
+      method: "POST",
+      headers: { Authorization: "Bearer " + token },
+      body: form
+    });
+
+    const data = await res.json();
+    if (data.ok) {
+      replyText.value = "";
+      replyFile.value = "";
+      loadTicket();
+    }
+  }
+
+  /* ---------------- EVENTS ---------------- */
+
+  submitBtn.addEventListener("click", createTicket);
+  replyBtn.addEventListener("click", sendReply);
+
+  /* ---------------- AUTO INIT ---------------- */
+
+  const linkTicket = qs("ticket");
+  const linkToken = qs("token");
+
+  if (linkTicket && linkToken) {
+    ticketCode = linkTicket;
+    tokenLogin(linkTicket, linkToken);
+  } else if (token && linkTicket) {
+    ticketCode = linkTicket;
+    loadTicket();
+  }
+})();
+</script>
+
+</body>
+</html>
