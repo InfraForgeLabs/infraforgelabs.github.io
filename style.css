@@ -530,4 +530,19 @@ header h1 {
 .resolved { background:#16a34a }
 .closed { background:#6b7280 }
 
+const badgeClass =
+  data.status === "open"
+    ? "status-open"
+    : data.status === "resolved"
+    ? "status-resolved"
+    : "status-closed";
+
+const reopened =
+  data.status === "open" && data.was_reopened;
+
+statusEl.innerHTML = `
+  <span class="status-badge ${badgeClass} ${reopened ? "status-reopen" : ""}">
+    ${data.status}
+  </span>
+`;
 
