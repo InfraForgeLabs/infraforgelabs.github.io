@@ -32,6 +32,8 @@
       <h2>Conversation</h2>
       <div id="conversation">Select a ticket to view details</div>
 
+      <hr />
+
       <h3>Reply</h3>
       <textarea
         id="replyBody"
@@ -40,6 +42,8 @@
       ></textarea>
       <br /><br />
       <button onclick="sendReply()">Send Reply</button>
+
+      <hr />
 
       <h3>Attachments</h3>
       <div id="attachments">No attachments</div>
@@ -63,7 +67,7 @@
 let tickets = [];
 let selectedTicket = null;
 
-// -------------------- LOAD TICKETS --------------------
+/* ---------------- LOAD TICKETS ---------------- */
 async function loadTickets() {
   const res = await fetch("/support/api/admin/tickets");
   const data = await res.json();
@@ -92,22 +96,26 @@ function renderTickets() {
       `).join("");
 }
 
-// -------------------- OPEN TICKET --------------------
-async function openTicket(id) {
-  selectedTicket = id;
+/* ---------------- OPEN TICKET ---------------- */
+async function openTicket(ticketId) {
+  selectedTicket = ticketId;
 
-  const res = await fetch(`/support/api/admin/read?ticket_id=${id}`);
+  const res = await fetch(
+    `/support/api/admin/read?ticket_id=${ticketId}`
+  );
   const data = await res.json();
 
   // Conversation
   document.getElementById("conversation").innerHTML =
-    data.replies.map(r => `
-      <div class="message">
-        <strong>${r.from_email}</strong><br/>
-        ${r.body}<br/>
-        <small>${r.created_at || ""}</small>
-      </div>
-    `).join("");
+    data.replies.length === 0
+      ? "No messages"
+      : data.replies.map(r => `
+        <div class="message">
+          <strong>${r.from_email}</strong><br/>
+          ${r.body}<br/>
+          <small>${r.created_at || ""}</small>
+        </div>
+      `).join("");
 
   // Attachments
   document.getElementById("attachments").innerHTML =
@@ -115,18 +123,18 @@ async function openTicket(id) {
       ? "No attachments"
       : data.attachments.map(a =>
           `<img src="https://attachments.infraforgelabs.in/${a.r2_key}"
-                style="max-width:300px; display:block; margin-bottom:10px"/>`
+                style="max-width:300px; margin-bottom:10px; display:block" />`
         ).join("");
 
-  // Audit log
-  loadAudit(id);
+  loadAudit(ticketId);
 }
 
-// -------------------- SEND REPLY --------------------
+/* ---------------- SEND REPLY ---------------- */
 async function sendReply() {
-  const body = document.getElementById("replyBody").value;
+  const body = document.getElementById("replyBody").value.trim();
+
   if (!selectedTicket || !body) {
-    alert("Select ticket and write a reply");
+    alert("Select a ticket and write a reply");
     return;
   }
 
@@ -143,10 +151,11 @@ async function sendReply() {
   openTicket(selectedTicket);
 }
 
-// -------------------- UPLOAD IMAGE --------------------
+/* ---------------- UPLOAD IMAGE ---------------- */
 async function uploadImage() {
   const file = document.getElementById("fileInput").files[0];
-  if (!file || !selectedTicket) {
+
+  if (!selectedTicket || !file) {
     alert("Select ticket and file");
     return;
   }
@@ -160,12 +169,15 @@ async function uploadImage() {
     body: form
   });
 
+  document.getElementById("fileInput").value = "";
   openTicket(selectedTicket);
 }
 
-// -------------------- AUDIT LOG --------------------
+/* ---------------- AUDIT LOG ---------------- */
 async function loadAudit(ticketId) {
-  const res = await fetch(`/support/api/admin/audit?ticket_id=${ticketId}`);
+  const res = await fetch(
+    `/support/api/admin/audit?ticket_id=${ticketId}`
+  );
   const data = await res.json();
 
   document.getElementById("audit").innerHTML =
@@ -176,7 +188,6 @@ async function loadAudit(ticketId) {
         ).join("");
 }
 
-// INIT
 loadTickets();
 </script>
 </body>
