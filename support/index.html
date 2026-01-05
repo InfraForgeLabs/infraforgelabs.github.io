@@ -109,19 +109,18 @@ const conversation = document.getElementById("conversation");
 const replyText = document.getElementById("replyText");
 
 let token = localStorage.getItem("support_token");
+let activeTicket = null;
+
+/* -------- CACHE -------- */
+const ticketStatusCache = {};
 
 /* -------- INIT -------- */
 if (token) showApp();
 
-/* -------- AUTH (FIXED) -------- */
+/* -------- AUTH -------- */
 loginBtn.onclick = async () => {
-  if (!fullName.value.trim()) {
-    loginMsg.textContent = "Full name is required for first login";
-    return;
-  }
-
-  if (!email.value.trim() || !password.value.trim()) {
-    loginMsg.textContent = "Email and password are required";
+  if (!fullName.value.trim() || !email.value.trim() || !password.value.trim()) {
+    loginMsg.textContent = "All fields are required";
     return;
   }
 
@@ -136,10 +135,7 @@ loginBtn.onclick = async () => {
   });
 
   const data = await res.json();
-  if (!data.ok) {
-    loginMsg.textContent = data.error || "Login failed";
-    return;
-  }
+  if (!data.ok) return loginMsg.textContent = data.error;
 
   localStorage.setItem("support_token", data.token);
   showApp();
@@ -153,6 +149,100 @@ logoutBtn.onclick = () => {
 function showApp() {
   loginSection.classList.add("hidden");
   appSection.classList.remove("hidden");
+  loadTickets();
+}
+
+/* -------- CREATE -------- */
+createBtn.onclick = async () => {
+  const fd = new FormData();
+  fd.append("subject", subject.value);
+  fd.append("message", message.value);
+  if (file.files[0]) fd.append("file", file.files[0]);
+
+  const res = await fetch(`${API}/user/ticket`, {
+    method:"POST",
+    headers:{ Authorization:`Bearer ${token}` },
+    body: fd
+  });
+
+  if (res.status === 401) return logout();
+
+  const data = await res.json();
+  if (!data.ok) return createMsg.textContent = data.error;
+
+  createMsg.textContent = "Ticket created";
+  subject.value = "";
+  message.value = "";
+  file.value = "";
+  loadTickets();
+};
+
+/* -------- LOAD TICKETS -------- */
+async function loadTickets() {
+  const res = await fetch(`${API}/user/tickets`, {
+    headers:{ Authorization:`Bearer ${token}` }
+  });
+
+  if (res.status === 401) return logout();
+
+  const data = await res.json();
+
+  ticketsList.innerHTML = data.tickets.length === 0
+    ? "No tickets"
+    : data.tickets.map(t => {
+        ticketStatusCache[t.ticket_code] = t.status;
+        return `
+          <p onclick="openTicket('${t.ticket_code}')">
+            ${t.subject}
+            <span class="badge ${t.status==='closed'?'closed':''}">${t.status}</span>
+            ${t.has_unread_user ? `<span class="badge unread">NEW</span>` : ""}
+          </p>
+        `;
+      }).join("");
+}
+
+/* -------- OPEN -------- */
+async function openTicket(code) {
+  activeTicket = code;
+
+  const res = await fetch(`${API}/user/ticket/${code}`, {
+    headers:{ Authorization:`Bearer ${token}` }
+  });
+
+  if (res.status === 401) return logout();
+
+  const data = await res.json();
+
+  conversation.innerHTML = data.replies.map(r =>
+    `<p><strong>${r.author_name}</strong><br>${r.body}</p>`
+  ).join("");
+
+  loadTickets();
+}
+
+/* -------- REPLY -------- */
+replyBtn.onclick = async () => {
+  if (!activeTicket || !replyText.value.trim()) return;
+
+  const fd = new FormData();
+  fd.append("message", replyText.value);
+
+  const res = await fetch(`${API}/user/reply/${activeTicket}`, {
+    method:"POST",
+    headers:{ Authorization:`Bearer ${token}` },
+    body: fd
+  });
+
+  if (res.status === 401) return logout();
+
+  replyText.value = "";
+  openTicket(activeTicket);
+};
+
+/* -------- LOGOUT -------- */
+function logout() {
+  localStorage.removeItem("support_token");
+  location.reload();
 }
 </script>
 
