@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Support · InfraForge Labs</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header>
+  <img src="/logo.png" class="logo" alt="InfraForge Labs logo">
+  <h1>Support</h1>
+  <p class="subtitle">
+    Need help with InfraForge, DevOpsMind, or InfraForge Labs tooling?
+    Send us a message and we’ll get back to you.
+  </p>
+</header>
+
+<main>
+
+  <!-- Back link -->
+  <div class="breadcrumb">
+    <a href="/">← Back to InfraForge Labs</a>
+  </div>
+
+  <section>
+    <div class="card">
+
+      <h3>Contact Support</h3>
+
+      <form id="supportForm">
+
+        <p>
+          <input
+            id="email"
+            type="email"
+            placeholder="Your email"
+            required
+          >
+        </p>
+
+        <p>
+          <input
+            id="subject"
+            type="text"
+            placeholder="Subject"
+            required
+          >
+        </p>
+
+        <p>
+          <textarea
+            id="message"
+            rows="6"
+            placeholder="Describe your issue"
+            required
+          ></textarea>
+        </p>
+
+        <p>
+          <button type="submit">Submit Ticket</button>
+        </p>
+
+      </form>
+
+      <p id="result" class="philosophy"></p>
+
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  © InfraForge Labs · Support
+</footer>
+
+<script>
+document.getElementById("supportForm").onsubmit = async (e) => {
+  e.preventDefault();
+
+  const res = await fetch(
+    "https://infraforgelabs.in/support/api/ticket",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: email.value,
+        subject: subject.value,
+        message: message.value
+      })
+    }
+  );
+
+  const data = await res.json();
+
+  document.getElementById("result").textContent =
+    "Ticket created successfully. Ticket ID: " + data.ticketId;
+
+  e.target.reset();
+};
+</script>
+
+</body>
+</html>

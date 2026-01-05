@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Support Admin · InfraForge Labs</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header>
+  <img src="/logo.png" class="logo" alt="InfraForge Labs logo">
+  <h1>Support Admin</h1>
+  <p class="subtitle">Internal support dashboard · InfraForge Labs</p>
+</header>
+
+<main>
+
+  <div class="breadcrumb">
+    <a href="/">← Back to InfraForge Labs</a>
+    <span>›</span>
+    <span>Support Admin</span>
+  </div>
+
+  <section>
+    <div class="card">
+      <h3>Tickets</h3>
+
+      <input
+        id="search"
+        placeholder="Search by ticket ID, subject, email, or status"
+        oninput="renderTickets()"
+      >
+
+      <div id="tickets" class="philosophy">Loading tickets…</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card">
+      <h3>Conversation</h3>
+      <div id="thread" class="philosophy">
+        Select a ticket to view details
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Internal Use Only · InfraForge Labs
+</footer>
+
+<script>
+let ALL_TICKETS = [];
+
+async function loadTickets() {
+  const r = await fetch("https://infraforgelabs.in/support/api/admin/tickets");
+  ALL_TICKETS = await r.json();
+  renderTickets();
+}
+
+function renderTickets() {
+  const q = (search.value || "").toLowerCase();
+
+  const filtered = ALL_TICKETS.filter(t =>
+    t.ticket_id.toLowerCase().includes(q) ||
+    t.subject.toLowerCase().includes(q) ||
+    t.from_email.toLowerCase().includes(q) ||
+    t.status.toLowerCase().includes(q)
+  );
+
+  tickets.innerHTML = filtered.map(t =>
+    `<p>
+      <a href="#" onclick="openTicket('${t.ticket_id}')">
+        ${t.ticket_id}
+      </a>
+      — ${t.subject}
+      <span class="philosophy">
+        [${t.status}]
+        ${t.sla_breached ? "⏰ SLA BREACHED" : ""}
+      </span>
+    </p>`
+  ).join("") || "<p>No tickets</p>";
+}
+
+async function openTicket(id) {
+  const r = await fetch(
+    `https://infraforgelabs.in/support/api/admin/ticket/${id}`
+  );
+  const data = await r.json();
+
+  const auditHtml = data.audit.length
+    ? `<ul>${data.audit.map(a =>
+        `<li>
+          <strong>${a.action}</strong>
+          by ${a.actor}
+          <span class="philosophy">(${a.created_at})</span>
+        </li>`
+      ).join("")}</ul>`
+    : "<p class='philosophy'>No audit events</p>";
+
+  thread.innerHTML = `
+    <p><strong>Ticket:</strong> ${id}</p>
+    <p><strong>Status:</strong> ${data.ticket.status}</p>
+    <p><strong>SLA Due:</strong> ${data.ticket.sla_due_at || "—"}</p>
+
+    <h4>Audit Log</h4>
+    ${auditHtml}
+
+    <h4>Conversation</h4>
+    <pre>${data.replies.map(r =>
+      `[${r.direction}] ${r.body}`
+    ).join("\n\n")}</pre>
+
+    <textarea id="replyBox" rows="5" placeholder="Reply to user"></textarea>
+    <p>
+      <button onclick="sendReply('${id}')">Send Reply (Auto-closes)</button>
+    </p>
+  `;
+}
+
+async function sendReply(id) {
+  await fetch("https://infraforgelabs.in/reply", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ticketId: id,
+      message: replyBox.value
+    })
+  });
+  loadTickets();
+  openTicket(id);
+}
+
+loadTickets();
+</script>
+
+</body>
+</html>
