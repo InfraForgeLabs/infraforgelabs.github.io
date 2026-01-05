@@ -119,8 +119,8 @@ loginBtn.onclick = async () => {
     return;
   }
 
-  localStorage.setItem("support_token", data.token);
-  showApp();
+ localStorage.setItem("support_token", data.token);
+location.reload(); // 🔒 HARD RESET INTO AUTHENTICATED STATE
 };
 
 logoutBtn.onclick = logout;
