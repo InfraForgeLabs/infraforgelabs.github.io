@@ -9,9 +9,18 @@
 <style>
 .card { max-width:760px; margin:20px auto; }
 input, textarea, button { width:100%; padding:10px; margin:8px 0; }
-.hidden { display:none; }
 
 .logout { float:right; cursor:pointer; color:#ef4444; }
+
+.notice {
+  max-width:760px;
+  margin:40px auto;
+  padding:20px;
+  border:1px solid #333;
+  border-radius:8px;
+  text-align:center;
+  opacity:.85;
+}
 
 .ticket {
   cursor:pointer;
@@ -58,18 +67,11 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 .reply .author {
   font-size:12px;
   opacity:.8;
-  margin-bottom:4px;
 }
 .reply .time {
   font-size:11px;
   opacity:.6;
   margin-top:6px;
-}
-
-.attachment img {
-  max-width:220px;
-  margin-top:6px;
-  border-radius:6px;
 }
 </style>
 </head>
@@ -81,7 +83,13 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 <main>
 <a href="/">← Back</a>
 
-<section id="appSection" class="hidden">
+<!-- LOGIN NOTICE -->
+<div id="loginNotice" class="notice hidden">
+  <p>You are not logged in.</p>
+  <p>Please log in from the main site to access support.</p>
+</div>
+
+<section id="appSection">
 
   <!-- CREATE -->
   <div class="card">
@@ -110,7 +118,7 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
       </button>
     </h3>
 
-    <div id="thread">Loading…</div>
+    <div id="thread">Select a ticket</div>
 
     <textarea id="replyText" placeholder="Reply…"></textarea>
     <input id="replyFile" type="file">
@@ -127,6 +135,7 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 <script>
 const API = "https://api.infraforgelabs.in/support";
 const appSection = document.getElementById("appSection");
+const loginNotice = document.getElementById("loginNotice");
 
 const token = () => localStorage.getItem("support_token");
 
@@ -142,11 +151,11 @@ function formatTime(ts) {
   });
 }
 
-/* ---------- LOGOUT (NO RELOAD) ---------- */
+/* ---------- LOGOUT ---------- */
 function logout() {
   localStorage.removeItem("support_token");
   appSection.classList.add("hidden");
-  alert("You are logged out");
+  loginNotice.classList.remove("hidden");
 }
 
 /* ---------- SAFE FETCH ---------- */
@@ -171,15 +180,12 @@ async function authFetch(url, options = {}) {
 
 /* ---------- LOAD TICKETS ---------- */
 async function loadTickets() {
-  if (!token()) return;
-
   const res = await authFetch(`${API}/user/tickets`);
   const data = await res.json();
 
   document.getElementById("ticketsList").innerHTML =
     (data.tickets || []).map(t => `
-      <div class="ticket ${t.ticket_code === activeTicket ? "active" : ""}"
-           onclick="openTicket('${t.ticket_code}', '${t.status}')">
+      <div class="ticket" onclick="openTicket('${t.ticket_code}', '${t.status}')">
         <strong>${t.subject}</strong>
         <span class="status ${t.status}">${t.status}</span>
         ${t.has_unread_user ? `<span class="badge">NEW</span>` : ""}
@@ -275,6 +281,9 @@ async function reopenTicket() {
 if (token()) {
   appSection.classList.remove("hidden");
   loadTickets();
+} else {
+  appSection.classList.add("hidden");
+  loginNotice.classList.remove("hidden");
 }
 </script>
 
