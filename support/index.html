@@ -90,36 +90,31 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 </main>
 
 <script>
-  console.log("SCRIPT START");
-
-window.addEventListener("beforeunload", () => {
-  console.log("PAGE IS RELOADING");
-});
-
-window.onerror = function (msg, src, line, col, err) {
-  console.error("JS ERROR:", msg, src, line, col, err);
-};
-
-
+/* ---------------- SAFETY ---------------- */
 document.addEventListener("submit", e => e.preventDefault());
 document.addEventListener("keydown", e => {
   if (e.key === "Enter") e.preventDefault();
 });
 
+/* ---------------- CONFIG ---------------- */
 const API = "/support/api";
 
+/* ---------------- HELPERS ---------------- */
 function getToken() {
   return localStorage.getItem("support_token");
 }
 function logout() {
   localStorage.removeItem("support_token");
-  location.reload();
+  loginSection.classList.remove("hidden");
+  appSection.classList.add("hidden");
 }
 
+/* ---------------- DOM ---------------- */
 const loginSection = document.getElementById("loginSection");
 const appSection = document.getElementById("appSection");
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
+
 const createBtn = document.getElementById("createBtn");
 const replyBtn = document.getElementById("replyBtn");
 
@@ -131,10 +126,10 @@ const replyFile = document.getElementById("replyFile");
 
 let activeTicket = null;
 
-/* ---------- INIT ---------- */
+/* ---------------- INIT ---------------- */
 if (getToken()) showApp();
 
-/* ---------- AUTH ---------- */
+/* ---------------- AUTH ---------------- */
 loginBtn.onclick = async () => {
   if (!fullName.value || !email.value || !password.value) {
     loginMsg.textContent = "All fields required";
@@ -142,17 +137,20 @@ loginBtn.onclick = async () => {
   }
 
   const res = await fetch(`${API}/user/auth`, {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({
-      fullName: fullName.value,
-      email: email.value,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      fullName: fullName.value.trim(),
+      email: email.value.trim(),
       password: password.value
     })
   });
 
   const data = await res.json();
-  if (!data.ok) return loginMsg.textContent = data.error;
+  if (!data.ok) {
+    loginMsg.textContent = data.error || "Login failed";
+    return;
+  }
 
   localStorage.setItem("support_token", data.token);
   showApp();
@@ -160,31 +158,33 @@ loginBtn.onclick = async () => {
 
 logoutBtn.onclick = logout;
 
-/* ---------- APP ---------- */
+/* ---------------- APP ---------------- */
 function showApp() {
   loginSection.classList.add("hidden");
   appSection.classList.remove("hidden");
   loadTickets();
 }
 
-/* ---------- LOAD TICKETS ---------- */
+/* ---------------- LOAD TICKETS ---------------- */
 async function loadTickets() {
+  ticketsList.textContent = "Loading…";
+
   const res = await fetch(`${API}/user/tickets`, {
-    headers:{ Authorization:`Bearer ${getToken()}` }
+    headers: { Authorization: `Bearer ${getToken()}` }
   });
 
-  if (res.status === 401) {
-    console.error("401 detected, NOT logging out");
+  if (!res.ok) {
+    ticketsList.textContent = "Failed to load tickets";
     return;
   }
 
-
   const data = await res.json();
+  const tickets = data.tickets || [];
 
   ticketsList.innerHTML =
-    data.tickets.length === 0
+    tickets.length === 0
       ? "No tickets"
-      : data.tickets.map(t => `
+      : tickets.map(t => `
         <p onclick="openTicket('${t.ticket_code}')">
           ${t.subject}
           ${t.has_unread_user ? `<span class="badge unread">NEW</span>` : ""}
@@ -192,20 +192,25 @@ async function loadTickets() {
       `).join("");
 }
 
-/* ---------- OPEN TICKET ---------- */
+/* ---------------- OPEN TICKET ---------------- */
 async function openTicket(code) {
   activeTicket = code;
+  conversation.textContent = "Loading…";
 
   const res = await fetch(`${API}/user/ticket/${code}`, {
-    headers:{ Authorization:`Bearer ${getToken()}` }
+    headers: { Authorization: `Bearer ${getToken()}` }
   });
 
-  if (res.status === 401) return logout();
+  if (!res.ok) {
+    conversation.textContent = "Failed to load conversation";
+    return;
+  }
 
   const data = await res.json();
+  const replies = data.replies || [];
   const attachments = data.attachments || [];
 
-  conversation.innerHTML = data.replies.map(r => {
+  conversation.innerHTML = replies.map(r => {
     const files = attachments
       .filter(a => a.reply_id === r.id)
       .map(a =>
@@ -226,21 +231,21 @@ async function openTicket(code) {
   loadTickets();
 }
 
-/* ---------- REPLY ---------- */
+/* ---------------- REPLY ---------------- */
 replyBtn.onclick = async () => {
   if (!activeTicket || !replyText.value.trim()) return;
 
   const fd = new FormData();
-  fd.append("message", replyText.value);
+  fd.append("message", replyText.value.trim());
   if (replyFile.files[0]) fd.append("file", replyFile.files[0]);
 
   const res = await fetch(`${API}/user/reply/${activeTicket}`, {
-    method:"POST",
-    headers:{ Authorization:`Bearer ${getToken()}` },
-    body:fd
+    method: "POST",
+    headers: { Authorization: `Bearer ${getToken()}` },
+    body: fd
   });
 
-  if (res.status === 401) return logout();
+  if (!res.ok) return;
 
   replyText.value = "";
   replyFile.value = "";
