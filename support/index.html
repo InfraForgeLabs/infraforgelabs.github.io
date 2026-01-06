@@ -155,7 +155,7 @@ loginBtn.onclick = async () => {
   if (!data.ok) return loginMsg.textContent = data.error;
 
   localStorage.setItem("support_token", data.token);
-  location.reload();
+  showApp();
 };
 
 logoutBtn.onclick = logout;
@@ -173,7 +173,11 @@ async function loadTickets() {
     headers:{ Authorization:`Bearer ${getToken()}` }
   });
 
-  if (res.status === 401) return logout();
+  if (res.status === 401) {
+    console.error("401 detected, NOT logging out");
+    return;
+  }
+
 
   const data = await res.json();
 
