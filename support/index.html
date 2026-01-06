@@ -116,9 +116,6 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
       <span id="activeStatus" class="status"></span>
 
       <button id="closeBtn" onclick="closeTicket()" style="float:right">Close</button>
-      <button id="reopenBtn" onclick="reopenTicket()" class="hidden" style="float:right;margin-right:8px">
-        Reopen
-      </button>
     </h3>
 
     <div id="thread">Select a ticket</div>
@@ -144,15 +141,22 @@ let activeStatus = null;
 let isOpening = false;
 let isAuthenticated = false;
 
+/* ---------- AUTH HEADER ---------- */
+function authHeader() {
+  const t = getToken();
+  if (!t) return null;
+  return { Authorization: `Bearer ${t}` };
+}
+
 /* ---------- UI ---------- */
 function showLogin() {
-  document.getElementById("loginSection").classList.remove("hidden");
-  document.getElementById("appSection").classList.add("hidden");
+  loginSection.classList.remove("hidden");
+  appSection.classList.add("hidden");
 }
 
 function showApp() {
-  document.getElementById("loginSection").classList.add("hidden");
-  document.getElementById("appSection").classList.remove("hidden");
+  loginSection.classList.add("hidden");
+  appSection.classList.remove("hidden");
 }
 
 /* ---------- AUTH ---------- */
@@ -174,13 +178,9 @@ async function login() {
   }
 
   const res = await fetch(`${API}/user/auth`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      email,
-      password,
-      fullName   // ✅ EXACT key backend expects
-    })
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ email, password, fullName })
   });
 
   if (!res.ok) {
@@ -189,17 +189,11 @@ async function login() {
   }
 
   const data = await res.json();
-  if (!data.token) {
-    alert("Invalid response from server");
-    return;
-  }
-
   localStorage.setItem("support_token", data.token);
   isAuthenticated = true;
   showApp();
   loadTickets();
 }
-
 
 /* ---------- LOGOUT ---------- */
 function logout() {
@@ -209,8 +203,7 @@ function logout() {
 }
 
 /* ---------- TIME ---------- */
-function formatTime(ts) {
-  if (!ts) return "";
+function formatLocal(ts) {
   return new Date(ts + "Z").toLocaleString();
 }
 
@@ -218,15 +211,14 @@ function formatTime(ts) {
 async function loadTickets() {
   if (!isAuthenticated) return;
 
-  const res = await fetch(`${API}/user/tickets`, {
-    headers:{ Authorization:`Bearer ${getToken()}` }
-  });
+  const headers = authHeader();
+  if (!headers) return handle401();
 
+  const res = await fetch(`${API}/user/tickets`, { headers });
   if (res.status === 401) return handle401();
-  const data = await res.json();
 
-  const list = document.getElementById("ticketsList");
-  list.innerHTML = "";
+  const data = await res.json();
+  ticketsList.innerHTML = "";
 
   (data.tickets || []).forEach(t => {
     const row = document.createElement("div");
@@ -234,10 +226,12 @@ async function loadTickets() {
     row.onclick = () => openTicket(t.ticket_code, t.status);
 
     row.innerHTML = `
-      <strong>${t.subject}</strong>
-      <span class="status ${t.status}">${t.status}</span>
+      <strong>#${t.ticket_code}</strong> — ${t.subject}
+      <div style="font-size:11px;opacity:.6">
+        ${formatLocal(t.created_at)}
+      </div>
     `;
-    list.appendChild(row);
+    ticketsList.appendChild(row);
   });
 }
 
@@ -249,17 +243,22 @@ async function openTicket(code, status) {
   activeTicket = code;
   activeStatus = status;
 
-  document.getElementById("threadCard").classList.remove("hidden");
-  document.getElementById("activeTicketCode").textContent = code;
+  const headers = authHeader();
+  if (!headers) {
+    isOpening = false;
+    return handle401();
+  }
 
-  const res = await fetch(`${API}/user/ticket/${code}`, {
-    headers:{ Authorization:`Bearer ${getToken()}` }
-  });
+  threadCard.classList.remove("hidden");
+  activeTicketCode.textContent = code;
 
-  if (res.status === 401) return handle401();
+  const res = await fetch(`${API}/user/ticket/${code}`, { headers });
+  if (res.status === 401) {
+    isOpening = false;
+    return handle401();
+  }
+
   const data = await res.json();
-
-  const thread = document.getElementById("thread");
   thread.innerHTML = "";
 
   (data.replies || []).forEach(r => {
@@ -268,7 +267,7 @@ async function openTicket(code, status) {
     box.innerHTML = `
       <div class="author">${r.author_name}</div>
       <div>${r.body}</div>
-      <div class="time">${formatTime(r.created_at)}</div>
+      <div class="time">${formatLocal(r.created_at)}</div>
     `;
     thread.appendChild(box);
   });
@@ -276,8 +275,11 @@ async function openTicket(code, status) {
   isOpening = false;
 }
 
-/* ---------- CREATE / REPLY / CLOSE ---------- */
+/* ---------- CREATE ---------- */
 async function createTicket() {
+  const headers = authHeader();
+  if (!headers) return handle401();
+
   const fd = new FormData();
   fd.append("subject", subject.value);
   fd.append("message", message.value);
@@ -285,7 +287,7 @@ async function createTicket() {
 
   const res = await fetch(`${API}/user/ticket`, {
     method:"POST",
-    headers:{ Authorization:`Bearer ${getToken()}` },
+    headers,
     body:fd
   });
 
@@ -293,23 +295,35 @@ async function createTicket() {
   loadTickets();
 }
 
+/* ---------- REPLY ---------- */
 async function sendReply() {
   if (!activeTicket) return;
+
+  const headers = authHeader();
+  if (!headers) return handle401();
+
   const fd = new FormData();
   fd.append("message", replyText.value);
+
   await fetch(`${API}/user/reply/${activeTicket}`, {
     method:"POST",
-    headers:{ Authorization:`Bearer ${getToken()}` },
+    headers,
     body:fd
   });
+
   openTicket(activeTicket, activeStatus);
 }
 
+/* ---------- CLOSE ---------- */
 async function closeTicket() {
+  const headers = authHeader();
+  if (!headers) return handle401();
+
   await fetch(`${API}/user/close/${activeTicket}`, {
     method:"POST",
-    headers:{ Authorization:`Bearer ${getToken()}` }
+    headers
   });
+
   openTicket(activeTicket, "closed");
 }
 
