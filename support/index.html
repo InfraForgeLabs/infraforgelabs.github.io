@@ -38,7 +38,6 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
   margin-left:6px;
 }
 
-/* Thread */
 .reply {
   max-width:85%;
   margin-bottom:14px;
@@ -81,9 +80,23 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 <main>
 <a href="/">← Back</a>
 
+<!-- LOGIN -->
+<section id="loginSection" class="hidden">
+  <div class="card">
+    <h3>Login / Register</h3>
+    <input id="loginName" placeholder="Full Name">
+    <input id="loginEmail" placeholder="Email">
+    <input id="loginPassword" type="password" placeholder="Password">
+    <button onclick="login()">Continue</button>
+    <p style="font-size:12px;opacity:.7">
+      This account is used only for support communication.
+    </p>
+  </div>
+</section>
+
+<!-- APP -->
 <section id="appSection">
 
-  <!-- CREATE -->
   <div class="card">
     <h3>Create Ticket <span class="logout" onclick="logout()">Logout</span></h3>
     <input id="subject" placeholder="Subject">
@@ -92,13 +105,11 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
     <button onclick="createTicket()">Submit Ticket</button>
   </div>
 
-  <!-- TICKETS -->
   <div class="card">
     <h3>My Tickets</h3>
     <div id="ticketsList">Loading…</div>
   </div>
 
-  <!-- THREAD -->
   <div class="card hidden" id="threadCard">
     <h3>
       Ticket <span id="activeTicketCode"></span>
@@ -131,7 +142,55 @@ const getToken = () => localStorage.getItem("support_token");
 let activeTicket = null;
 let activeStatus = null;
 let isOpening = false;
-let isAuthenticated = true;
+let isAuthenticated = false;
+
+/* ---------- UI ---------- */
+function showLogin() {
+  document.getElementById("loginSection").classList.remove("hidden");
+  document.getElementById("appSection").classList.add("hidden");
+}
+
+function showApp() {
+  document.getElementById("loginSection").classList.add("hidden");
+  document.getElementById("appSection").classList.remove("hidden");
+}
+
+/* ---------- AUTH ---------- */
+function handle401() {
+  localStorage.removeItem("support_token");
+  isAuthenticated = false;
+  showLogin();
+}
+
+/* ---------- LOGIN ---------- */
+async function login() {
+  const payload = {
+    full_name: loginName.value.trim(),
+    email: loginEmail.value.trim(),
+    password: loginPassword.value
+  };
+
+  const res = await fetch(`${API}/user/auth`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await res.json();
+  if (!data.token) return alert("Login failed");
+
+  localStorage.setItem("support_token", data.token);
+  isAuthenticated = true;
+  showApp();
+  loadTickets();
+}
+
+/* ---------- LOGOUT ---------- */
+function logout() {
+  localStorage.removeItem("support_token");
+  isAuthenticated = false;
+  showLogin();
+}
 
 /* ---------- TIME ---------- */
 function formatTime(ts) {
@@ -139,54 +198,28 @@ function formatTime(ts) {
   return new Date(ts + "Z").toLocaleString();
 }
 
-/* ---------- AUTH ---------- */
-function handle401() {
-  if (!isAuthenticated) return;
-  isAuthenticated = false;
-  localStorage.removeItem("support_token");
-
-  document.getElementById("ticketsList").innerHTML =
-    "<div style='opacity:.7'>Session expired. Please log in again.</div>";
-
-  document.getElementById("threadCard").classList.add("hidden");
-}
-
-/* ---------- LOGOUT ---------- */
-function logout() {
-  localStorage.removeItem("support_token");
-  isAuthenticated = false;
-  document.getElementById("ticketsList").innerHTML =
-    "<div style='opacity:.7'>Logged out.</div>";
-  document.getElementById("threadCard").classList.add("hidden");
-}
-
 /* ---------- LOAD TICKETS ---------- */
 async function loadTickets() {
-  if (!isAuthenticated || !getToken()) return;
+  if (!isAuthenticated) return;
 
   const res = await fetch(`${API}/user/tickets`, {
     headers:{ Authorization:`Bearer ${getToken()}` }
   });
 
   if (res.status === 401) return handle401();
-  if (!res.ok) return;
-
   const data = await res.json();
+
   const list = document.getElementById("ticketsList");
   list.innerHTML = "";
 
   (data.tickets || []).forEach(t => {
     const row = document.createElement("div");
-    row.className = `ticket ${t.ticket_code === activeTicket ? "active" : ""}`;
+    row.className = "ticket";
     row.onclick = () => openTicket(t.ticket_code, t.status);
 
     row.innerHTML = `
       <strong>${t.subject}</strong>
       <span class="status ${t.status}">${t.status}</span>
-      ${t.has_unread_user ? `<span class="badge">NEW</span>` : ""}
-      <div style="font-size:11px;opacity:.6">
-        Last updated: ${formatTime(t.updated_at || t.created_at)}
-      </div>
     `;
     list.appendChild(row);
   });
@@ -203,65 +236,32 @@ async function openTicket(code, status) {
   document.getElementById("threadCard").classList.remove("hidden");
   document.getElementById("activeTicketCode").textContent = code;
 
-  const statusEl = document.getElementById("activeStatus");
-  statusEl.textContent = status;
-  statusEl.className = `status ${status}`;
-
-  document.getElementById("closeBtn").style.display = status === "open" ? "inline-block" : "none";
-  document.getElementById("reopenBtn").classList.toggle("hidden", status !== "closed");
-
-  const thread = document.getElementById("thread");
-  thread.textContent = "Loading…";
-
   const res = await fetch(`${API}/user/ticket/${code}`, {
     headers:{ Authorization:`Bearer ${getToken()}` }
   });
 
-  if (res.status === 401) {
-    isOpening = false;
-    return handle401();
-  }
-
-  if (!res.ok) {
-    thread.textContent = "Failed to load conversation";
-    isOpening = false;
-    return;
-  }
-
+  if (res.status === 401) return handle401();
   const data = await res.json();
+
+  const thread = document.getElementById("thread");
   thread.innerHTML = "";
 
   (data.replies || []).forEach(r => {
     const box = document.createElement("div");
     box.className = `reply ${r.author_type}`;
-
     box.innerHTML = `
       <div class="author">${r.author_name}</div>
       <div>${r.body}</div>
       <div class="time">${formatTime(r.created_at)}</div>
     `;
-
-    (data.attachments || [])
-      .filter(a => a.reply_id === r.id)
-      .forEach(a => {
-        const el = document.createElement("div");
-        el.className = "attachment";
-        el.innerHTML = a.mime_type?.startsWith("image/")
-          ? `<img src="${a.public_url}">`
-          : `<a href="${a.public_url}" target="_blank">${a.filename}</a>`;
-        box.appendChild(el);
-      });
-
     thread.appendChild(box);
   });
 
   isOpening = false;
 }
 
-/* ---------- CREATE ---------- */
+/* ---------- CREATE / REPLY / CLOSE ---------- */
 async function createTicket() {
-  if (!isAuthenticated) return;
-
   const fd = new FormData();
   fd.append("subject", subject.value);
   fd.append("message", message.value);
@@ -274,67 +274,36 @@ async function createTicket() {
   });
 
   if (res.status === 401) return handle401();
-
-  const data = await res.json();
-  subject.value = message.value = "";
-  file.value = "";
-
   loadTickets();
-  if (data.ticketCode) openTicket(data.ticketCode, "open");
 }
 
-/* ---------- REPLY ---------- */
 async function sendReply() {
-  if (!activeTicket || activeStatus === "closed" || !isAuthenticated) return;
-
+  if (!activeTicket) return;
   const fd = new FormData();
   fd.append("message", replyText.value);
-  if (replyFile.files[0]) fd.append("file", replyFile.files[0]);
-
-  const res = await fetch(`${API}/user/reply/${activeTicket}`, {
+  await fetch(`${API}/user/reply/${activeTicket}`, {
     method:"POST",
     headers:{ Authorization:`Bearer ${getToken()}` },
     body:fd
   });
-
-  if (res.status === 401) return handle401();
-
-  replyText.value = "";
-  replyFile.value = "";
-  openTicket(activeTicket, "open");
+  openTicket(activeTicket, activeStatus);
 }
 
-/* ---------- CLOSE / REOPEN ---------- */
 async function closeTicket() {
-  if (!isAuthenticated) return;
-
-  const res = await fetch(`${API}/user/close/${activeTicket}`, {
+  await fetch(`${API}/user/close/${activeTicket}`, {
     method:"POST",
     headers:{ Authorization:`Bearer ${getToken()}` }
   });
-
-  if (res.status === 401) return handle401();
   openTicket(activeTicket, "closed");
-}
-
-async function reopenTicket() {
-  if (!isAuthenticated) return;
-
-  const res = await fetch(`${API}/user/status/${activeTicket}`, {
-    method:"POST",
-    headers:{ Authorization:`Bearer ${getToken()}` },
-    body: JSON.stringify({ status:"open" })
-  });
-
-  if (res.status === 401) return handle401();
-  openTicket(activeTicket, "open");
 }
 
 /* ---------- INIT ---------- */
 if (getToken()) {
+  isAuthenticated = true;
+  showApp();
   loadTickets();
 } else {
-  handle401();
+  showLogin();
 }
 </script>
 
