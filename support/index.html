@@ -62,7 +62,7 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 }
 .reply .time {
   font-size:11px;
-  opacity:.5;
+  opacity:.6;
   margin-top:6px;
 }
 
@@ -131,6 +131,15 @@ const token = () => localStorage.getItem("support_token");
 let activeTicket = null;
 let activeStatus = "open";
 
+/* ---------- TIME FORMAT (USER LOCALE, UTC SAFE) ---------- */
+function formatTime(ts) {
+  if (!ts) return "";
+  return new Date(ts + "Z").toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short"
+  });
+}
+
 /* ---------- LOGOUT ---------- */
 function logout() {
   localStorage.removeItem("support_token");
@@ -143,6 +152,8 @@ async function loadTickets() {
     headers:{ Authorization:`Bearer ${token()}` }
   });
 
+  if (res.status === 401) return logout();
+
   const data = await res.json();
 
   document.getElementById("ticketsList").innerHTML =
@@ -153,7 +164,7 @@ async function loadTickets() {
         <span class="status ${t.status}">${t.status}</span>
         ${t.has_unread_user ? `<span class="badge">NEW</span>` : ""}
         <div style="font-size:11px;opacity:.6">
-          Last updated: ${new Date(t.updated_at || t.created_at).toLocaleString()}
+          Last updated: ${formatTime(t.updated_at || t.created_at)}
         </div>
       </div>
     `).join("");
@@ -174,35 +185,41 @@ async function openTicket(code, status) {
   document.getElementById("closeBtn").style.display = status === "open" ? "inline-block" : "none";
   document.getElementById("reopenBtn").classList.toggle("hidden", status !== "closed");
 
-  loadTickets();
+  document.getElementById("thread").textContent = "Loading…";
 
   const res = await fetch(`${API}/user/ticket/${code}`, {
     headers:{ Authorization:`Bearer ${token()}` }
   });
 
+  if (res.status === 401) return logout();
   if (!res.ok) {
     document.getElementById("thread").textContent = "Failed to load conversation";
     return;
   }
 
   const data = await res.json();
+  if (!data.ok) {
+    document.getElementById("thread").textContent = data.error || "Failed to load conversation";
+    return;
+  }
 
   document.getElementById("thread").innerHTML =
     (data.replies || []).map(r => {
       const files = (data.attachments || [])
         .filter(a => a.reply_id === r.id)
-        .map(a =>
-          a.mime_type && a.mime_type.startsWith("image/")
-            ? `<div class="attachment"><img src="${a.public_url}"></div>`
-            : `<div class="attachment"><a href="${a.public_url}" target="_blank">${a.filename}</a></div>`
-        ).join("");
+        .map(a => {
+          if (a.mime_type && a.mime_type.startsWith("image/")) {
+            return `<div class="attachment"><img src="${a.public_url}"></div>`;
+          }
+          return `<div class="attachment"><a href="${a.public_url}" target="_blank">${a.filename}</a></div>`;
+        }).join("");
 
       return `
         <div class="reply ${r.author_type}">
           <div class="author">${r.author_name}</div>
           <div>${r.body}</div>
           ${files}
-          <div class="time">${new Date(r.created_at).toLocaleString()}</div>
+          <div class="time">${formatTime(r.created_at)}</div>
         </div>
       `;
     }).join("");
@@ -226,7 +243,7 @@ async function createTicket() {
   file.value = "";
 
   loadTickets();
-  openTicket(data.ticketCode, "open");
+  if (data.ticketCode) openTicket(data.ticketCode, "open");
 }
 
 /* ---------- REPLY ---------- */
