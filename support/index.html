@@ -198,7 +198,7 @@ createBtn.onclick = async () => {
 async function loadTickets() {
   const attachments = data.attachments || [];
   const files = attachments
-    .filter(a => a.reply_id === r.id)
+    .filter(a => a.reply_id === r.id
   });
 
   if (res.status === 401) return logout();
