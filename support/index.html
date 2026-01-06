@@ -63,7 +63,6 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 <!-- APP -->
 <section id="appSection" class="hidden">
 
-  <!-- CREATE -->
   <div class="card">
     <h3>Create Ticket <span class="logout" id="logoutBtn">Logout</span></h3>
     <input id="subject" placeholder="Subject">
@@ -73,13 +72,11 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
     <p id="createMsg"></p>
   </div>
 
-  <!-- TICKETS -->
   <div class="card">
     <h3>My Tickets</h3>
     <div id="ticketsList">Loading…</div>
   </div>
 
-  <!-- CONVERSATION -->
   <div class="card">
     <h3>Conversation</h3>
     <div id="conversation">Select a ticket</div>
@@ -87,17 +84,12 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
     <textarea id="replyText" placeholder="Reply…"></textarea>
     <input id="replyFile" type="file">
     <button type="button" id="replyBtn">Send Reply</button>
-
-    <p style="font-size:12px;opacity:.7">
-      You can also reply directly via email using the magic link in notifications.
-    </p>
   </div>
 
 </section>
 </main>
 
 <script>
-/* 🔒 HARD BLOCK BROWSER AUTO-SUBMIT & ENTER KEY */
 document.addEventListener("submit", e => e.preventDefault());
 document.addEventListener("keydown", e => {
   if (e.key === "Enter") e.preventDefault();
@@ -105,7 +97,6 @@ document.addEventListener("keydown", e => {
 
 const API = "/support/api";
 
-/* ---------- HELPERS ---------- */
 function getToken() {
   return localStorage.getItem("support_token");
 }
@@ -114,12 +105,10 @@ function logout() {
   location.reload();
 }
 
-/* ---------- DOM ---------- */
 const loginSection = document.getElementById("loginSection");
 const appSection = document.getElementById("appSection");
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
-
 const createBtn = document.getElementById("createBtn");
 const replyBtn = document.getElementById("replyBtn");
 
@@ -152,13 +141,10 @@ loginBtn.onclick = async () => {
   });
 
   const data = await res.json();
-  if (!data.ok) {
-    loginMsg.textContent = data.error;
-    return;
-  }
+  if (!data.ok) return loginMsg.textContent = data.error;
 
   localStorage.setItem("support_token", data.token);
-  location.reload(); // 🔒 EDGE-SAFE LOGIN
+  location.reload();
 };
 
 logoutBtn.onclick = logout;
@@ -170,35 +156,10 @@ function showApp() {
   loadTickets();
 }
 
-/* ---------- CREATE ---------- */
-createBtn.onclick = async () => {
-  const fd = new FormData();
-  fd.append("subject", subject.value);
-  fd.append("message", message.value);
-  if (file.files[0]) fd.append("file", file.files[0]);
-
-  const res = await fetch(`${API}/user/ticket`, {
-    method:"POST",
-    headers:{ Authorization:`Bearer ${getToken()}` },
-    body:fd
-  });
-
-  if (res.status === 401) return logout();
-
-  const data = await res.json();
-  if (!data.ok) return createMsg.textContent = data.error;
-
-  subject.value = "";
-  message.value = "";
-  file.value = "";
-  loadTickets();
-};
-
 /* ---------- LOAD TICKETS ---------- */
 async function loadTickets() {
-  const attachments = data.attachments || [];
-  const files = attachments
-    .filter(a => a.reply_id === r.id
+  const res = await fetch(`${API}/user/tickets`, {
+    headers:{ Authorization:`Bearer ${getToken()}` }
   });
 
   if (res.status === 401) return logout();
@@ -211,7 +172,6 @@ async function loadTickets() {
       : data.tickets.map(t => `
         <p onclick="openTicket('${t.ticket_code}')">
           ${t.subject}
-          <span class="badge ${t.status==='closed'?'closed':''}">${t.status}</span>
           ${t.has_unread_user ? `<span class="badge unread">NEW</span>` : ""}
         </p>
       `).join("");
@@ -228,12 +188,13 @@ async function openTicket(code) {
   if (res.status === 401) return logout();
 
   const data = await res.json();
+  const attachments = data.attachments || [];
 
   conversation.innerHTML = data.replies.map(r => {
-    const files = data.attachments
+    const files = attachments
       .filter(a => a.reply_id === r.id)
       .map(a =>
-        a.mime_type.startsWith("image/")
+        a.mime_type?.startsWith("image/")
           ? `<div class="attachment"><img src="${a.public_url}"></div>`
           : `<div class="attachment"><a href="${a.public_url}" target="_blank">${a.filename}</a></div>`
       ).join("");
