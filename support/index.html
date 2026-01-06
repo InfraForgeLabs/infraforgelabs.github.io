@@ -13,7 +13,11 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 
 .logout { float:right; cursor:pointer; color:#ef4444; }
 
-.ticket { cursor:pointer; padding:8px; border-bottom:1px solid #333; }
+.ticket {
+  cursor:pointer;
+  padding:8px;
+  border-bottom:1px solid #333;
+}
 .ticket.active { background:#111827; }
 
 .status {
@@ -34,17 +38,34 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
   margin-left:6px;
 }
 
+/* Thread */
 .reply {
   max-width:85%;
-  margin-bottom:14px;
+  margin-bottom:16px;
   padding:10px;
   border-radius:8px;
 }
-.reply.user { background:#1f2937; margin-left:auto; text-align:right; }
-.reply.admin { background:#0f172a; margin-right:auto; }
+.reply.user {
+  background:#1f2937;
+  margin-left:auto;
+  text-align:right;
+}
+.reply.admin {
+  background:#0f172a;
+  margin-right:auto;
+}
 
-.reply .author { font-size:12px; opacity:.75; margin-bottom:4px; }
-.reply .time { font-size:11px; opacity:.5; margin-top:4px; }
+.reply .author {
+  font-size:12px;
+  opacity:.8;
+  margin-bottom:4px;
+}
+
+.reply .time {
+  font-size:11px;
+  opacity:.55;
+  margin-top:6px;
+}
 
 .attachment img {
   max-width:220px;
@@ -52,7 +73,10 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
   border-radius:6px;
   display:block;
 }
-.attachment a { display:inline-block; margin-top:6px; }
+.attachment a {
+  display:inline-block;
+  margin-top:6px;
+}
 </style>
 </head>
 
@@ -65,6 +89,7 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 
 <section id="appSection">
 
+  <!-- CREATE -->
   <div class="card">
     <h3>Create Ticket <span class="logout" onclick="logout()">Logout</span></h3>
     <input id="subject" placeholder="Subject">
@@ -73,23 +98,32 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
     <button onclick="createTicket()">Submit Ticket</button>
   </div>
 
+  <!-- TICKETS -->
   <div class="card">
     <h3>My Tickets</h3>
     <div id="ticketsList">Loading…</div>
   </div>
 
+  <!-- THREAD -->
   <div class="card hidden" id="threadCard">
     <h3>
       Ticket <span id="activeTicketCode"></span>
       <span id="activeStatus" class="status"></span>
-      <button id="closeBtn" onclick="closeTicket()" style="float:right">Close</button>
+
+      <button id="closeBtn" onclick="closeTicket()" style="float:right">
+        Close
+      </button>
+
+      <button id="reopenBtn" onclick="reopenTicket()" style="float:right;display:none">
+        Reopen
+      </button>
     </h3>
 
     <div id="thread">Loading…</div>
 
     <textarea id="replyText" placeholder="Reply…"></textarea>
     <input id="replyFile" type="file">
-    <button onclick="sendReply()">Send Reply</button>
+    <button id="replyBtn" onclick="sendReply()">Send Reply</button>
   </div>
 
 </section>
@@ -114,7 +148,6 @@ async function loadTickets() {
     headers:{ Authorization:`Bearer ${token()}` }
   });
   const data = await res.json();
-
   if (!data.ok) return;
 
   document.getElementById("ticketsList").innerHTML =
@@ -143,14 +176,18 @@ async function openTicket(code, status) {
   document.getElementById("closeBtn").style.display =
     status === "open" ? "inline-block" : "none";
 
+  document.getElementById("reopenBtn").style.display =
+    status === "closed" ? "inline-block" : "none";
+
+  document.getElementById("replyText").disabled = status === "closed";
+  document.getElementById("replyBtn").disabled = status === "closed";
+
   document.getElementById("thread").textContent = "Loading…";
 
   const res = await fetch(`${API}/user/ticket/${code}`, {
     headers:{ Authorization:`Bearer ${token()}` }
   });
-
   const data = await res.json();
-
   if (!data.ok) {
     document.getElementById("thread").textContent = "Failed to load conversation";
     return;
@@ -179,7 +216,9 @@ async function openTicket(code, status) {
           <div class="author">${r.author_name}</div>
           <div>${r.body}</div>
           ${files}
-          <div class="time">${new Date(r.created_at).toLocaleString()}</div>
+          <div class="time">
+            ${new Date(r.created_at).toLocaleString()}
+          </div>
         </div>
       `;
     }).join("");
@@ -200,7 +239,6 @@ async function createTicket() {
     body:fd
   });
   const data = await res.json();
-
   if (!data.ok) return;
 
   subject.value = "";
@@ -239,6 +277,17 @@ async function closeTicket() {
 
   activeStatus = "closed";
   openTicket(activeTicket, "closed");
+}
+
+/* ---------- REOPEN ---------- */
+async function reopenTicket() {
+  await fetch(`${API}/user/reopen/${activeTicket}`, {
+    method:"POST",
+    headers:{ Authorization:`Bearer ${token()}` }
+  });
+
+  activeStatus = "open";
+  openTicket(activeTicket, "open");
 }
 
 /* ---------- INIT ---------- */
