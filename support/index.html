@@ -127,7 +127,13 @@ const replyFile = document.getElementById("replyFile");
 let activeTicket = null;
 
 /* ---------------- INIT ---------------- */
-if (getToken()) showApp();
+if (getToken()) {
+  showApp();
+} else {
+  loginSection.classList.remove("hidden");
+  appSection.classList.add("hidden");
+}
+
 
 /* ---------------- AUTH ---------------- */
 loginBtn.onclick = async () => {
@@ -169,9 +175,17 @@ function showApp() {
 async function loadTickets() {
   ticketsList.textContent = "Loading…";
 
+  const token = getToken();
+  if (!token) return logout();
+
   const res = await fetch(`${API}/user/tickets`, {
-    headers: { Authorization: `Bearer ${getToken()}` }
+    headers: { Authorization: `Bearer ${token}` }
   });
+
+  if (res.status === 401) {
+    console.warn("Token invalid or expired, logging out");
+    return logout();
+  }
 
   if (!res.ok) {
     ticketsList.textContent = "Failed to load tickets";
