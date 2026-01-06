@@ -164,26 +164,42 @@ function handle401() {
 
 /* ---------- LOGIN ---------- */
 async function login() {
-  const payload = {
-    full_name: loginName.value.trim(),
-    email: loginEmail.value.trim(),
-    password: loginPassword.value
-  };
+  const fullName = loginName.value.trim();
+  const email = loginEmail.value.trim();
+  const password = loginPassword.value;
+
+  if (!fullName || !email || !password) {
+    alert("Full name, email, and password are required.");
+    return;
+  }
 
   const res = await fetch(`${API}/user/auth`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+    body: JSON.stringify({
+      email,
+      password,
+      fullName   // ✅ EXACT key backend expects
+    })
   });
 
+  if (!res.ok) {
+    alert("Authentication failed");
+    return;
+  }
+
   const data = await res.json();
-  if (!data.token) return alert("Login failed");
+  if (!data.token) {
+    alert("Invalid response from server");
+    return;
+  }
 
   localStorage.setItem("support_token", data.token);
   isAuthenticated = true;
   showApp();
   loadTickets();
 }
+
 
 /* ---------- LOGOUT ---------- */
 function logout() {
