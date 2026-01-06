@@ -196,8 +196,9 @@ createBtn.onclick = async () => {
 
 /* ---------- LOAD TICKETS ---------- */
 async function loadTickets() {
-  const res = await fetch(`${API}/user/tickets`, {
-    headers:{ Authorization:`Bearer ${getToken()}` }
+  const attachments = data.attachments || [];
+  const files = attachments
+    .filter(a => a.reply_id === r.id)
   });
 
   if (res.status === 401) return logout();
