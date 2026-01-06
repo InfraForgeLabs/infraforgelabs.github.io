@@ -90,6 +90,17 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 </main>
 
 <script>
+  console.log("SCRIPT START");
+
+window.addEventListener("beforeunload", () => {
+  console.log("PAGE IS RELOADING");
+});
+
+window.onerror = function (msg, src, line, col, err) {
+  console.error("JS ERROR:", msg, src, line, col, err);
+};
+
+
 document.addEventListener("submit", e => e.preventDefault());
 document.addEventListener("keydown", e => {
   if (e.key === "Enter") e.preventDefault();
