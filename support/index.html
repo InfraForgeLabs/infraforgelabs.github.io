@@ -10,7 +10,6 @@
 .card { max-width:760px; margin:20px auto; }
 input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 .hidden { display:none; }
-
 .logout { float:right; cursor:pointer; color:#ef4444; }
 
 .ticket {
@@ -18,25 +17,7 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
   padding:10px;
   border-bottom:1px solid #333;
 }
-.ticket.active { background:#111827; }
-
-.status {
-  font-size:11px;
-  padding:2px 6px;
-  border-radius:6px;
-  background:#374151;
-  margin-left:6px;
-}
-.status.closed { background:#6b7280; }
-
-.badge {
-  font-size:11px;
-  padding:2px 6px;
-  border-radius:6px;
-  background:#dc2626;
-  color:#fff;
-  margin-left:6px;
-}
+.ticket:hover { background:#111827; }
 
 .reply {
   max-width:85%;
@@ -44,32 +25,11 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
   padding:10px;
   border-radius:8px;
 }
-.reply.user {
-  background:#1f2937;
-  margin-left:auto;
-  text-align:right;
-}
-.reply.admin {
-  background:#0f172a;
-  margin-right:auto;
-}
+.reply.user { background:#1f2937; margin-left:auto; }
+.reply.admin { background:#0f172a; }
 
-.reply .author {
-  font-size:12px;
-  opacity:.8;
-  margin-bottom:4px;
-}
-.reply .time {
-  font-size:11px;
-  opacity:.6;
-  margin-top:6px;
-}
-
-.attachment img {
-  max-width:220px;
-  margin-top:6px;
-  border-radius:6px;
-}
+.reply .author { font-size:12px; opacity:.8; }
+.reply .time { font-size:11px; opacity:.6; margin-top:6px; }
 </style>
 </head>
 
@@ -88,9 +48,6 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
     <input id="loginEmail" placeholder="Email">
     <input id="loginPassword" type="password" placeholder="Password">
     <button onclick="login()">Continue</button>
-    <p style="font-size:12px;opacity:.7">
-      This account is used only for support communication.
-    </p>
   </div>
 </section>
 
@@ -101,7 +58,6 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
     <h3>Create Ticket <span class="logout" onclick="logout()">Logout</span></h3>
     <input id="subject" placeholder="Subject">
     <textarea id="message" placeholder="Describe your issue"></textarea>
-    <input id="file" type="file">
     <button onclick="createTicket()">Submit Ticket</button>
   </div>
 
@@ -111,22 +67,10 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
   </div>
 
   <div class="card hidden" id="threadCard">
-    <h3>
-      Ticket <span id="activeTicketCode"></span>
-      <span id="activeStatus" class="status"></span>
-
-      <button id="closeBtn" onclick="closeTicket()" style="float:right">Close</button>
-    </h3>
-
-    <div id="thread">Select a ticket</div>
-
+    <h3>Ticket <span id="activeTicketCode"></span></h3>
+    <div id="thread"></div>
     <textarea id="replyText" placeholder="Reply…"></textarea>
-    <input id="replyFile" type="file">
     <button onclick="sendReply()">Send Reply</button>
-
-    <p style="font-size:12px;opacity:.7">
-      💡 You can also reply via email using the magic reply link.
-    </p>
   </div>
 
 </section>
@@ -136,16 +80,18 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 const API = "https://api.infraforgelabs.in/support";
 const getToken = () => localStorage.getItem("support_token");
 
-let activeTicket = null;
-let activeStatus = null;
-let isOpening = false;
 let isAuthenticated = false;
+let activeTicket = null;
+let isOpening = false;
 
-/* ---------- AUTH HEADER ---------- */
-function authHeader() {
+/* ---------- HELPERS ---------- */
+function authHeaders() {
   const t = getToken();
-  if (!t) return null;
-  return { Authorization: `Bearer ${t}` };
+  return t ? { Authorization: `Bearer ${t}` } : null;
+}
+
+function formatLocal(ts) {
+  return new Date(ts + "Z").toLocaleString();
 }
 
 /* ---------- UI ---------- */
@@ -161,6 +107,7 @@ function showApp() {
 
 /* ---------- AUTH ---------- */
 function handle401() {
+  if (!isAuthenticated) return;   // 🔑 CRITICAL FIX
   localStorage.removeItem("support_token");
   isAuthenticated = false;
   showLogin();
@@ -172,21 +119,15 @@ async function login() {
   const email = loginEmail.value.trim();
   const password = loginPassword.value;
 
-  if (!fullName || !email || !password) {
-    alert("Full name, email, and password are required.");
-    return;
-  }
+  if (!fullName || !email || !password) return alert("All fields required");
 
   const res = await fetch(`${API}/user/auth`, {
     method:"POST",
     headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify({ email, password, fullName })
+    body: JSON.stringify({ fullName, email, password })
   });
 
-  if (!res.ok) {
-    alert("Authentication failed");
-    return;
-  }
+  if (!res.ok) return alert("Login failed");
 
   const data = await res.json();
   localStorage.setItem("support_token", data.token);
@@ -202,17 +143,12 @@ function logout() {
   showLogin();
 }
 
-/* ---------- TIME ---------- */
-function formatLocal(ts) {
-  return new Date(ts + "Z").toLocaleString();
-}
-
 /* ---------- LOAD TICKETS ---------- */
 async function loadTickets() {
   if (!isAuthenticated) return;
 
-  const headers = authHeader();
-  if (!headers) return handle401();
+  const headers = authHeaders();
+  if (!headers) return;
 
   const res = await fetch(`${API}/user/tickets`, { headers });
   if (res.status === 401) return handle401();
@@ -220,37 +156,28 @@ async function loadTickets() {
   const data = await res.json();
   ticketsList.innerHTML = "";
 
-  (data.tickets || []).forEach(t => {
-    const row = document.createElement("div");
-    row.className = "ticket";
-    row.onclick = () => openTicket(t.ticket_code, t.status);
-
-    row.innerHTML = `
+  data.tickets.forEach(t => {
+    const div = document.createElement("div");
+    div.className = "ticket";
+    div.innerHTML = `
       <strong>#${t.ticket_code}</strong> — ${t.subject}
-      <div style="font-size:11px;opacity:.6">
-        ${formatLocal(t.created_at)}
-      </div>
+      <div style="font-size:11px;opacity:.6">${formatLocal(t.created_at)}</div>
     `;
-    ticketsList.appendChild(row);
+    div.onclick = () => openTicket(t.ticket_code);
+    ticketsList.appendChild(div);
   });
 }
 
 /* ---------- OPEN TICKET ---------- */
-async function openTicket(code, status) {
-  if (isOpening || !isAuthenticated) return;
+async function openTicket(code) {
+  if (!isAuthenticated || isOpening) return;  // 🔑 HARD GUARD
   isOpening = true;
 
-  activeTicket = code;
-  activeStatus = status;
-
-  const headers = authHeader();
+  const headers = authHeaders();
   if (!headers) {
     isOpening = false;
-    return handle401();
+    return;
   }
-
-  threadCard.classList.remove("hidden");
-  activeTicketCode.textContent = code;
 
   const res = await fetch(`${API}/user/ticket/${code}`, { headers });
   if (res.status === 401) {
@@ -259,31 +186,33 @@ async function openTicket(code, status) {
   }
 
   const data = await res.json();
+  threadCard.classList.remove("hidden");
+  activeTicketCode.textContent = code;
   thread.innerHTML = "";
 
-  (data.replies || []).forEach(r => {
-    const box = document.createElement("div");
-    box.className = `reply ${r.author_type}`;
-    box.innerHTML = `
+  data.replies.forEach(r => {
+    const div = document.createElement("div");
+    div.className = `reply ${r.author_type}`;
+    div.innerHTML = `
       <div class="author">${r.author_name}</div>
       <div>${r.body}</div>
       <div class="time">${formatLocal(r.created_at)}</div>
     `;
-    thread.appendChild(box);
+    thread.appendChild(div);
   });
 
+  activeTicket = code;
   isOpening = false;
 }
 
-/* ---------- CREATE ---------- */
+/* ---------- CREATE / REPLY ---------- */
 async function createTicket() {
-  const headers = authHeader();
-  if (!headers) return handle401();
+  const headers = authHeaders();
+  if (!headers) return;
 
   const fd = new FormData();
   fd.append("subject", subject.value);
   fd.append("message", message.value);
-  if (file.files[0]) fd.append("file", file.files[0]);
 
   const res = await fetch(`${API}/user/ticket`, {
     method:"POST",
@@ -295,12 +224,11 @@ async function createTicket() {
   loadTickets();
 }
 
-/* ---------- REPLY ---------- */
 async function sendReply() {
   if (!activeTicket) return;
 
-  const headers = authHeader();
-  if (!headers) return handle401();
+  const headers = authHeaders();
+  if (!headers) return;
 
   const fd = new FormData();
   fd.append("message", replyText.value);
@@ -311,20 +239,7 @@ async function sendReply() {
     body:fd
   });
 
-  openTicket(activeTicket, activeStatus);
-}
-
-/* ---------- CLOSE ---------- */
-async function closeTicket() {
-  const headers = authHeader();
-  if (!headers) return handle401();
-
-  await fetch(`${API}/user/close/${activeTicket}`, {
-    method:"POST",
-    headers
-  });
-
-  openTicket(activeTicket, "closed");
+  openTicket(activeTicket);
 }
 
 /* ---------- INIT ---------- */
