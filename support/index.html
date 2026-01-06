@@ -10,49 +10,20 @@
 .card { max-width:760px; margin:20px auto; }
 input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 .hidden { display:none; }
-
-.badge {
-  font-size:12px;
-  padding:2px 8px;
-  border-radius:6px;
-  background:#2563eb;
-  color:#fff;
-  margin-left:6px;
-}
-.badge.unread { background:#22c55e; }
-.badge.closed { background:#dc2626; }
-
 .logout { float:right; cursor:pointer; color:#ef4444; }
-
-.reply {
-  margin-bottom:12px;
-  padding-bottom:8px;
-  border-bottom:1px solid #333;
-}
-
-.attachment img {
-  max-width:200px;
-  display:block;
-  margin-top:6px;
-  border-radius:6px;
-}
 </style>
 </head>
 
 <body>
 
 <header>
-  <img src="/logo.png" class="logo">
   <h1>Support</h1>
-  <p class="subtitle">InfraForge · DevOpsMind · InfraForge Labs</p>
 </header>
 
 <main>
-<a href="/">← Back to InfraForge Labs</a>
+<a href="/">← Back</a>
 
-<!-- LOGIN -->
 <section id="loginSection" class="card">
-  <h3>Login / Register</h3>
   <input id="fullName" placeholder="Full name">
   <input id="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
@@ -60,12 +31,10 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
   <p id="loginMsg"></p>
 </section>
 
-<!-- APP -->
 <section id="appSection" class="hidden">
 
-  <!-- CREATE -->
   <div class="card">
-    <h3>Create Ticket <span class="logout" id="logoutBtn">Logout</span></h3>
+    <h3>Create Ticket <span id="logoutBtn" class="logout">Logout</span></h3>
     <input id="subject" placeholder="Subject">
     <textarea id="message" placeholder="Describe your issue"></textarea>
     <input id="file" type="file">
@@ -73,109 +42,64 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
     <p id="createMsg"></p>
   </div>
 
-  <!-- TICKETS -->
   <div class="card">
     <h3>My Tickets</h3>
     <div id="ticketsList">Loading…</div>
-  </div>
-
-  <!-- CONVERSATION -->
-  <div class="card">
-    <h3>Conversation</h3>
-    <div id="conversation">Select a ticket</div>
-
-    <textarea id="replyText" placeholder="Reply…"></textarea>
-    <input id="replyFile" type="file">
-    <button id="replyBtn">Send Reply</button>
-
-    <p style="font-size:12px;opacity:.7;margin-top:10px">
-      💡 You can also reply directly via email using the
-      <strong>magic reply link</strong> sent in ticket notifications.
-      Attachments are supported via email as well.
-    </p>
   </div>
 
 </section>
 </main>
 
 <script>
-/* ---------------- SAFETY ---------------- */
-document.addEventListener("submit", e => e.preventDefault());
-document.addEventListener("keydown", e => {
-  if (e.key === "Enter") e.preventDefault();
-});
-
-/* ---------------- CONFIG ---------------- */
 const API = "https://api.infraforgelabs.in/support";
 
-/* ---------------- HELPERS ---------------- */
+/* ---------- HELPERS ---------- */
 function getToken() {
   return localStorage.getItem("support_token");
 }
 function logout() {
   localStorage.removeItem("support_token");
-  loginSection.classList.remove("hidden");
   appSection.classList.add("hidden");
+  loginSection.classList.remove("hidden");
 }
 
-/* ---------------- DOM ---------------- */
+/* ---------- DOM ---------- */
 const loginSection = document.getElementById("loginSection");
 const appSection = document.getElementById("appSection");
+
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
-
 const createBtn = document.getElementById("createBtn");
-const replyBtn = document.getElementById("replyBtn");
-
-const ticketsList = document.getElementById("ticketsList");
-const conversation = document.getElementById("conversation");
-
-const replyText = document.getElementById("replyText");
-const replyFile = document.getElementById("replyFile");
 
 const fullName = document.getElementById("fullName");
 const email = document.getElementById("email");
 const password = document.getElementById("password");
+
+const subject = document.getElementById("subject");
+const message = document.getElementById("message");
+const file = document.getElementById("file");
+
 const loginMsg = document.getElementById("loginMsg");
+const createMsg = document.getElementById("createMsg");
+const ticketsList = document.getElementById("ticketsList");
 
-let activeTicket = null;
+/* ---------- INIT ---------- */
+if (getToken()) showApp();
 
-/* ---------------- INIT ---------------- */
-const token = getToken();
-if (token && token.length > 20) {
-  showApp();
-}
-
-/* ---------------- AUTH (FIXED) ---------------- */
+/* ---------- AUTH ---------- */
 loginBtn.onclick = async () => {
-  if (!fullName.value || !email.value || !password.value) {
-    loginMsg.textContent = "All fields required";
-    return;
-  }
+  const res = await fetch(`${API}/user/auth`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      fullName: fullName.value,
+      email: email.value,
+      password: password.value
+    })
+  });
 
-  let res;
-  try {
-    res = await fetch(`${API}/user/auth`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        fullName: fullName.value.trim(),
-        email: email.value.trim(),
-        password: password.value
-      })
-    });
-  } catch {
-    loginMsg.textContent = "Network error";
-    return;
-  }
-
-  let data = {};
-  try { data = await res.json(); } catch {}
-
-  if (!res.ok || !data.ok) {
-    loginMsg.textContent = data.error || "Login failed";
-    return;
-  }
+  const data = await res.json();
+  if (!data.ok) return loginMsg.textContent = data.error;
 
   localStorage.setItem("support_token", data.token);
   showApp();
@@ -183,102 +107,57 @@ loginBtn.onclick = async () => {
 
 logoutBtn.onclick = logout;
 
-/* ---------------- APP ---------------- */
+/* ---------- APP ---------- */
 function showApp() {
   loginSection.classList.add("hidden");
   appSection.classList.remove("hidden");
   loadTickets();
 }
 
-/* ---------------- LOAD TICKETS ---------------- */
+/* ---------- LOAD TICKETS ---------- */
 async function loadTickets() {
-  ticketsList.textContent = "Loading…";
-
-  const token = getToken();
-  if (!token) return logout();
-
   const res = await fetch(`${API}/user/tickets`, {
-    headers: { Authorization: `Bearer ${token}` }
-  });
-
-  if (res.status === 401) return logout();
-
-  let data = {};
-  try { data = await res.json(); } catch {}
-
-  const tickets = data.tickets || [];
-
-  ticketsList.innerHTML =
-    tickets.length === 0
-      ? "No tickets"
-      : tickets.map(t => `
-        <p onclick="openTicket('${t.ticket_code}')">
-          ${t.subject}
-          ${t.has_unread_user ? `<span class="badge unread">NEW</span>` : ""}
-        </p>
-      `).join("");
-}
-
-/* ---------------- OPEN TICKET ---------------- */
-async function openTicket(code) {
-  activeTicket = code;
-  conversation.textContent = "Loading…";
-
-  const res = await fetch(`${API}/user/ticket/${code}`, {
     headers: { Authorization: `Bearer ${getToken()}` }
   });
 
-  if (!res.ok) {
-    conversation.textContent = "Failed to load conversation";
+  const data = await res.json();
+  ticketsList.innerHTML = (data.tickets || [])
+    .map(t => `<div>${t.subject}</div>`)
+    .join("");
+}
+
+/* ---------- ✅ CREATE TICKET (THIS WAS MISSING) ---------- */
+createBtn.onclick = async () => {
+  createMsg.textContent = "";
+
+  if (!subject.value || !message.value) {
+    createMsg.textContent = "Subject and message required";
     return;
   }
 
-  let data = {};
-  try { data = await res.json(); } catch {}
-
-  const replies = data.replies || [];
-  const attachments = data.attachments || [];
-
-  conversation.innerHTML = replies.map(r => {
-    const files = attachments
-      .filter(a => a.reply_id === r.id)
-      .map(a =>
-        a.mime_type?.startsWith("image/")
-          ? `<div class="attachment"><img src="${a.public_url}"></div>`
-          : `<div class="attachment"><a href="${a.public_url}" target="_blank">${a.filename}</a></div>`
-      ).join("");
-
-    return `
-      <div class="reply">
-        <strong>${r.author_name}</strong><br>
-        ${r.body}
-        ${files}
-      </div>
-    `;
-  }).join("");
-
-  loadTickets();
-}
-
-/* ---------------- REPLY ---------------- */
-replyBtn.onclick = async () => {
-  if (!activeTicket || !replyText.value.trim()) return;
-
   const fd = new FormData();
-  fd.append("message", replyText.value.trim());
-  if (replyFile.files[0]) fd.append("file", replyFile.files[0]);
+  fd.append("subject", subject.value);
+  fd.append("message", message.value);
+  if (file.files[0]) fd.append("file", file.files[0]);
 
-  const res = await fetch(`${API}/user/reply/${activeTicket}`, {
+  const res = await fetch(`${API}/user/ticket`, {
     method: "POST",
     headers: { Authorization: `Bearer ${getToken()}` },
     body: fd
   });
 
-  if (!res.ok) return;
+  const data = await res.json();
+  if (!data.ok) {
+    createMsg.textContent = data.error || "Failed";
+    return;
+  }
 
-  replyText.value = "";
-  replyFile.value = "";
-  openTicket(activeTicket);
+  subject.value = "";
+  message.value = "";
+  file.value = "";
+  createMsg.textContent = `Ticket created: ${data.ticketCode}`;
+
+  loadTickets();
 };
 </script>
 
