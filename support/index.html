@@ -10,6 +10,7 @@
 .card { max-width:760px; margin:20px auto; }
 input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 .hidden { display:none; }
+
 .logout { float:right; cursor:pointer; color:#ef4444; }
 
 .ticket {
@@ -109,7 +110,7 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
       </button>
     </h3>
 
-    <div id="thread"></div>
+    <div id="thread">Select a ticket</div>
 
     <textarea id="replyText" placeholder="Reply…"></textarea>
     <input id="replyFile" type="file">
@@ -129,8 +130,9 @@ const token = () => localStorage.getItem("support_token");
 
 let activeTicket = null;
 let activeStatus = null;
+let isOpening = false;
 
-/* ---------- TIME (USER LOCALE) ---------- */
+/* ---------- TIME ---------- */
 function formatTime(ts) {
   if (!ts) return "";
   return new Date(ts + "Z").toLocaleString();
@@ -151,23 +153,31 @@ async function loadTickets() {
   if (!res.ok) return logout();
 
   const data = await res.json();
+  const list = document.getElementById("ticketsList");
+  list.innerHTML = "";
 
-  document.getElementById("ticketsList").innerHTML =
-    (data.tickets || []).map(t => `
-      <div class="ticket ${t.ticket_code === activeTicket ? "active" : ""}"
-           onclick="openTicket('${t.ticket_code}', '${t.status}')">
-        <strong>${t.subject}</strong>
-        <span class="status ${t.status}">${t.status}</span>
-        ${t.has_unread_user ? `<span class="badge">NEW</span>` : ""}
-        <div style="font-size:11px;opacity:.6">
-          Last updated: ${formatTime(t.updated_at || t.created_at)}
-        </div>
+  (data.tickets || []).forEach(t => {
+    const row = document.createElement("div");
+    row.className = `ticket ${t.ticket_code === activeTicket ? "active" : ""}`;
+    row.onclick = () => openTicket(t.ticket_code, t.status);
+
+    row.innerHTML = `
+      <strong>${t.subject}</strong>
+      <span class="status ${t.status}">${t.status}</span>
+      ${t.has_unread_user ? `<span class="badge">NEW</span>` : ""}
+      <div style="font-size:11px;opacity:.6">
+        Last updated: ${formatTime(t.updated_at || t.created_at)}
       </div>
-    `).join("");
+    `;
+    list.appendChild(row);
+  });
 }
 
 /* ---------- OPEN TICKET ---------- */
 async function openTicket(code, status) {
+  if (isOpening) return;
+  isOpening = true;
+
   activeTicket = code;
   activeStatus = status;
 
@@ -181,45 +191,50 @@ async function openTicket(code, status) {
   document.getElementById("closeBtn").style.display = status === "open" ? "inline-block" : "none";
   document.getElementById("reopenBtn").classList.toggle("hidden", status !== "closed");
 
-  const threadEl = document.getElementById("thread");
-  threadEl.innerHTML = "Loading…";
+  const thread = document.getElementById("thread");
+  thread.textContent = "Loading…";
 
-  const res = await fetch(`${API}/user/ticket/${code}`, {
-    headers:{ Authorization:`Bearer ${token()}` }
-  });
+  try {
+    const res = await fetch(`${API}/user/ticket/${code}`, {
+      headers:{ Authorization:`Bearer ${token()}` }
+    });
 
-  if (!res.ok) {
-    threadEl.textContent = "Failed to load conversation";
-    return;
-  }
+    if (!res.ok) throw new Error("fetch failed");
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
 
-  const data = await res.json();
-  if (!data.ok) {
-    threadEl.textContent = data.error || "Failed to load conversation";
-    return;
-  }
+    thread.innerHTML = "";
 
-  threadEl.innerHTML =
-    (data.replies || []).map(r => {
-      const files = (data.attachments || [])
-        .filter(a => a.reply_id === r.id)
-        .map(a =>
-          a.mime_type?.startsWith("image/")
-            ? `<div class="attachment"><img src="${a.public_url}"></div>`
-            : `<div class="attachment"><a href="${a.public_url}" target="_blank">${a.filename}</a></div>`
-        ).join("");
+    (data.replies || []).forEach(r => {
+      const box = document.createElement("div");
+      box.className = `reply ${r.author_type}`;
 
-      return `
-        <div class="reply ${r.author_type}">
-          <div class="author">${r.author_name}</div>
-          <div>${r.body}</div>
-          ${files}
-          <div class="time">${formatTime(r.created_at)}</div>
-        </div>
+      box.innerHTML = `
+        <div class="author">${r.author_name}</div>
+        <div>${r.body}</div>
+        <div class="time">${formatTime(r.created_at)}</div>
       `;
-    }).join("");
 
-  loadTickets(); // ✅ safe here (no loop)
+      (data.attachments || [])
+        .filter(a => a.reply_id === r.id)
+        .forEach(a => {
+          const el = document.createElement("div");
+          el.className = "attachment";
+          el.innerHTML = a.mime_type?.startsWith("image/")
+            ? `<img src="${a.public_url}">`
+            : `<a href="${a.public_url}" target="_blank">${a.filename}</a>`;
+          box.appendChild(el);
+        });
+
+      thread.appendChild(box);
+    });
+
+  } catch {
+    thread.textContent = "Failed to load conversation";
+  }
+
+  isOpening = false;
+  loadTickets();
 }
 
 /* ---------- CREATE ---------- */
@@ -272,10 +287,10 @@ async function closeTicket() {
 }
 
 async function reopenTicket() {
-  await fetch(`${API}/user/reply/${activeTicket}`, {
+  await fetch(`${API}/user/status/${activeTicket}`, {
     method:"POST",
     headers:{ Authorization:`Bearer ${token()}` },
-    body: new FormData()
+    body: JSON.stringify({ status:"open" })
   });
   openTicket(activeTicket, "open");
 }
