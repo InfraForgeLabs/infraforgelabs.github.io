@@ -15,7 +15,7 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 
 .ticket {
   cursor:pointer;
-  padding:8px;
+  padding:10px;
   border-bottom:1px solid #333;
 }
 .ticket.active { background:#111827; }
@@ -41,7 +41,7 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 /* Thread */
 .reply {
   max-width:85%;
-  margin-bottom:16px;
+  margin-bottom:14px;
   padding:10px;
   border-radius:8px;
 }
@@ -60,10 +60,9 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
   opacity:.8;
   margin-bottom:4px;
 }
-
 .reply .time {
   font-size:11px;
-  opacity:.55;
+  opacity:.5;
   margin-top:6px;
 }
 
@@ -71,11 +70,6 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
   max-width:220px;
   margin-top:6px;
   border-radius:6px;
-  display:block;
-}
-.attachment a {
-  display:inline-block;
-  margin-top:6px;
 }
 </style>
 </head>
@@ -110,11 +104,8 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
       Ticket <span id="activeTicketCode"></span>
       <span id="activeStatus" class="status"></span>
 
-      <button id="closeBtn" onclick="closeTicket()" style="float:right">
-        Close
-      </button>
-
-      <button id="reopenBtn" onclick="reopenTicket()" style="float:right;display:none">
+      <button id="closeBtn" onclick="closeTicket()" style="float:right">Close</button>
+      <button id="reopenBtn" onclick="reopenTicket()" class="hidden" style="float:right;margin-right:8px">
         Reopen
       </button>
     </h3>
@@ -123,7 +114,11 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 
     <textarea id="replyText" placeholder="Reply…"></textarea>
     <input id="replyFile" type="file">
-    <button id="replyBtn" onclick="sendReply()">Send Reply</button>
+    <button onclick="sendReply()">Send Reply</button>
+
+    <p style="font-size:12px;opacity:.7">
+      💡 You can also reply via email using the magic reply link.
+    </p>
   </div>
 
 </section>
@@ -147,16 +142,19 @@ async function loadTickets() {
   const res = await fetch(`${API}/user/tickets`, {
     headers:{ Authorization:`Bearer ${token()}` }
   });
+
   const data = await res.json();
-  if (!data.ok) return;
 
   document.getElementById("ticketsList").innerHTML =
     (data.tickets || []).map(t => `
       <div class="ticket ${t.ticket_code === activeTicket ? "active" : ""}"
            onclick="openTicket('${t.ticket_code}', '${t.status}')">
-        ${t.subject}
+        <strong>${t.subject}</strong>
         <span class="status ${t.status}">${t.status}</span>
         ${t.has_unread_user ? `<span class="badge">NEW</span>` : ""}
+        <div style="font-size:11px;opacity:.6">
+          Last updated: ${new Date(t.updated_at || t.created_at).toLocaleString()}
+        </div>
       </div>
     `).join("");
 }
@@ -173,40 +171,28 @@ async function openTicket(code, status) {
   statusEl.textContent = status;
   statusEl.className = `status ${status}`;
 
-  document.getElementById("closeBtn").style.display =
-    status === "open" ? "inline-block" : "none";
+  document.getElementById("closeBtn").style.display = status === "open" ? "inline-block" : "none";
+  document.getElementById("reopenBtn").classList.toggle("hidden", status !== "closed");
 
-  document.getElementById("reopenBtn").style.display =
-    status === "closed" ? "inline-block" : "none";
-
-  document.getElementById("replyText").disabled = status === "closed";
-  document.getElementById("replyBtn").disabled = status === "closed";
-
-  document.getElementById("thread").textContent = "Loading…";
+  loadTickets();
 
   const res = await fetch(`${API}/user/ticket/${code}`, {
     headers:{ Authorization:`Bearer ${token()}` }
   });
-  const data = await res.json();
-  if (!data.ok) {
+
+  if (!res.ok) {
     document.getElementById("thread").textContent = "Failed to load conversation";
     return;
   }
 
-  const replies = data.replies || [];
-  const attachments = data.attachments || [];
-
-  if (replies.length === 0) {
-    document.getElementById("thread").textContent = "No replies yet.";
-    return;
-  }
+  const data = await res.json();
 
   document.getElementById("thread").innerHTML =
-    replies.map(r => {
-      const files = attachments
+    (data.replies || []).map(r => {
+      const files = (data.attachments || [])
         .filter(a => a.reply_id === r.id)
         .map(a =>
-          a.mime_type.startsWith("image/")
+          a.mime_type && a.mime_type.startsWith("image/")
             ? `<div class="attachment"><img src="${a.public_url}"></div>`
             : `<div class="attachment"><a href="${a.public_url}" target="_blank">${a.filename}</a></div>`
         ).join("");
@@ -216,14 +202,10 @@ async function openTicket(code, status) {
           <div class="author">${r.author_name}</div>
           <div>${r.body}</div>
           ${files}
-          <div class="time">
-            ${new Date(r.created_at).toLocaleString()}
-          </div>
+          <div class="time">${new Date(r.created_at).toLocaleString()}</div>
         </div>
       `;
     }).join("");
-
-  loadTickets();
 }
 
 /* ---------- CREATE ---------- */
@@ -238,11 +220,9 @@ async function createTicket() {
     headers:{ Authorization:`Bearer ${token()}` },
     body:fd
   });
-  const data = await res.json();
-  if (!data.ok) return;
 
-  subject.value = "";
-  message.value = "";
+  const data = await res.json();
+  subject.value = message.value = "";
   file.value = "";
 
   loadTickets();
@@ -268,25 +248,21 @@ async function sendReply() {
   openTicket(activeTicket, "open");
 }
 
-/* ---------- CLOSE ---------- */
+/* ---------- CLOSE / REOPEN ---------- */
 async function closeTicket() {
   await fetch(`${API}/user/close/${activeTicket}`, {
     method:"POST",
     headers:{ Authorization:`Bearer ${token()}` }
   });
-
-  activeStatus = "closed";
   openTicket(activeTicket, "closed");
 }
 
-/* ---------- REOPEN ---------- */
 async function reopenTicket() {
-  await fetch(`${API}/user/reopen/${activeTicket}`, {
+  await fetch(`${API}/user/status/${activeTicket}`, {
     method:"POST",
-    headers:{ Authorization:`Bearer ${token()}` }
+    headers:{ Authorization:`Bearer ${token()}` },
+    body: JSON.stringify({ status:"open" })
   });
-
-  activeStatus = "open";
   openTicket(activeTicket, "open");
 }
 
