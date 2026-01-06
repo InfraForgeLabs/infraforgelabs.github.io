@@ -58,6 +58,7 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 .reply .author {
   font-size:12px;
   opacity:.8;
+  margin-bottom:4px;
 }
 .reply .time {
   font-size:11px;
@@ -82,6 +83,7 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 
 <section id="appSection" class="hidden">
 
+  <!-- CREATE -->
   <div class="card">
     <h3>Create Ticket <span class="logout" onclick="logout()">Logout</span></h3>
     <input id="subject" placeholder="Subject">
@@ -90,11 +92,13 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
     <button onclick="createTicket()">Submit Ticket</button>
   </div>
 
+  <!-- TICKETS -->
   <div class="card">
     <h3>My Tickets</h3>
     <div id="ticketsList">Loading…</div>
   </div>
 
+  <!-- THREAD -->
   <div class="card hidden" id="threadCard">
     <h3>
       Ticket <span id="activeTicketCode"></span>
@@ -111,6 +115,10 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
     <textarea id="replyText" placeholder="Reply…"></textarea>
     <input id="replyFile" type="file">
     <button onclick="sendReply()">Send Reply</button>
+
+    <p style="font-size:12px;opacity:.7">
+      💡 You can also reply via email using the magic reply link.
+    </p>
   </div>
 
 </section>
@@ -120,18 +128,18 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 const API = "https://api.infraforgelabs.in/support";
 const appSection = document.getElementById("appSection");
 
+const token = () => localStorage.getItem("support_token");
+
 let activeTicket = null;
 let activeStatus = "open";
-
-/* ---------- TOKEN ---------- */
-function token() {
-  return localStorage.getItem("support_token");
-}
 
 /* ---------- TIME ---------- */
 function formatTime(ts) {
   if (!ts) return "";
-  return new Date(ts + "Z").toLocaleString();
+  return new Date(ts + "Z").toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short"
+  });
 }
 
 /* ---------- LOGOUT (NO RELOAD) ---------- */
@@ -170,7 +178,8 @@ async function loadTickets() {
 
   document.getElementById("ticketsList").innerHTML =
     (data.tickets || []).map(t => `
-      <div class="ticket" onclick="openTicket('${t.ticket_code}', '${t.status}')">
+      <div class="ticket ${t.ticket_code === activeTicket ? "active" : ""}"
+           onclick="openTicket('${t.ticket_code}', '${t.status}')">
         <strong>${t.subject}</strong>
         <span class="status ${t.status}">${t.status}</span>
         ${t.has_unread_user ? `<span class="badge">NEW</span>` : ""}
@@ -193,7 +202,8 @@ async function openTicket(code, status) {
   statusEl.textContent = status;
   statusEl.className = `status ${status}`;
 
-  document.getElementById("closeBtn").style.display = status === "open" ? "inline-block" : "none";
+  document.getElementById("closeBtn").style.display =
+    status === "open" ? "inline-block" : "none";
   document.getElementById("reopenBtn").classList.toggle("hidden", status !== "closed");
 
   const res = await authFetch(`${API}/user/ticket/${code}`);
@@ -217,8 +227,8 @@ async function createTicket() {
   if (file.files[0]) fd.append("file", file.files[0]);
 
   const res = await authFetch(`${API}/user/ticket`, {
-    method: "POST",
-    body: fd
+    method:"POST",
+    body:fd
   });
 
   const data = await res.json();
@@ -226,7 +236,7 @@ async function createTicket() {
   file.value = "";
 
   loadTickets();
-  openTicket(data.ticketCode, "open");
+  if (data.ticketCode) openTicket(data.ticketCode, "open");
 }
 
 /* ---------- REPLY ---------- */
@@ -238,8 +248,8 @@ async function sendReply() {
   if (replyFile.files[0]) fd.append("file", replyFile.files[0]);
 
   await authFetch(`${API}/user/reply/${activeTicket}`, {
-    method: "POST",
-    body: fd
+    method:"POST",
+    body:fd
   });
 
   replyText.value = "";
