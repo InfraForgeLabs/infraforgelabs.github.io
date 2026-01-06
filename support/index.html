@@ -115,6 +115,9 @@ function handle401() {
 
 /* ---------- LOGIN ---------- */
 async function login() {
+  ticketsList.innerHTML = "";
+  threadCard.classList.add("hidden");
+
   const fullName = loginName.value.trim();
   const email = loginEmail.value.trim();
   const password = loginPassword.value;
@@ -138,6 +141,9 @@ async function login() {
 
 /* ---------- LOGOUT ---------- */
 function logout() {
+  ticketsList.innerHTML = "";
+  threadCard.classList.add("hidden");
+
   localStorage.removeItem("support_token");
   isAuthenticated = false;
   showLogin();
@@ -182,8 +188,11 @@ async function openTicket(code) {
   const res = await fetch(`${API}/user/ticket/${code}`, { headers });
   if (res.status === 401) {
     isOpening = false;
-    return handle401();
+    thread.innerHTML =
+      "<div style='opacity:.7'>You don’t have access to this ticket.</div>";
+    return;
   }
+
 
   const data = await res.json();
   threadCard.classList.remove("hidden");
