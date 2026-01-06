@@ -53,9 +53,9 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 <!-- LOGIN -->
 <section id="loginSection" class="card">
   <h3>Login / Register</h3>
-  <input id="fullName" placeholder="Full name">
-  <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
+  <input id="fullName" autocomplete="name" placeholder="Full name">
+  <input id="email" autocomplete="email" placeholder="Email">
+  <input id="password" autocomplete="current-password" type="password" placeholder="Password">
   <button type="button" id="loginBtn">Login</button>
   <p id="loginMsg"></p>
 </section>
@@ -97,6 +97,12 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 </main>
 
 <script>
+/* 🔒 HARD BLOCK BROWSER AUTO-SUBMIT & ENTER KEY */
+document.addEventListener("submit", e => e.preventDefault());
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter") e.preventDefault();
+});
+
 const API = "/support/api";
 
 /* ---------- HELPERS ---------- */
@@ -152,7 +158,7 @@ loginBtn.onclick = async () => {
   }
 
   localStorage.setItem("support_token", data.token);
-  location.reload(); // 🔒 edge-safe login
+  location.reload(); // 🔒 EDGE-SAFE LOGIN
 };
 
 logoutBtn.onclick = logout;
