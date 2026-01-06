@@ -53,37 +53,47 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 <!-- LOGIN -->
 <section id="loginSection" class="card">
   <h3>Login / Register</h3>
-  <input id="fullName" autocomplete="name" placeholder="Full name">
-  <input id="email" autocomplete="email" placeholder="Email">
-  <input id="password" autocomplete="current-password" type="password" placeholder="Password">
-  <button type="button" id="loginBtn">Login</button>
+  <input id="fullName" placeholder="Full name">
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button id="loginBtn">Login</button>
   <p id="loginMsg"></p>
 </section>
 
 <!-- APP -->
 <section id="appSection" class="hidden">
 
+  <!-- CREATE -->
   <div class="card">
     <h3>Create Ticket <span class="logout" id="logoutBtn">Logout</span></h3>
     <input id="subject" placeholder="Subject">
     <textarea id="message" placeholder="Describe your issue"></textarea>
     <input id="file" type="file">
-    <button type="button" id="createBtn">Submit Ticket</button>
+    <button id="createBtn">Submit Ticket</button>
     <p id="createMsg"></p>
   </div>
 
+  <!-- TICKETS -->
   <div class="card">
     <h3>My Tickets</h3>
     <div id="ticketsList">Loading…</div>
   </div>
 
+  <!-- CONVERSATION -->
   <div class="card">
     <h3>Conversation</h3>
     <div id="conversation">Select a ticket</div>
 
     <textarea id="replyText" placeholder="Reply…"></textarea>
     <input id="replyFile" type="file">
-    <button type="button" id="replyBtn">Send Reply</button>
+    <button id="replyBtn">Send Reply</button>
+
+    <!-- MAGIC LINK -->
+    <p style="font-size:12px;opacity:.7;margin-top:10px">
+      💡 You can also reply directly via email using the
+      <strong>magic reply link</strong> sent in ticket notifications.
+      Attachments are supported via email as well.
+    </p>
   </div>
 
 </section>
@@ -97,7 +107,7 @@ document.addEventListener("keydown", e => {
 });
 
 /* ---------------- CONFIG ---------------- */
-const API = "https://api.infraforgelabs.in/support";
+const API = "/support/api";
 
 /* ---------------- HELPERS ---------------- */
 function getToken() {
@@ -130,12 +140,7 @@ let activeTicket = null;
 const token = getToken();
 if (token && token.length > 20) {
   showApp();
-} else {
-  loginSection.classList.remove("hidden");
-  appSection.classList.add("hidden");
 }
-
-
 
 /* ---------------- AUTH ---------------- */
 loginBtn.onclick = async () => {
@@ -145,9 +150,9 @@ loginBtn.onclick = async () => {
   }
 
   const res = await fetch(`${API}/user/auth`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({
       fullName: fullName.value.trim(),
       email: email.value.trim(),
       password: password.value
@@ -178,25 +183,13 @@ async function loadTickets() {
   ticketsList.textContent = "Loading…";
 
   const token = getToken();
-  if (!token) {
-    logout();
-    return;
-  }
+  if (!token) return logout();
 
   const res = await fetch(`${API}/user/tickets`, {
-    headers: { Authorization: `Bearer ${token}` }
+    headers:{ Authorization:`Bearer ${token}` }
   });
 
-  if (res.status === 401) {
-    console.warn("Unauthorized → logging out");
-    logout();
-    return;
-  }
-
-  if (!res.ok) {
-    ticketsList.textContent = "Failed to load tickets";
-    return;
-  }
+  if (res.status === 401) return logout();
 
   const data = await res.json();
   const tickets = data.tickets || [];
@@ -212,14 +205,13 @@ async function loadTickets() {
       `).join("");
 }
 
-
 /* ---------------- OPEN TICKET ---------------- */
 async function openTicket(code) {
   activeTicket = code;
   conversation.textContent = "Loading…";
 
   const res = await fetch(`${API}/user/ticket/${code}`, {
-    headers: { Authorization: `Bearer ${getToken()}` }
+    headers:{ Authorization:`Bearer ${getToken()}` }
   });
 
   if (!res.ok) {
@@ -261,9 +253,9 @@ replyBtn.onclick = async () => {
   if (replyFile.files[0]) fd.append("file", replyFile.files[0]);
 
   const res = await fetch(`${API}/user/reply/${activeTicket}`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${getToken()}` },
-    body: fd
+    method:"POST",
+    headers:{ Authorization:`Bearer ${getToken()}` },
+    body:fd
   });
 
   if (!res.ok) return;
