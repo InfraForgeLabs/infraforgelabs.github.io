@@ -17,14 +17,30 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
   cursor:pointer;
   padding:8px;
   border-bottom:1px solid #333;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
-.ticket.active {
-  background:#111827;
+.ticket.active { background:#111827; }
+
+.badge {
+  font-size:11px;
+  padding:2px 6px;
+  border-radius:6px;
+  background:#dc2626;
+  color:#fff;
+  margin-left:6px;
 }
 
-.thread {
-  margin-top:10px;
+.status {
+  font-size:11px;
+  padding:2px 6px;
+  border-radius:6px;
+  background:#374151;
+  color:#fff;
+  margin-left:6px;
 }
+.status.closed { background:#6b7280; }
 
 .reply {
   max-width:85%;
@@ -32,67 +48,34 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
   padding:10px;
   border-radius:8px;
 }
+.reply.user { background:#1f2937; margin-left:auto; text-align:right; }
+.reply.admin { background:#0f172a; margin-right:auto; }
 
-.reply.user {
-  background:#1f2937;
-  margin-left:auto;
-  text-align:right;
-}
-
-.reply.admin {
-  background:#0f172a;
-  margin-right:auto;
-}
-
-.reply .author {
-  font-size:12px;
-  opacity:.7;
-  margin-bottom:4px;
-}
+.reply .author { font-size:12px; opacity:.7; margin-bottom:4px; }
 
 .attachment img {
   max-width:220px;
   margin-top:6px;
   border-radius:6px;
-  display:block;
-}
-
-.attachment a {
-  display:inline-block;
-  margin-top:6px;
-  font-size:14px;
 }
 </style>
 </head>
 
 <body>
 
-<header>
-  <h1>Support</h1>
-</header>
-
+<header><h1>Support</h1></header>
 <main>
 <a href="/">← Back</a>
 
-<!-- LOGIN -->
-<section id="loginSection" class="card">
-  <input id="fullName" placeholder="Full name">
-  <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
-  <button id="loginBtn">Login</button>
-</section>
-
-<!-- APP -->
-<section id="appSection" class="hidden">
+<section id="appSection">
 
   <!-- CREATE -->
   <div class="card">
-    <h3>Create Ticket <span id="logoutBtn" class="logout">Logout</span></h3>
+    <h3>Create Ticket <span class="logout" onclick="logout()">Logout</span></h3>
     <input id="subject" placeholder="Subject">
     <textarea id="message" placeholder="Describe your issue"></textarea>
     <input id="file" type="file">
-    <button id="createBtn">Submit Ticket</button>
-    <p id="createMsg"></p>
+    <button onclick="createTicket()">Submit Ticket</button>
   </div>
 
   <!-- TICKETS -->
@@ -103,17 +86,17 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 
   <!-- THREAD -->
   <div class="card hidden" id="threadCard">
-    <h3>Ticket <span id="activeTicketCode"></span></h3>
+    <h3>
+      Ticket <span id="activeTicketCode"></span>
+      <span id="activeStatus" class="status"></span>
+      <button id="closeBtn" onclick="closeTicket()" style="float:right">Close</button>
+    </h3>
 
-    <div id="thread" class="thread"></div>
+    <div id="thread"></div>
 
     <textarea id="replyText" placeholder="Reply…"></textarea>
     <input id="replyFile" type="file">
-    <button id="replyBtn">Send Reply</button>
-
-    <p style="font-size:12px;opacity:.7">
-      💡 You can also reply via email using the magic reply link.
-    </p>
+    <button id="replyBtn" onclick="sendReply()">Send Reply</button>
   </div>
 
 </section>
@@ -121,35 +104,15 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 
 <script>
 const API = "https://api.infraforgelabs.in/support";
-
-/* ---------- HELPERS ---------- */
 const token = () => localStorage.getItem("support_token");
 
-/* ---------- DOM ---------- */
-const loginSection = document.getElementById("loginSection");
-const appSection = document.getElementById("appSection");
-const threadCard = document.getElementById("threadCard");
-
-const ticketsList = document.getElementById("ticketsList");
-const thread = document.getElementById("thread");
-const activeTicketCodeEl = document.getElementById("activeTicketCode");
-
-const createBtn = document.getElementById("createBtn");
-const replyBtn = document.getElementById("replyBtn");
-
-const subject = document.getElementById("subject");
-const message = document.getElementById("message");
-const file = document.getElementById("file");
-const replyText = document.getElementById("replyText");
-const replyFile = document.getElementById("replyFile");
-
 let activeTicket = null;
+let activeStatus = "open";
 
-/* ---------- INIT ---------- */
-if (token()) {
-  loginSection.classList.add("hidden");
-  appSection.classList.remove("hidden");
-  loadTickets();
+/* ---------- LOGOUT ---------- */
+function logout() {
+  localStorage.removeItem("support_token");
+  location.reload();
 }
 
 /* ---------- LOAD TICKETS ---------- */
@@ -159,20 +122,31 @@ async function loadTickets() {
   });
   const data = await res.json();
 
-  ticketsList.innerHTML = data.tickets.map(t =>
-    `<div class="ticket ${t.ticket_code === activeTicket ? "active" : ""}"
-          onclick="openTicket('${t.ticket_code}')">
-       ${t.subject}
-     </div>`
-  ).join("");
+  document.getElementById("ticketsList").innerHTML =
+    data.tickets.map(t => `
+      <div class="ticket ${t.ticket_code === activeTicket ? "active" : ""}"
+           onclick="openTicket('${t.ticket_code}', '${t.status}')">
+        <span>
+          ${t.subject}
+          <span class="status ${t.status}">${t.status}</span>
+          ${t.has_unread_user ? `<span class="badge">NEW</span>` : ""}
+        </span>
+      </div>
+    `).join("");
 }
 
-/* ---------- OPEN TICKET (THREAD) ---------- */
-async function openTicket(code) {
+/* ---------- OPEN TICKET ---------- */
+async function openTicket(code, status) {
   activeTicket = code;
-  activeTicketCodeEl.textContent = code;
-  threadCard.classList.remove("hidden");
-  thread.innerHTML = "Loading…";
+  activeStatus = status;
+
+  document.getElementById("threadCard").classList.remove("hidden");
+  document.getElementById("activeTicketCode").textContent = code;
+  document.getElementById("activeStatus").textContent = status;
+  document.getElementById("activeStatus").className = `status ${status}`;
+
+  document.getElementById("closeBtn").style.display =
+    status === "open" ? "inline-block" : "none";
 
   loadTickets();
 
@@ -181,27 +155,31 @@ async function openTicket(code) {
   });
   const data = await res.json();
 
-  thread.innerHTML = data.replies.map(r => {
-    const files = (data.attachments || [])
-      .filter(a => a.reply_id === r.id)
-      .map(a =>
-        a.mime_type.startsWith("image/")
-          ? `<div class="attachment"><img src="${a.public_url}"></div>`
-          : `<div class="attachment"><a href="${a.public_url}" target="_blank">${a.filename}</a></div>`
-      ).join("");
+  document.getElementById("thread").innerHTML =
+    data.replies.map(r => {
+      const files = (data.attachments || [])
+        .filter(a => a.reply_id === r.id)
+        .map(a =>
+          a.mime_type.startsWith("image/")
+            ? `<img src="${a.public_url}">`
+            : `<a href="${a.public_url}" target="_blank">${a.filename}</a>`
+        ).join("");
 
-    return `
-      <div class="reply ${r.author_type === "user" ? "user" : "admin"}">
-        <div class="author">${r.author_name}</div>
-        ${r.body}
-        ${files}
-      </div>
-    `;
-  }).join("");
+      return `
+        <div class="reply ${r.author_type}">
+          <div class="author">${r.author_name}</div>
+          ${r.body}
+          ${files}
+        </div>
+      `;
+    }).join("");
+
+  document.getElementById("replyText").disabled = status === "closed";
+  document.getElementById("replyBtn").disabled = status === "closed";
 }
 
 /* ---------- CREATE ---------- */
-createBtn.onclick = async () => {
+async function createTicket() {
   const fd = new FormData();
   fd.append("subject", subject.value);
   fd.append("message", message.value);
@@ -219,15 +197,15 @@ createBtn.onclick = async () => {
   file.value = "";
 
   loadTickets();
-  openTicket(data.ticketCode);
-};
+  openTicket(data.ticketCode, "open");
+}
 
 /* ---------- REPLY ---------- */
-replyBtn.onclick = async () => {
-  if (!activeTicket || !replyText.value.trim()) return;
+async function sendReply() {
+  if (!activeTicket) return;
 
   const fd = new FormData();
-  fd.append("message", replyText.value.trim());
+  fd.append("message", replyText.value);
   if (replyFile.files[0]) fd.append("file", replyFile.files[0]);
 
   await fetch(`${API}/user/reply/${activeTicket}`, {
@@ -238,8 +216,22 @@ replyBtn.onclick = async () => {
 
   replyText.value = "";
   replyFile.value = "";
-  openTicket(activeTicket);
-};
+  openTicket(activeTicket, "open");
+}
+
+/* ---------- CLOSE ---------- */
+async function closeTicket() {
+  await fetch(`${API}/user/close/${activeTicket}`, {
+    method:"POST",
+    headers:{ Authorization:`Bearer ${token()}` }
+  });
+
+  activeStatus = "closed";
+  openTicket(activeTicket, "closed");
+}
+
+/* ---------- INIT ---------- */
+loadTickets();
 </script>
 
 </body>
