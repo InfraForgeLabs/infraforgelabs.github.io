@@ -17,11 +17,21 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
   cursor:pointer;
   padding:8px;
   border-bottom:1px solid #333;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
 }
-.ticket.active { background:#111827; }
+.ticket.active {
+  background:#111827;
+}
+
+.status {
+  font-size:11px;
+  padding:2px 6px;
+  border-radius:6px;
+  background:#374151;
+  margin-left:6px;
+}
+.status.closed {
+  background:#6b7280;
+}
 
 .badge {
   font-size:11px;
@@ -32,31 +42,44 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
   margin-left:6px;
 }
 
-.status {
-  font-size:11px;
-  padding:2px 6px;
-  border-radius:6px;
-  background:#374151;
-  color:#fff;
-  margin-left:6px;
-}
-.status.closed { background:#6b7280; }
-
+/* Thread */
 .reply {
   max-width:85%;
   margin-bottom:14px;
   padding:10px;
   border-radius:8px;
 }
-.reply.user { background:#1f2937; margin-left:auto; text-align:right; }
-.reply.admin { background:#0f172a; margin-right:auto; }
+.reply.user {
+  background:#1f2937;
+  margin-left:auto;
+  text-align:right;
+}
+.reply.admin {
+  background:#0f172a;
+  margin-right:auto;
+}
 
-.reply .author { font-size:12px; opacity:.7; margin-bottom:4px; }
+.reply .author {
+  font-size:12px;
+  opacity:.75;
+  margin-bottom:4px;
+}
+
+.reply .time {
+  font-size:11px;
+  opacity:.5;
+  margin-top:4px;
+}
 
 .attachment img {
   max-width:220px;
   margin-top:6px;
   border-radius:6px;
+  display:block;
+}
+.attachment a {
+  display:inline-block;
+  margin-top:6px;
 }
 </style>
 </head>
@@ -64,6 +87,7 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 <body>
 
 <header><h1>Support</h1></header>
+
 <main>
 <a href="/">← Back</a>
 
@@ -96,7 +120,7 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 
     <textarea id="replyText" placeholder="Reply…"></textarea>
     <input id="replyFile" type="file">
-    <button id="replyBtn" onclick="sendReply()">Send Reply</button>
+    <button onclick="sendReply()">Send Reply</button>
   </div>
 
 </section>
@@ -126,11 +150,9 @@ async function loadTickets() {
     data.tickets.map(t => `
       <div class="ticket ${t.ticket_code === activeTicket ? "active" : ""}"
            onclick="openTicket('${t.ticket_code}', '${t.status}')">
-        <span>
-          ${t.subject}
-          <span class="status ${t.status}">${t.status}</span>
-          ${t.has_unread_user ? `<span class="badge">NEW</span>` : ""}
-        </span>
+        ${t.subject}
+        <span class="status ${t.status}">${t.status}</span>
+        ${t.has_unread_user ? `<span class="badge">NEW</span>` : ""}
       </div>
     `).join("");
 }
@@ -142,8 +164,10 @@ async function openTicket(code, status) {
 
   document.getElementById("threadCard").classList.remove("hidden");
   document.getElementById("activeTicketCode").textContent = code;
-  document.getElementById("activeStatus").textContent = status;
-  document.getElementById("activeStatus").className = `status ${status}`;
+
+  const statusEl = document.getElementById("activeStatus");
+  statusEl.textContent = status;
+  statusEl.className = `status ${status}`;
 
   document.getElementById("closeBtn").style.display =
     status === "open" ? "inline-block" : "none";
@@ -161,21 +185,19 @@ async function openTicket(code, status) {
         .filter(a => a.reply_id === r.id)
         .map(a =>
           a.mime_type.startsWith("image/")
-            ? `<img src="${a.public_url}">`
-            : `<a href="${a.public_url}" target="_blank">${a.filename}</a>`
+            ? `<div class="attachment"><img src="${a.public_url}"></div>`
+            : `<div class="attachment"><a href="${a.public_url}" target="_blank">${a.filename}</a></div>`
         ).join("");
 
       return `
         <div class="reply ${r.author_type}">
           <div class="author">${r.author_name}</div>
-          ${r.body}
+          <div class="body">${r.body}</div>
           ${files}
+          <div class="time">${new Date(r.created_at).toLocaleString()}</div>
         </div>
       `;
     }).join("");
-
-  document.getElementById("replyText").disabled = status === "closed";
-  document.getElementById("replyBtn").disabled = status === "closed";
 }
 
 /* ---------- CREATE ---------- */
@@ -202,7 +224,7 @@ async function createTicket() {
 
 /* ---------- REPLY ---------- */
 async function sendReply() {
-  if (!activeTicket) return;
+  if (!activeTicket || activeStatus === "closed") return;
 
   const fd = new FormData();
   fd.append("message", replyText.value);
