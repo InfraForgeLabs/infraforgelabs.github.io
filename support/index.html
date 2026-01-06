@@ -126,11 +126,12 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 
 <script>
 const API = "https://api.infraforgelabs.in/support";
-const token = () => localStorage.getItem("support_token");
+const getToken = () => localStorage.getItem("support_token");
 
 let activeTicket = null;
 let activeStatus = null;
 let isOpening = false;
+let isAuthenticated = true;
 
 /* ---------- TIME ---------- */
 function formatTime(ts) {
@@ -138,18 +139,37 @@ function formatTime(ts) {
   return new Date(ts + "Z").toLocaleString();
 }
 
+/* ---------- AUTH ---------- */
+function handle401() {
+  if (!isAuthenticated) return;
+  isAuthenticated = false;
+  localStorage.removeItem("support_token");
+
+  document.getElementById("ticketsList").innerHTML =
+    "<div style='opacity:.7'>Session expired. Please log in again.</div>";
+
+  document.getElementById("threadCard").classList.add("hidden");
+}
+
 /* ---------- LOGOUT ---------- */
 function logout() {
   localStorage.removeItem("support_token");
+  isAuthenticated = false;
+  document.getElementById("ticketsList").innerHTML =
+    "<div style='opacity:.7'>Logged out.</div>";
+  document.getElementById("threadCard").classList.add("hidden");
 }
 
 /* ---------- LOAD TICKETS ---------- */
 async function loadTickets() {
+  if (!isAuthenticated || !getToken()) return;
+
   const res = await fetch(`${API}/user/tickets`, {
-    headers:{ Authorization:`Bearer ${token()}` }
+    headers:{ Authorization:`Bearer ${getToken()}` }
   });
 
-  if (!res.ok) return logout();
+  if (res.status === 401) return handle401();
+  if (!res.ok) return;
 
   const data = await res.json();
   const list = document.getElementById("ticketsList");
@@ -174,7 +194,7 @@ async function loadTickets() {
 
 /* ---------- OPEN TICKET ---------- */
 async function openTicket(code, status) {
-  if (isOpening) return;
+  if (isOpening || !isAuthenticated) return;
   isOpening = true;
 
   activeTicket = code;
@@ -193,51 +213,55 @@ async function openTicket(code, status) {
   const thread = document.getElementById("thread");
   thread.textContent = "Loading…";
 
-  try {
-    const res = await fetch(`${API}/user/ticket/${code}`, {
-      headers:{ Authorization:`Bearer ${token()}` }
-    });
+  const res = await fetch(`${API}/user/ticket/${code}`, {
+    headers:{ Authorization:`Bearer ${getToken()}` }
+  });
 
-    if (!res.ok) throw new Error("fetch failed");
-    const data = await res.json();
-    if (!data.ok) throw new Error(data.error);
-
-    thread.innerHTML = "";
-
-    (data.replies || []).forEach(r => {
-      const box = document.createElement("div");
-      box.className = `reply ${r.author_type}`;
-
-      box.innerHTML = `
-        <div class="author">${r.author_name}</div>
-        <div>${r.body}</div>
-        <div class="time">${formatTime(r.created_at)}</div>
-      `;
-
-      (data.attachments || [])
-        .filter(a => a.reply_id === r.id)
-        .forEach(a => {
-          const el = document.createElement("div");
-          el.className = "attachment";
-          el.innerHTML = a.mime_type?.startsWith("image/")
-            ? `<img src="${a.public_url}">`
-            : `<a href="${a.public_url}" target="_blank">${a.filename}</a>`;
-          box.appendChild(el);
-        });
-
-      thread.appendChild(box);
-    });
-
-  } catch {
-    thread.textContent = "Failed to load conversation";
+  if (res.status === 401) {
+    isOpening = false;
+    return handle401();
   }
 
+  if (!res.ok) {
+    thread.textContent = "Failed to load conversation";
+    isOpening = false;
+    return;
+  }
+
+  const data = await res.json();
+  thread.innerHTML = "";
+
+  (data.replies || []).forEach(r => {
+    const box = document.createElement("div");
+    box.className = `reply ${r.author_type}`;
+
+    box.innerHTML = `
+      <div class="author">${r.author_name}</div>
+      <div>${r.body}</div>
+      <div class="time">${formatTime(r.created_at)}</div>
+    `;
+
+    (data.attachments || [])
+      .filter(a => a.reply_id === r.id)
+      .forEach(a => {
+        const el = document.createElement("div");
+        el.className = "attachment";
+        el.innerHTML = a.mime_type?.startsWith("image/")
+          ? `<img src="${a.public_url}">`
+          : `<a href="${a.public_url}" target="_blank">${a.filename}</a>`;
+        box.appendChild(el);
+      });
+
+    thread.appendChild(box);
+  });
+
   isOpening = false;
-  loadTickets();
 }
 
 /* ---------- CREATE ---------- */
 async function createTicket() {
+  if (!isAuthenticated) return;
+
   const fd = new FormData();
   fd.append("subject", subject.value);
   fd.append("message", message.value);
@@ -245,9 +269,11 @@ async function createTicket() {
 
   const res = await fetch(`${API}/user/ticket`, {
     method:"POST",
-    headers:{ Authorization:`Bearer ${token()}` },
+    headers:{ Authorization:`Bearer ${getToken()}` },
     body:fd
   });
+
+  if (res.status === 401) return handle401();
 
   const data = await res.json();
   subject.value = message.value = "";
@@ -259,17 +285,19 @@ async function createTicket() {
 
 /* ---------- REPLY ---------- */
 async function sendReply() {
-  if (!activeTicket || activeStatus === "closed") return;
+  if (!activeTicket || activeStatus === "closed" || !isAuthenticated) return;
 
   const fd = new FormData();
   fd.append("message", replyText.value);
   if (replyFile.files[0]) fd.append("file", replyFile.files[0]);
 
-  await fetch(`${API}/user/reply/${activeTicket}`, {
+  const res = await fetch(`${API}/user/reply/${activeTicket}`, {
     method:"POST",
-    headers:{ Authorization:`Bearer ${token()}` },
+    headers:{ Authorization:`Bearer ${getToken()}` },
     body:fd
   });
+
+  if (res.status === 401) return handle401();
 
   replyText.value = "";
   replyFile.value = "";
@@ -278,24 +306,36 @@ async function sendReply() {
 
 /* ---------- CLOSE / REOPEN ---------- */
 async function closeTicket() {
-  await fetch(`${API}/user/close/${activeTicket}`, {
+  if (!isAuthenticated) return;
+
+  const res = await fetch(`${API}/user/close/${activeTicket}`, {
     method:"POST",
-    headers:{ Authorization:`Bearer ${token()}` }
+    headers:{ Authorization:`Bearer ${getToken()}` }
   });
+
+  if (res.status === 401) return handle401();
   openTicket(activeTicket, "closed");
 }
 
 async function reopenTicket() {
-  await fetch(`${API}/user/status/${activeTicket}`, {
+  if (!isAuthenticated) return;
+
+  const res = await fetch(`${API}/user/status/${activeTicket}`, {
     method:"POST",
-    headers:{ Authorization:`Bearer ${token()}` },
+    headers:{ Authorization:`Bearer ${getToken()}` },
     body: JSON.stringify({ status:"open" })
   });
+
+  if (res.status === 401) return handle401();
   openTicket(activeTicket, "open");
 }
 
 /* ---------- INIT ---------- */
-loadTickets();
+if (getToken()) {
+  loadTickets();
+} else {
+  handle401();
+}
 </script>
 
 </body>
