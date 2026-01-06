@@ -9,18 +9,8 @@
 <style>
 .card { max-width:760px; margin:20px auto; }
 input, textarea, button { width:100%; padding:10px; margin:8px 0; }
-
+.hidden { display:none; }
 .logout { float:right; cursor:pointer; color:#ef4444; }
-
-.notice {
-  max-width:760px;
-  margin:40px auto;
-  padding:20px;
-  border:1px solid #333;
-  border-radius:8px;
-  text-align:center;
-  opacity:.85;
-}
 
 .ticket {
   cursor:pointer;
@@ -67,11 +57,18 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 .reply .author {
   font-size:12px;
   opacity:.8;
+  margin-bottom:4px;
 }
 .reply .time {
   font-size:11px;
   opacity:.6;
   margin-top:6px;
+}
+
+.attachment img {
+  max-width:220px;
+  margin-top:6px;
+  border-radius:6px;
 }
 </style>
 </head>
@@ -82,12 +79,6 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 
 <main>
 <a href="/">← Back</a>
-
-<!-- LOGIN NOTICE -->
-<div id="loginNotice" class="notice hidden">
-  <p>You are not logged in.</p>
-  <p>Please log in from the main site to access support.</p>
-</div>
 
 <section id="appSection">
 
@@ -118,7 +109,7 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
       </button>
     </h3>
 
-    <div id="thread">Select a ticket</div>
+    <div id="thread"></div>
 
     <textarea id="replyText" placeholder="Reply…"></textarea>
     <input id="replyFile" type="file">
@@ -134,58 +125,37 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 
 <script>
 const API = "https://api.infraforgelabs.in/support";
-const appSection = document.getElementById("appSection");
-const loginNotice = document.getElementById("loginNotice");
-
 const token = () => localStorage.getItem("support_token");
 
 let activeTicket = null;
-let activeStatus = "open";
+let activeStatus = null;
 
-/* ---------- TIME ---------- */
+/* ---------- TIME (USER LOCALE) ---------- */
 function formatTime(ts) {
   if (!ts) return "";
-  return new Date(ts + "Z").toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short"
-  });
+  return new Date(ts + "Z").toLocaleString();
 }
 
 /* ---------- LOGOUT ---------- */
 function logout() {
   localStorage.removeItem("support_token");
-  appSection.classList.add("hidden");
-  loginNotice.classList.remove("hidden");
-}
-
-/* ---------- SAFE FETCH ---------- */
-async function authFetch(url, options = {}) {
-  if (!token()) throw new Error("NO_TOKEN");
-
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      ...(options.headers || {}),
-      Authorization: `Bearer ${token()}`
-    }
-  });
-
-  if (res.status === 401) {
-    logout();
-    throw new Error("UNAUTHORIZED");
-  }
-
-  return res;
+  location.reload();
 }
 
 /* ---------- LOAD TICKETS ---------- */
 async function loadTickets() {
-  const res = await authFetch(`${API}/user/tickets`);
+  const res = await fetch(`${API}/user/tickets`, {
+    headers:{ Authorization:`Bearer ${token()}` }
+  });
+
+  if (!res.ok) return logout();
+
   const data = await res.json();
 
   document.getElementById("ticketsList").innerHTML =
     (data.tickets || []).map(t => `
-      <div class="ticket" onclick="openTicket('${t.ticket_code}', '${t.status}')">
+      <div class="ticket ${t.ticket_code === activeTicket ? "active" : ""}"
+           onclick="openTicket('${t.ticket_code}', '${t.status}')">
         <strong>${t.subject}</strong>
         <span class="status ${t.status}">${t.status}</span>
         ${t.has_unread_user ? `<span class="badge">NEW</span>` : ""}
@@ -208,21 +178,48 @@ async function openTicket(code, status) {
   statusEl.textContent = status;
   statusEl.className = `status ${status}`;
 
-  document.getElementById("closeBtn").style.display =
-    status === "open" ? "inline-block" : "none";
+  document.getElementById("closeBtn").style.display = status === "open" ? "inline-block" : "none";
   document.getElementById("reopenBtn").classList.toggle("hidden", status !== "closed");
 
-  const res = await authFetch(`${API}/user/ticket/${code}`);
-  const data = await res.json();
+  const threadEl = document.getElementById("thread");
+  threadEl.innerHTML = "Loading…";
 
-  document.getElementById("thread").innerHTML =
-    (data.replies || []).map(r => `
-      <div class="reply ${r.author_type}">
-        <div class="author">${r.author_name}</div>
-        <div>${r.body}</div>
-        <div class="time">${formatTime(r.created_at)}</div>
-      </div>
-    `).join("");
+  const res = await fetch(`${API}/user/ticket/${code}`, {
+    headers:{ Authorization:`Bearer ${token()}` }
+  });
+
+  if (!res.ok) {
+    threadEl.textContent = "Failed to load conversation";
+    return;
+  }
+
+  const data = await res.json();
+  if (!data.ok) {
+    threadEl.textContent = data.error || "Failed to load conversation";
+    return;
+  }
+
+  threadEl.innerHTML =
+    (data.replies || []).map(r => {
+      const files = (data.attachments || [])
+        .filter(a => a.reply_id === r.id)
+        .map(a =>
+          a.mime_type?.startsWith("image/")
+            ? `<div class="attachment"><img src="${a.public_url}"></div>`
+            : `<div class="attachment"><a href="${a.public_url}" target="_blank">${a.filename}</a></div>`
+        ).join("");
+
+      return `
+        <div class="reply ${r.author_type}">
+          <div class="author">${r.author_name}</div>
+          <div>${r.body}</div>
+          ${files}
+          <div class="time">${formatTime(r.created_at)}</div>
+        </div>
+      `;
+    }).join("");
+
+  loadTickets(); // ✅ safe here (no loop)
 }
 
 /* ---------- CREATE ---------- */
@@ -232,8 +229,9 @@ async function createTicket() {
   fd.append("message", message.value);
   if (file.files[0]) fd.append("file", file.files[0]);
 
-  const res = await authFetch(`${API}/user/ticket`, {
+  const res = await fetch(`${API}/user/ticket`, {
     method:"POST",
+    headers:{ Authorization:`Bearer ${token()}` },
     body:fd
   });
 
@@ -253,8 +251,9 @@ async function sendReply() {
   fd.append("message", replyText.value);
   if (replyFile.files[0]) fd.append("file", replyFile.files[0]);
 
-  await authFetch(`${API}/user/reply/${activeTicket}`, {
+  await fetch(`${API}/user/reply/${activeTicket}`, {
     method:"POST",
+    headers:{ Authorization:`Bearer ${token()}` },
     body:fd
   });
 
@@ -265,26 +264,24 @@ async function sendReply() {
 
 /* ---------- CLOSE / REOPEN ---------- */
 async function closeTicket() {
-  await authFetch(`${API}/user/close/${activeTicket}`, { method:"POST" });
+  await fetch(`${API}/user/close/${activeTicket}`, {
+    method:"POST",
+    headers:{ Authorization:`Bearer ${token()}` }
+  });
   openTicket(activeTicket, "closed");
 }
 
 async function reopenTicket() {
-  await authFetch(`${API}/user/status/${activeTicket}`, {
+  await fetch(`${API}/user/reply/${activeTicket}`, {
     method:"POST",
-    body: JSON.stringify({ status:"open" })
+    headers:{ Authorization:`Bearer ${token()}` },
+    body: new FormData()
   });
   openTicket(activeTicket, "open");
 }
 
 /* ---------- INIT ---------- */
-if (token()) {
-  appSection.classList.remove("hidden");
-  loadTickets();
-} else {
-  appSection.classList.add("hidden");
-  loginNotice.classList.remove("hidden");
-}
+loadTickets();
 </script>
 
 </body>
