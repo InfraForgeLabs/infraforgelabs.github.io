@@ -13,14 +13,8 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 
 .logout { float:right; cursor:pointer; color:#ef4444; }
 
-.ticket {
-  cursor:pointer;
-  padding:8px;
-  border-bottom:1px solid #333;
-}
-.ticket.active {
-  background:#111827;
-}
+.ticket { cursor:pointer; padding:8px; border-bottom:1px solid #333; }
+.ticket.active { background:#111827; }
 
 .status {
   font-size:11px;
@@ -29,9 +23,7 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
   background:#374151;
   margin-left:6px;
 }
-.status.closed {
-  background:#6b7280;
-}
+.status.closed { background:#6b7280; }
 
 .badge {
   font-size:11px;
@@ -42,34 +34,17 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
   margin-left:6px;
 }
 
-/* Thread */
 .reply {
   max-width:85%;
   margin-bottom:14px;
   padding:10px;
   border-radius:8px;
 }
-.reply.user {
-  background:#1f2937;
-  margin-left:auto;
-  text-align:right;
-}
-.reply.admin {
-  background:#0f172a;
-  margin-right:auto;
-}
+.reply.user { background:#1f2937; margin-left:auto; text-align:right; }
+.reply.admin { background:#0f172a; margin-right:auto; }
 
-.reply .author {
-  font-size:12px;
-  opacity:.75;
-  margin-bottom:4px;
-}
-
-.reply .time {
-  font-size:11px;
-  opacity:.5;
-  margin-top:4px;
-}
+.reply .author { font-size:12px; opacity:.75; margin-bottom:4px; }
+.reply .time { font-size:11px; opacity:.5; margin-top:4px; }
 
 .attachment img {
   max-width:220px;
@@ -77,10 +52,7 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
   border-radius:6px;
   display:block;
 }
-.attachment a {
-  display:inline-block;
-  margin-top:6px;
-}
+.attachment a { display:inline-block; margin-top:6px; }
 </style>
 </head>
 
@@ -93,7 +65,6 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 
 <section id="appSection">
 
-  <!-- CREATE -->
   <div class="card">
     <h3>Create Ticket <span class="logout" onclick="logout()">Logout</span></h3>
     <input id="subject" placeholder="Subject">
@@ -102,13 +73,11 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
     <button onclick="createTicket()">Submit Ticket</button>
   </div>
 
-  <!-- TICKETS -->
   <div class="card">
     <h3>My Tickets</h3>
     <div id="ticketsList">Loading…</div>
   </div>
 
-  <!-- THREAD -->
   <div class="card hidden" id="threadCard">
     <h3>
       Ticket <span id="activeTicketCode"></span>
@@ -116,7 +85,7 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
       <button id="closeBtn" onclick="closeTicket()" style="float:right">Close</button>
     </h3>
 
-    <div id="thread"></div>
+    <div id="thread">Loading…</div>
 
     <textarea id="replyText" placeholder="Reply…"></textarea>
     <input id="replyFile" type="file">
@@ -146,8 +115,10 @@ async function loadTickets() {
   });
   const data = await res.json();
 
+  if (!data.ok) return;
+
   document.getElementById("ticketsList").innerHTML =
-    data.tickets.map(t => `
+    (data.tickets || []).map(t => `
       <div class="ticket ${t.ticket_code === activeTicket ? "active" : ""}"
            onclick="openTicket('${t.ticket_code}', '${t.status}')">
         ${t.subject}
@@ -172,16 +143,30 @@ async function openTicket(code, status) {
   document.getElementById("closeBtn").style.display =
     status === "open" ? "inline-block" : "none";
 
-  loadTickets();
+  document.getElementById("thread").textContent = "Loading…";
 
   const res = await fetch(`${API}/user/ticket/${code}`, {
     headers:{ Authorization:`Bearer ${token()}` }
   });
+
   const data = await res.json();
 
+  if (!data.ok) {
+    document.getElementById("thread").textContent = "Failed to load conversation";
+    return;
+  }
+
+  const replies = data.replies || [];
+  const attachments = data.attachments || [];
+
+  if (replies.length === 0) {
+    document.getElementById("thread").textContent = "No replies yet.";
+    return;
+  }
+
   document.getElementById("thread").innerHTML =
-    data.replies.map(r => {
-      const files = (data.attachments || [])
+    replies.map(r => {
+      const files = attachments
         .filter(a => a.reply_id === r.id)
         .map(a =>
           a.mime_type.startsWith("image/")
@@ -192,12 +177,14 @@ async function openTicket(code, status) {
       return `
         <div class="reply ${r.author_type}">
           <div class="author">${r.author_name}</div>
-          <div class="body">${r.body}</div>
+          <div>${r.body}</div>
           ${files}
           <div class="time">${new Date(r.created_at).toLocaleString()}</div>
         </div>
       `;
     }).join("");
+
+  loadTickets();
 }
 
 /* ---------- CREATE ---------- */
@@ -213,6 +200,8 @@ async function createTicket() {
     body:fd
   });
   const data = await res.json();
+
+  if (!data.ok) return;
 
   subject.value = "";
   message.value = "";
