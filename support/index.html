@@ -88,7 +88,6 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
     <input id="replyFile" type="file">
     <button id="replyBtn">Send Reply</button>
 
-    <!-- MAGIC LINK -->
     <p style="font-size:12px;opacity:.7;margin-top:10px">
       💡 You can also reply directly via email using the
       <strong>magic reply link</strong> sent in ticket notifications.
@@ -134,6 +133,11 @@ const conversation = document.getElementById("conversation");
 const replyText = document.getElementById("replyText");
 const replyFile = document.getElementById("replyFile");
 
+const fullName = document.getElementById("fullName");
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+const loginMsg = document.getElementById("loginMsg");
+
 let activeTicket = null;
 
 /* ---------------- INIT ---------------- */
@@ -142,25 +146,33 @@ if (token && token.length > 20) {
   showApp();
 }
 
-/* ---------------- AUTH ---------------- */
+/* ---------------- AUTH (FIXED) ---------------- */
 loginBtn.onclick = async () => {
   if (!fullName.value || !email.value || !password.value) {
     loginMsg.textContent = "All fields required";
     return;
   }
 
-  const res = await fetch(`${API}/user/auth`, {
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({
-      fullName: fullName.value.trim(),
-      email: email.value.trim(),
-      password: password.value
-    })
-  });
+  let res;
+  try {
+    res = await fetch(`${API}/user/auth`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fullName: fullName.value.trim(),
+        email: email.value.trim(),
+        password: password.value
+      })
+    });
+  } catch {
+    loginMsg.textContent = "Network error";
+    return;
+  }
 
-  const data = await res.json();
-  if (!data.ok) {
+  let data = {};
+  try { data = await res.json(); } catch {}
+
+  if (!res.ok || !data.ok) {
     loginMsg.textContent = data.error || "Login failed";
     return;
   }
@@ -186,12 +198,14 @@ async function loadTickets() {
   if (!token) return logout();
 
   const res = await fetch(`${API}/user/tickets`, {
-    headers:{ Authorization:`Bearer ${token}` }
+    headers: { Authorization: `Bearer ${token}` }
   });
 
   if (res.status === 401) return logout();
 
-  const data = await res.json();
+  let data = {};
+  try { data = await res.json(); } catch {}
+
   const tickets = data.tickets || [];
 
   ticketsList.innerHTML =
@@ -211,7 +225,7 @@ async function openTicket(code) {
   conversation.textContent = "Loading…";
 
   const res = await fetch(`${API}/user/ticket/${code}`, {
-    headers:{ Authorization:`Bearer ${getToken()}` }
+    headers: { Authorization: `Bearer ${getToken()}` }
   });
 
   if (!res.ok) {
@@ -219,7 +233,9 @@ async function openTicket(code) {
     return;
   }
 
-  const data = await res.json();
+  let data = {};
+  try { data = await res.json(); } catch {}
+
   const replies = data.replies || [];
   const attachments = data.attachments || [];
 
@@ -253,9 +269,9 @@ replyBtn.onclick = async () => {
   if (replyFile.files[0]) fd.append("file", replyFile.files[0]);
 
   const res = await fetch(`${API}/user/reply/${activeTicket}`, {
-    method:"POST",
-    headers:{ Authorization:`Bearer ${getToken()}` },
-    body:fd
+    method: "POST",
+    headers: { Authorization: `Bearer ${getToken()}` },
+    body: fd
   });
 
   if (!res.ok) return;
