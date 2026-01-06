@@ -127,12 +127,14 @@ const replyFile = document.getElementById("replyFile");
 let activeTicket = null;
 
 /* ---------------- INIT ---------------- */
-if (getToken()) {
+const token = getToken();
+if (token && token.length > 20) {
   showApp();
 } else {
   loginSection.classList.remove("hidden");
   appSection.classList.add("hidden");
 }
+
 
 
 /* ---------------- AUTH ---------------- */
@@ -176,15 +178,19 @@ async function loadTickets() {
   ticketsList.textContent = "Loading…";
 
   const token = getToken();
-  if (!token) return logout();
+  if (!token) {
+    logout();
+    return;
+  }
 
   const res = await fetch(`${API}/user/tickets`, {
     headers: { Authorization: `Bearer ${token}` }
   });
 
   if (res.status === 401) {
-    console.warn("Token invalid or expired, logging out");
-    return logout();
+    console.warn("Unauthorized → logging out");
+    logout();
+    return;
   }
 
   if (!res.ok) {
@@ -205,6 +211,7 @@ async function loadTickets() {
         </p>
       `).join("");
 }
+
 
 /* ---------------- OPEN TICKET ---------------- */
 async function openTicket(code) {
