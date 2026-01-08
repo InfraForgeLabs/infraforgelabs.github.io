@@ -79,6 +79,9 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 </main>
 
 <script>
+/* ---------- DOM HELPER (NO UI CHANGE) ---------- */
+const $ = (id) => document.getElementById(id);
+
 const API = "https://api.infraforgelabs.in/support/api";
 const getToken = () => localStorage.getItem("support_token");
 
@@ -101,13 +104,13 @@ function formatLocal(ts) {
 
 /* ---------- UI ---------- */
 function showLogin() {
-  loginSection.classList.remove("hidden");
-  appSection.classList.add("hidden");
+  $("loginSection").classList.remove("hidden");
+  $("appSection").classList.add("hidden");
 }
 
 function showApp() {
-  loginSection.classList.add("hidden");
-  appSection.classList.remove("hidden");
+  $("loginSection").classList.add("hidden");
+  $("appSection").classList.remove("hidden");
 }
 
 /* ---------- AUTH ---------- */
@@ -121,12 +124,12 @@ function handle401() {
 
 /* ---------- LOGIN ---------- */
 async function login() {
-  ticketsList.innerHTML = "";
-  threadCard.classList.add("hidden");
+  $("ticketsList").innerHTML = "";
+  $("threadCard").classList.add("hidden");
 
-  const fullName = loginName.value.trim();
-  const email = loginEmail.value.trim();
-  const password = loginPassword.value;
+  const fullName = $("loginName").value.trim();
+  const email = $("loginEmail").value.trim();
+  const password = $("loginPassword").value;
 
   if (!fullName || !email || !password) {
     return alert("All fields required");
@@ -143,7 +146,6 @@ async function login() {
   const data = await res.json();
   localStorage.setItem("support_token", data.token);
 
-  /* ✅ keep email ONLY in memory */
   sessionEmail = email;
 
   isAuthenticated = true;
@@ -153,8 +155,8 @@ async function login() {
 
 /* ---------- LOGOUT ---------- */
 function logout() {
-  ticketsList.innerHTML = "";
-  threadCard.classList.add("hidden");
+  $("ticketsList").innerHTML = "";
+  $("threadCard").classList.add("hidden");
 
   localStorage.removeItem("support_token");
   sessionEmail = null;
@@ -177,10 +179,9 @@ async function loadTickets() {
   }
 
   const data = await res.json();
-
   const tickets = Array.isArray(data.tickets) ? data.tickets : [];
 
-  ticketsList.innerHTML = "";
+  $("ticketsList").innerHTML = "";
 
   tickets.forEach(t => {
     const div = document.createElement("div");
@@ -192,10 +193,9 @@ async function loadTickets() {
       </div>
     `;
     div.onclick = () => openTicket(t.ticket_code);
-    ticketsList.appendChild(div);
+    $("ticketsList").appendChild(div);
   });
 }
-
 
 /* ---------- OPEN TICKET ---------- */
 async function openTicket(code) {
@@ -203,23 +203,19 @@ async function openTicket(code) {
   isOpening = true;
 
   const headers = authHeaders();
-  if (!headers) {
-    isOpening = false;
-    return;
-  }
+  if (!headers) return;
 
   const res = await fetch(`${API}/user/ticket/${code}`, { headers });
   if (res.status === 401) {
+    $("thread").innerHTML = "<div style='opacity:.7'>Access denied.</div>";
     isOpening = false;
-    thread.innerHTML =
-      "<div style='opacity:.7'>You don’t have access to this ticket.</div>";
     return;
   }
 
   const data = await res.json();
-  threadCard.classList.remove("hidden");
-  activeTicketCode.textContent = code;
-  thread.innerHTML = "";
+  $("threadCard").classList.remove("hidden");
+  $("activeTicketCode").textContent = code;
+  $("thread").innerHTML = "";
 
   data.replies.forEach(r => {
     const div = document.createElement("div");
@@ -229,7 +225,7 @@ async function openTicket(code) {
       <div>${r.body}</div>
       <div class="time">${formatLocal(r.created_at)}</div>
     `;
-    thread.appendChild(div);
+    $("thread").appendChild(div);
   });
 
   activeTicket = code;
@@ -242,11 +238,11 @@ async function createTicket() {
   if (!headers || !sessionEmail) return;
 
   const fd = new FormData();
-  fd.append("subject", subject.value);
-  fd.append("message", message.value);
+  fd.append("subject", $("subject").value);
+  fd.append("message", $("message").value);
   fd.append("email", sessionEmail);
 
-  const file = document.getElementById("createFile").files[0];
+  const file = $("createFile").files[0];
   if (file) fd.append("file", file);
 
   const res = await fetch(`${API}/user/ticket`, {
@@ -261,21 +257,16 @@ async function createTicket() {
   }
 
   const data = await res.json().catch(() => null);
-
   if (!res.ok || !data?.ticketCode) {
     alert(data?.error || "Failed to create ticket");
     return;
   }
 
-  // ✅ reset form
-  subject.value = "";
-  message.value = "";
-  document.getElementById("createFile").value = "";
+  $("subject").value = "";
+  $("message").value = "";
+  $("createFile").value = "";
 
-  // ✅ reload tickets
   await loadTickets();
-
-  // ✅ immediately open the new ticket
   openTicket(data.ticketCode);
 }
 
@@ -287,9 +278,9 @@ async function sendReply() {
   if (!headers) return;
 
   const fd = new FormData();
-  fd.append("message", replyText.value);
+  fd.append("message", $("replyText").value);
 
-  const file = document.getElementById("replyFile").files[0];
+  const file = $("replyFile").files[0];
   if (file) fd.append("file", file);
 
   const res = await fetch(`${API}/user/reply/${activeTicket}`, {
@@ -303,12 +294,11 @@ async function sendReply() {
     return;
   }
 
-  replyText.value = "";
-  document.getElementById("replyFile").value = "";
+  $("replyText").value = "";
+  $("replyFile").value = "";
 
   openTicket(activeTicket);
 }
-
 
 /* ---------- INIT ---------- */
 if (getToken()) {
