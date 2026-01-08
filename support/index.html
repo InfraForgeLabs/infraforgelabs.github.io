@@ -40,7 +40,6 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 <main>
 <a href="/">← Back</a>
 
-<!-- LOGIN -->
 <section id="loginSection" class="hidden">
   <div class="card">
     <h3>Login / Register</h3>
@@ -51,7 +50,6 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
   </div>
 </section>
 
-<!-- APP -->
 <section id="appSection">
 
   <div class="card">
@@ -79,7 +77,6 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
 </main>
 
 <script>
-/* ---------- DOM HELPER (NO UI CHANGE) ---------- */
 const $ = (id) => document.getElementById(id);
 
 const API = "https://api.infraforgelabs.in/support/api";
@@ -88,8 +85,6 @@ const getToken = () => localStorage.getItem("support_token");
 let isAuthenticated = false;
 let activeTicket = null;
 let isOpening = false;
-
-/* ✅ Ephemeral email (NOT stored, NOT persisted) */
 let sessionEmail = null;
 
 /* ---------- HELPERS ---------- */
@@ -115,7 +110,7 @@ function showApp() {
 
 /* ---------- AUTH ---------- */
 function handle401() {
-  if (!isAuthenticated) return;
+  console.log("handle401 triggered");
   localStorage.removeItem("support_token");
   isAuthenticated = false;
   sessionEmail = null;
@@ -124,16 +119,11 @@ function handle401() {
 
 /* ---------- LOGIN ---------- */
 async function login() {
-  $("ticketsList").innerHTML = "";
-  $("threadCard").classList.add("hidden");
+  console.log("login clicked");
 
   const fullName = $("loginName").value.trim();
   const email = $("loginEmail").value.trim();
   const password = $("loginPassword").value;
-
-  if (!fullName || !email || !password) {
-    return alert("All fields required");
-  }
 
   const res = await fetch(`${API}/user/auth`, {
     method:"POST",
@@ -141,11 +131,10 @@ async function login() {
     body: JSON.stringify({ fullName, email, password })
   });
 
-  if (!res.ok) return alert("Login failed");
+  console.log("login response", res.status);
 
   const data = await res.json();
   localStorage.setItem("support_token", data.token);
-
   sessionEmail = email;
 
   isAuthenticated = true;
@@ -153,89 +142,39 @@ async function login() {
   loadTickets();
 }
 
-/* ---------- LOGOUT ---------- */
-function logout() {
-  $("ticketsList").innerHTML = "";
-  $("threadCard").classList.add("hidden");
-
-  localStorage.removeItem("support_token");
-  sessionEmail = null;
-  isAuthenticated = false;
-  showLogin();
-}
-
 /* ---------- LOAD TICKETS ---------- */
 async function loadTickets() {
-  if (!isAuthenticated) return;
+  console.log("loadTickets called");
 
   const headers = authHeaders();
   if (!headers) return;
 
   const res = await fetch(`${API}/user/tickets`, { headers });
-
-  if (res.status === 401) {
-    handle401();
-    return;
-  }
+  console.log("tickets response", res.status);
 
   const data = await res.json();
-  const tickets = Array.isArray(data.tickets) ? data.tickets : [];
-
   $("ticketsList").innerHTML = "";
 
-  tickets.forEach(t => {
+  data.tickets.forEach(t => {
     const div = document.createElement("div");
     div.className = "ticket";
-    div.innerHTML = `
-      <strong>#${t.ticket_code}</strong> — ${t.subject}
-      <div style="font-size:11px;opacity:.6">
-        ${formatLocal(t.created_at)}
-      </div>
-    `;
+    div.innerHTML = `<strong>#${t.ticket_code}</strong> — ${t.subject}`;
     div.onclick = () => openTicket(t.ticket_code);
     $("ticketsList").appendChild(div);
   });
 }
 
-/* ---------- OPEN TICKET ---------- */
-async function openTicket(code) {
-  if (!isAuthenticated || isOpening) return;
-  isOpening = true;
-
-  const headers = authHeaders();
-  if (!headers) return;
-
-  const res = await fetch(`${API}/user/ticket/${code}`, { headers });
-  if (res.status === 401) {
-    $("thread").innerHTML = "<div style='opacity:.7'>Access denied.</div>";
-    isOpening = false;
-    return;
-  }
-
-  const data = await res.json();
-  $("threadCard").classList.remove("hidden");
-  $("activeTicketCode").textContent = code;
-  $("thread").innerHTML = "";
-
-  data.replies.forEach(r => {
-    const div = document.createElement("div");
-    div.className = `reply ${r.author_type}`;
-    div.innerHTML = `
-      <div class="author">${r.author_name}</div>
-      <div>${r.body}</div>
-      <div class="time">${formatLocal(r.created_at)}</div>
-    `;
-    $("thread").appendChild(div);
-  });
-
-  activeTicket = code;
-  isOpening = false;
-}
-
 /* ---------- CREATE ---------- */
 async function createTicket() {
+  console.log("createTicket clicked");
+
   const headers = authHeaders();
-  if (!headers || !sessionEmail) return;
+  console.log("auth headers", headers);
+
+  if (!headers || !sessionEmail) {
+    console.log("missing auth or sessionEmail");
+    return;
+  }
 
   const fd = new FormData();
   fd.append("subject", $("subject").value);
@@ -245,18 +184,23 @@ async function createTicket() {
   const file = $("createFile").files[0];
   if (file) fd.append("file", file);
 
+  console.log("sending fetch");
+
   const res = await fetch(`${API}/user/ticket`, {
     method: "POST",
     headers,
     body: fd
   });
 
-  if (res.status === 401) {
-    handle401();
-    return;
-  }
+  console.log("fetch returned", res.status);
 
-  const data = await res.json().catch(() => null);
+  const data = await res.json().catch(err => {
+    console.log("json parse error", err);
+    return null;
+  });
+
+  console.log("response data", data);
+
   if (!res.ok || !data?.ticketCode) {
     alert(data?.error || "Failed to create ticket");
     return;
@@ -270,42 +214,35 @@ async function createTicket() {
   openTicket(data.ticketCode);
 }
 
-/* ---------- REPLY ---------- */
-async function sendReply() {
-  if (!activeTicket) return;
+/* ---------- OPEN ---------- */
+async function openTicket(code) {
+  console.log("openTicket", code);
 
   const headers = authHeaders();
-  if (!headers) return;
+  const res = await fetch(`${API}/user/ticket/${code}`, { headers });
 
-  const fd = new FormData();
-  fd.append("message", $("replyText").value);
+  const data = await res.json();
+  $("threadCard").classList.remove("hidden");
+  $("activeTicketCode").textContent = code;
+  $("thread").innerHTML = "";
 
-  const file = $("replyFile").files[0];
-  if (file) fd.append("file", file);
-
-  const res = await fetch(`${API}/user/reply/${activeTicket}`, {
-    method: "POST",
-    headers,
-    body: fd
+  data.replies.forEach(r => {
+    const div = document.createElement("div");
+    div.textContent = r.body;
+    $("thread").appendChild(div);
   });
 
-  if (res.status === 401) {
-    handle401();
-    return;
-  }
-
-  $("replyText").value = "";
-  $("replyFile").value = "";
-
-  openTicket(activeTicket);
+  activeTicket = code;
 }
 
 /* ---------- INIT ---------- */
 if (getToken()) {
+  console.log("token found, auto-login");
   isAuthenticated = true;
   showApp();
   loadTickets();
 } else {
+  console.log("no token, show login");
   showLogin();
 }
 </script>
