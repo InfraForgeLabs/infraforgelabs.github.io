@@ -1,5 +1,5 @@
 {
-  "latest_version": "1.0.2",
+  "latest_version": "1.0.3",
   "released_at": "2025-12-22",
   "notes": "Added `devopsmind introduce`, an optional one-time step that explains how DevOpsMind works and lets users share a minimal, anonymous profile if they choose. Improved `devopsmind mentor` to give smarter next-step suggestions based on progress and confidence across stacks. Includes stability and usability improvements."
 }
