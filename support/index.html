@@ -58,6 +58,7 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
     <h3>Create Ticket <span class="logout" onclick="logout()">Logout</span></h3>
     <input id="subject" placeholder="Subject">
     <textarea id="message" placeholder="Describe your issue"></textarea>
+    <input id="createFile" type="file" accept="image/*">
     <button onclick="createTicket()">Submit Ticket</button>
   </div>
 
@@ -70,6 +71,7 @@ input, textarea, button { width:100%; padding:10px; margin:8px 0; }
     <h3>Ticket <span id="activeTicketCode"></span></h3>
     <div id="thread"></div>
     <textarea id="replyText" placeholder="Reply…"></textarea>
+    <input id="replyFile" type="file" accept="image/*">
     <button onclick="sendReply()">Send Reply</button>
   </div>
 
@@ -242,30 +244,33 @@ async function createTicket() {
   const fd = new FormData();
   fd.append("subject", subject.value);
   fd.append("message", message.value);
-
-  /* ✅ send email ONCE, ephemeral */
   fd.append("email", sessionEmail);
 
+  const file = document.getElementById("createFile").files[0];
+  if (file) fd.append("file", file);
+
   const res = await fetch(`${API}/user/ticket`, {
-  method: "POST",
-  headers,
-  body: fd
-});
+    method: "POST",
+    headers,
+    body: fd
+  });
 
-if (res.status === 401) {
-  handle401();
-  return;
-}
+  if (res.status === 401) {
+    handle401();
+    return;
+  }
 
-if (!res.ok) {
-  const err = await res.json().catch(() => ({}));
-  alert(err.error || "Failed to create ticket");
-  return;
-}
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    alert(err.error || "Failed to create ticket");
+    return;
+  }
 
-subject.value = "";
-message.value = "";
-loadTickets();
+  subject.value = "";
+  message.value = "";
+  document.getElementById("createFile").value = "";
+
+  loadTickets();
 }
 
 /* ---------- REPLY ---------- */
@@ -278,14 +283,26 @@ async function sendReply() {
   const fd = new FormData();
   fd.append("message", replyText.value);
 
-  await fetch(`${API}/user/reply/${activeTicket}`, {
-    method:"POST",
+  const file = document.getElementById("replyFile").files[0];
+  if (file) fd.append("file", file);
+
+  const res = await fetch(`${API}/user/reply/${activeTicket}`, {
+    method: "POST",
     headers,
-    body:fd
+    body: fd
   });
+
+  if (res.status === 401) {
+    handle401();
+    return;
+  }
+
+  replyText.value = "";
+  document.getElementById("replyFile").value = "";
 
   openTicket(activeTicket);
 }
+
 
 /* ---------- INIT ---------- */
 if (getToken()) {
