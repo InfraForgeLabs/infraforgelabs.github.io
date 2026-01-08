@@ -168,22 +168,32 @@ async function loadTickets() {
   if (!headers) return;
 
   const res = await fetch(`${API}/user/tickets`, { headers });
-  if (res.status === 401) return handle401();
+
+  if (res.status === 401) {
+    handle401();
+    return;
+  }
 
   const data = await res.json();
+
+  const tickets = Array.isArray(data.tickets) ? data.tickets : [];
+
   ticketsList.innerHTML = "";
 
-  data.tickets.forEach(t => {
+  tickets.forEach(t => {
     const div = document.createElement("div");
     div.className = "ticket";
     div.innerHTML = `
       <strong>#${t.ticket_code}</strong> — ${t.subject}
-      <div style="font-size:11px;opacity:.6">${formatLocal(t.created_at)}</div>
+      <div style="font-size:11px;opacity:.6">
+        ${formatLocal(t.created_at)}
+      </div>
     `;
     div.onclick = () => openTicket(t.ticket_code);
     ticketsList.appendChild(div);
   });
 }
+
 
 /* ---------- OPEN TICKET ---------- */
 async function openTicket(code) {
