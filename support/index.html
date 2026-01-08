@@ -110,7 +110,6 @@ function showApp() {
 
 /* ---------- AUTH ---------- */
 function handle401() {
-  console.log("handle401 triggered");
   localStorage.removeItem("support_token");
   isAuthenticated = false;
   sessionEmail = null;
@@ -119,11 +118,11 @@ function handle401() {
 
 /* ---------- LOGIN ---------- */
 async function login() {
-  console.log("login clicked");
-
   const fullName = $("loginName").value.trim();
   const email = $("loginEmail").value.trim();
   const password = $("loginPassword").value;
+
+  if (!fullName || !email || !password) return alert("All fields required");
 
   const res = await fetch(`${API}/user/auth`, {
     method:"POST",
@@ -131,7 +130,7 @@ async function login() {
     body: JSON.stringify({ fullName, email, password })
   });
 
-  console.log("login response", res.status);
+  if (!res.ok) return alert("Login failed");
 
   const data = await res.json();
   localStorage.setItem("support_token", data.token);
@@ -144,13 +143,11 @@ async function login() {
 
 /* ---------- LOAD TICKETS ---------- */
 async function loadTickets() {
-  console.log("loadTickets called");
-
   const headers = authHeaders();
   if (!headers) return;
 
   const res = await fetch(`${API}/user/tickets`, { headers });
-  console.log("tickets response", res.status);
+  if (res.status === 401) return handle401();
 
   const data = await res.json();
   $("ticketsList").innerHTML = "";
@@ -166,25 +163,15 @@ async function loadTickets() {
 
 /* ---------- CREATE ---------- */
 async function createTicket() {
-  console.log("createTicket clicked");
-
   const headers = authHeaders();
-  console.log("auth headers", headers);
-
-  if (!headers || !sessionEmail) {
-    console.log("missing auth or sessionEmail");
-    return;
-  }
+  if (!headers) return;
 
   const fd = new FormData();
   fd.append("subject", $("subject").value);
   fd.append("message", $("message").value);
-  fd.append("email", sessionEmail);
 
   const file = $("createFile").files[0];
   if (file) fd.append("file", file);
-
-  console.log("sending fetch");
 
   const res = await fetch(`${API}/user/ticket`, {
     method: "POST",
@@ -192,17 +179,11 @@ async function createTicket() {
     body: fd
   });
 
-  console.log("fetch returned", res.status);
+  if (res.status === 401) return handle401();
 
-  const data = await res.json().catch(err => {
-    console.log("json parse error", err);
-    return null;
-  });
-
-  console.log("response data", data);
-
-  if (!res.ok || !data?.ticketCode) {
-    alert(data?.error || "Failed to create ticket");
+  const data = await res.json();
+  if (!res.ok || !data.ticketCode) {
+    alert(data.error || "Failed to create ticket");
     return;
   }
 
@@ -216,12 +197,10 @@ async function createTicket() {
 
 /* ---------- OPEN ---------- */
 async function openTicket(code) {
-  console.log("openTicket", code);
-
   const headers = authHeaders();
   const res = await fetch(`${API}/user/ticket/${code}`, { headers });
-
   const data = await res.json();
+
   $("threadCard").classList.remove("hidden");
   $("activeTicketCode").textContent = code;
   $("thread").innerHTML = "";
@@ -237,12 +216,10 @@ async function openTicket(code) {
 
 /* ---------- INIT ---------- */
 if (getToken()) {
-  console.log("token found, auto-login");
   isAuthenticated = true;
   showApp();
   loadTickets();
 } else {
-  console.log("no token, show login");
   showLogin();
 }
 </script>
