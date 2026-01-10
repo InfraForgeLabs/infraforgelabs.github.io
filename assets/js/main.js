@@ -190,9 +190,16 @@ if (infraForgeVersionEl) {
       return res.json();
     })
     .then(data => {
-      if (data.latest_version && data.released_at) {
-        infraForgeVersionEl.innerHTML =
-          `v${data.latest_version} <span class="date">· released on ${formatDate(data.released_at)}</span>`;
+      if (!data.latest_version) throw new Error("latest_version missing");
+
+      const releasedAt = data.released_at
+        ? ` <span class="date">· released on ${data.released_at}</span>`
+        : "";
+
+      infraForgeVersionEl.innerHTML =
+        `v${data.latest_version}${releasedAt}`;
+
+      if (data.released_at) {
         infraForgeVersionEl.title = `Released on ${data.released_at}`;
       }
     })
@@ -200,6 +207,7 @@ if (infraForgeVersionEl) {
       infraForgeVersionEl.style.display = "none";
     });
 }
+
 
 /* =====================================================
    Fade-Out Navigation + Progressive Loader
