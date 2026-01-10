@@ -1,3 +1,6 @@
+/* =========================================================
+   InfraForge Labs — Core Theme Variables
+   ========================================================= */
 
 :root {
   --ifl-bg: #0a0c10;
@@ -17,14 +20,15 @@
   --blue-accent: #79c0ff;
 }
 
-
-/* ---------- Base ---------- */
+/* =========================================================
+   Base
+   ========================================================= */
 
 body {
   margin: 0;
   min-height: 100vh;
   font-family: system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-  color: #e6edf3;
+  color: var(--ifl-text);
 
   background:
     radial-gradient(
@@ -40,7 +44,6 @@ body {
     );
 }
 
-
 a {
   color: var(--blue-accent);
   font-weight: 600;
@@ -51,11 +54,52 @@ a:hover {
   text-decoration: underline;
 }
 
-/* ---------- Layout ---------- */
+/* =========================================================
+   Layout
+   ========================================================= */
 
 header {
   text-align: center;
   padding: 3.5rem 1.5rem 2.5rem;
+}
+
+/* SaaS Hero background */
+.hero {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+
+  background:
+    radial-gradient(
+      800px 400px at center top,
+      rgba(121,192,255,0.15),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      #05070a 0%,
+      #0a0c10 55%,
+      #05070a 100%
+    );
+}
+
+/* Soft vignette */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background: radial-gradient(
+    70% 60% at center,
+    transparent 0%,
+    rgba(0,0,0,0.65) 100%
+  );
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
 }
 
 section,
@@ -64,9 +108,11 @@ main {
   margin: auto;
   padding: 0 1.5rem;
 }
+
 section > h2 {
   text-align: center;
 }
+
 section .card {
   max-width: 760px;
   margin-left: auto;
@@ -82,27 +128,33 @@ footer {
   border-top: 1px solid var(--border-subtle);
 }
 
-/* ---------- Typography ---------- */
+/* =========================================================
+   Typography
+   ========================================================= */
 
 h1 {
   font-size: 2.5rem;
   font-weight: 800;
   margin: 0.6rem 0;
   letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 h2 {
   font-size: 2rem;
   margin-bottom: 1rem;
+  line-height: 1.25;
 }
 
 h3 {
   font-size: 1.3rem;
   margin-top: 0;
+  line-height: 1.3;
 }
 
 p {
-  color: var(--ifl-text);
+  color: #c9d1d9;
+  line-height: 1.65;
 }
 
 .subtitle {
@@ -112,26 +164,59 @@ p {
   margin: 1rem auto 0;
 }
 
-/* ---------- Logo (GLOBAL) ---------- */
+/* Hero text */
+.hero-badge {
+  display: inline-block;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--blue-accent);
+}
+
+.hero-title {
+  font-size: clamp(2.6rem, 5vw, 3.8rem);
+  font-weight: 800;
+  line-height: 1.15;
+  margin: 1rem 0;
+}
+
+.hero-subtitle {
+  max-width: 720px;
+  margin: 0 auto 2rem;
+  color: var(--text-muted);
+  font-size: 1.05rem;
+}
+
+.hero-philosophy {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: 1.2rem;
+}
+
+/* =========================================================
+   Logo (Global + Slow Juggle)
+   ========================================================= */
 
 .logo {
-  width: 72px;              /* SAME SIZE EVERYWHERE */
+  width: 72px;
   height: auto;
   margin-bottom: 1rem;
 }
 
-/* Subtle floating / juggling animation */
+/* Slow, subtle float (restored) */
 @keyframes logoFloat {
   0%   { transform: translateY(0); }
-  50%  { transform: translateY(-6px); }
+  50%  { transform: translateY(-8px); }
   100% { transform: translateY(0); }
 }
 
 .logo.juggle {
-  animation: logoFloat 4s ease-in-out infinite;
+  animation: logoFloat 6s ease-in-out infinite;
 }
 
-/* ---------- Header bar (docs, governance, articles) ---------- */
+/* =========================================================
+   Header Bar (docs, governance, articles)
+   ========================================================= */
 
 .header-bar {
   display: flex;
@@ -142,44 +227,52 @@ p {
 }
 
 .header-bar img {
-  width: 72px;              /* SAME AS .logo */
+  width: 72px;
 }
 
-/* ---------- Breadcrumb ---------- */
+/* =========================================================
+   Breadcrumb (CENTERED)
+   ========================================================= */
 
 .breadcrumb {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 0.4rem;
   font-size: 0.85rem;
   color: var(--text-muted);
   margin-bottom: 1.5rem;
+  text-align: center;
 }
 
 .breadcrumb a {
-  color: var(--ifl-accent);
-  font-weight: 600;
+  color: var(--blue-accent);
 }
 
 .breadcrumb span {
   margin: 0 0.4rem;
 }
 
-/* ---------- Cards ---------- */
+/* =========================================================
+   Cards
+   ========================================================= */
 
 .card {
   background: linear-gradient(180deg, #0f1218, #0a0c10);
   border: 1px solid var(--ifl-border);
   border-radius: 16px;
   padding: 1.6rem;
-
   margin-bottom: 2rem;
 }
 
-
 .card.infraforge h3 {
-  color: #ff8c42; /* InfraForge orange */
+  color: #ff8c42;
 }
 
 .card.devopsmind h3 {
-  color: #79c0ff; /* DevOpsMind blue */
+  color: #79c0ff;
 }
 
 .card a {
@@ -188,7 +281,9 @@ p {
   font-weight: 700;
 }
 
-/* ---------- Utilities ---------- */
+/* =========================================================
+   Utilities
+   ========================================================= */
 
 .philosophy {
   color: var(--text-muted);
@@ -200,11 +295,9 @@ p {
   text-align: center;
   margin: 4rem auto 3rem;
   max-width: 36rem;
-
   font-size: 1.05rem;
   font-weight: 600;
   letter-spacing: 0.01em;
-
   color: var(--ifl-text);
   opacity: 0.9;
 }
@@ -218,224 +311,16 @@ p {
   background: var(--ifl-border);
 }
 
-
-
 .section {
   border-top: 1px solid var(--border-subtle);
   padding-top: 2.5rem;
   margin-top: 4rem;
 }
 
-header h1 {
-  font-size: 2.4rem;
-  font-weight: 700;
-}
+/* =========================================================
+   InfraForge Labs Hero Branding
+   ========================================================= */
 
-.subtitle {
-  max-width: 720px;
-  margin: 1rem auto;
-  color: var(--ifl-muted);
-}
-
-
-
-
-/* ---------- Base ---------- */
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  font-family: system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-  color: #e6edf3;
-
-  background:
-    radial-gradient(
-      1200px 600px at top,
-      rgba(255,255,255,0.06),
-      transparent 60%
-    ),
-    linear-gradient(
-      180deg,
-      #0a0c10 0%,
-      #0f1218 60%,
-      #0a0c10 100%
-    );
-}
-
-
-a {
-  color: var(--blue-accent);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-/* ---------- Layout ---------- */
-
-header {
-  text-align: center;
-  padding: 3rem 1.5rem 2.2rem;
-}
-
-
-section,
-main {
-  max-width: 900px;
-  margin: auto;
-  padding: 0 1.5rem;
-}
-
-footer {
-  margin-top: 4rem;
-  padding: 2.5rem 1.5rem;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  border-top: 1px solid var(--border-subtle);
-}
-
-/* ---------- Typography ---------- */
-
-h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
-  margin: 0.6rem 0;
-  letter-spacing: -0.02em;
-}
-
-h2 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-}
-
-h3 {
-  font-size: 1.3rem;
-  margin-top: 0;
-}
-
-p {
-  color: #c9d1d9;
-}
-
-.subtitle {
-  color: var(--text-muted);
-  font-size: 1.05rem;
-  max-width: 720px;
-  margin: 1rem auto 0;
-}
-
-/* ---------- Logo (GLOBAL) ---------- */
-
-.logo {
-  width: 72px;              /* SAME SIZE EVERYWHERE */
-  height: auto;
-  margin-bottom: 1rem;
-}
-
-/* Subtle floating / juggling animation */
-@keyframes logoFloat {
-  0%   { transform: translateY(0); }
-  50%  { transform: translateY(-6px); }
-  100% { transform: translateY(0); }
-}
-
-.logo.juggle {
-  animation: logoFloat 4s ease-in-out infinite;
-}
-
-.logo {
-  animation: none;
-}
-
-
-/* ---------- Header bar (docs, governance, articles) ---------- */
-
-.header-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  margin-bottom: 1rem;
-}
-
-.header-bar img {
-  width: 72px;              /* SAME AS .logo */
-}
-
-/* ---------- Breadcrumb ---------- */
-
-.breadcrumb {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-bottom: 1.5rem;
-}
-
-.breadcrumb a {
-  color: var(--blue-accent);
-}
-
-.breadcrumb span {
-  margin: 0 0.4rem;
-}
-
-/* ---------- Cards ---------- */
-
-.card {
-  background: linear-gradient(180deg, #0f1218, #0a0c10);
-  border: 1px solid var(--ifl-border);
-  border-radius: 16px;
-  padding: 1.6rem;
-}
-
-
-.card.infraforge h3 {
-  color: #ff8c42; /* InfraForge orange */
-}
-
-.card.devopsmind h3 {
-  color: #79c0ff; /* DevOpsMind blue */
-}
-
-.card a {
-  display: inline-block;
-  margin-top: 1rem;
-  font-weight: 700;
-}
-
-/* ---------- Utilities ---------- */
-
-.philosophy {
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  margin-top: 0.8rem;
-}
-
-.boundary {
-  margin-top: 3.5rem;
-  font-size: 0.95rem;
-  color: var(--text-muted);
-}
-
-.section {
-  border-top: 1px solid var(--border-subtle);
-  padding-top: 2.5rem;
-  margin-top: 4rem;
-}
-
-header h1 {
-  font-size: 2.4rem;
-  font-weight: 700;
-}
-
-.subtitle {
-  max-width: 720px;
-  margin: 1rem auto;
-  color: var(--ifl-muted);
-}
-/* InfraForge Labs hero */
 .brand-title {
   font-size: 2.8rem;
   font-weight: 800;
@@ -457,94 +342,50 @@ header h1 {
   color: var(--ifl-muted);
 }
 
-/* =========================
-   InfraForge Labs – Mobile Tune
-   ========================= */
+/* =========================================================
+   Buttons (SaaS Polish)
+   ========================================================= */
 
-@media (max-width: 768px) {
-
-  header {
-    padding: 2.4rem 1.2rem 2rem;
-  }
-
-  .logo {
-    width: 56px; /* smaller, calmer on mobile */
-    margin-bottom: 0.8rem;
-  }
-
-  .brand-title {
-    font-size: 2.1rem;
-    margin: 0.6rem 0 0.4rem;
-  }
-
-  .brand-tagline {
-    font-size: 1.4rem;
-    line-height: 1.3;
-    margin: 0.4rem 0 0.7rem;
-  }
-
-  .brand-subtitle {
-    font-size: 0.95rem;
-    line-height: 1.6;
-    padding: 0 0.5rem;
-  }
-
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
-/* =========================
-   InfraForge Labs – Mobile Cards
-   ========================= */
-
-@media (max-width: 768px) {
-
-  .card {
-    padding: 1.25rem;
-    border-radius: 14px;
-    margin-bottom: 1.25rem;
-  }
-
-  .card h3 {
-    font-size: 1.15rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .card p {
-    font-size: 0.95rem;
-    line-height: 1.6;
-  }
-
-  .card a {
-    margin-top: 0.9rem;
-    font-size: 0.95rem;
-  }
-
+.btn-primary {
+  background: #ffffff;
+  color: #0a0c10;
+  box-shadow: 0 6px 18px rgba(255,255,255,0.15);
 }
-.badge {
-  margin-left: 8px;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  text-transform: uppercase;
+
+.btn-primary:hover {
+  transform: translateY(-2px);
 }
-.open { background:#2563eb }
-.resolved { background:#16a34a }
-.closed { background:#6b7280 }
 
-const badgeClass =
-  data.status === "open"
-    ? "status-open"
-    : data.status === "resolved"
-    ? "status-resolved"
-    : "status-closed";
+.btn-secondary {
+  background: rgba(255,255,255,0.06);
+  color: var(--ifl-text);
+  border: 1px solid var(--ifl-border);
+}
 
-const reopened =
-  data.status === "open" && data.was_reopened;
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.1);
+  transform: translateY(-2px);
+}
 
-statusEl.innerHTML = `
-  <span class="status-badge ${badgeClass} ${reopened ? "status-reopen" : ""}">
-    ${data.status}
-  </span>
-`;
+/* =========================================================
+   Products Section
+   ========================================================= */
 
 .products {
   padding: 6rem 2rem;
@@ -584,7 +425,6 @@ statusEl.innerHTML = `
 
 .product-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 18px 40px rgba(0,0,0,0.35);
 }
 
 .product-card.highlight {
@@ -616,18 +456,41 @@ statusEl.innerHTML = `
   padding-left: 1.2rem;
 }
 
-.product-features li {
-  margin-bottom: 0.4rem;
-}
-
 .product-note {
   font-size: 0.85rem;
   opacity: 0.75;
-  margin-bottom: 1rem;
 }
 
 .product-boundary {
   margin-top: 3rem;
   font-size: 1.1rem;
   opacity: 0.8;
+}
+
+/* =========================================================
+   Mobile Tuning
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+  header {
+    padding: 2.4rem 1.2rem 2rem;
+  }
+
+  .logo {
+    width: 56px;
+  }
+
+  .brand-title {
+    font-size: 2.1rem;
+  }
+
+  .brand-tagline {
+    font-size: 1.4rem;
+  }
+
+  .card {
+    padding: 1.25rem;
+    border-radius: 14px;
+  }
 }
