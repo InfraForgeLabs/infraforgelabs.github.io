@@ -422,3 +422,17 @@ section.visible {
     transition: none;
   }
 }
+
+/* =========================================================
+   Scroll-aware Breadcrumb
+   ========================================================= */
+
+.breadcrumb a {
+  opacity: 0.5;
+  transition: opacity 0.25s ease, color 0.25s ease;
+}
+
+.breadcrumb a.active {
+  opacity: 1;
+  color: var(--ifl-text);
+}
