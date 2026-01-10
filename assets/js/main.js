@@ -6,18 +6,29 @@
   "use strict";
 
   /* -------------------------------------------------------
-     Scroll Reveal + Section Visibility
+     First Visit Detection (Hero + Breadcrumb Fade-In)
+     ------------------------------------------------------- */
+
+  const FIRST_VISIT_KEY = "ifl-first-visit";
+
+  if (!localStorage.getItem(FIRST_VISIT_KEY)) {
+    document.body.classList.add("first-visit");
+    localStorage.setItem(FIRST_VISIT_KEY, "true");
+  }
+
+  /* -------------------------------------------------------
+     Scroll Reveal + Section Fade-In Continuity
      ------------------------------------------------------- */
 
   const revealTargets = document.querySelectorAll(".reveal, section");
 
   if ("IntersectionObserver" in window) {
     const revealObserver = new IntersectionObserver(
-      (entries, obs) => {
+      (entries, observer) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             entry.target.classList.add("visible");
-            obs.unobserve(entry.target);
+            observer.unobserve(entry.target);
           }
         });
       },
@@ -26,23 +37,24 @@
 
     revealTargets.forEach(el => revealObserver.observe(el));
   } else {
+    // Fallback for very old browsers
     revealTargets.forEach(el => el.classList.add("visible"));
   }
 
   /* -------------------------------------------------------
-     Scroll-aware Breadcrumb
+     Scroll-Aware Breadcrumb (Active Section)
      ------------------------------------------------------- */
 
   const breadcrumbLinks = document.querySelectorAll(".breadcrumb a");
 
   if ("IntersectionObserver" in window && breadcrumbLinks.length) {
-    const sectionMap = new Map();
+    const sectionToLink = new Map();
 
     breadcrumbLinks.forEach(link => {
-      const id = link.getAttribute("href")?.replace("#", "");
-      const section = document.getElementById(id);
+      const targetId = link.getAttribute("href")?.replace("#", "");
+      const section = document.getElementById(targetId);
       if (section) {
-        sectionMap.set(section, link);
+        sectionToLink.set(section, link);
       }
     });
 
@@ -51,7 +63,7 @@
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             breadcrumbLinks.forEach(l => l.classList.remove("active"));
-            const activeLink = sectionMap.get(entry.target);
+            const activeLink = sectionToLink.get(entry.target);
             if (activeLink) {
               activeLink.classList.add("active");
             }
@@ -63,7 +75,9 @@
       }
     );
 
-    sectionMap.forEach((_, section) => breadcrumbObserver.observe(section));
+    sectionToLink.forEach((_, section) =>
+      breadcrumbObserver.observe(section)
+    );
   }
 
   /* -------------------------------------------------------
