@@ -202,14 +202,14 @@ if (infraForgeVersionEl) {
 }
 
 /* =====================================================
-   Fade-Out on Intentional Navigation
+   Fade-Out Navigation + Progressive Loader
    ===================================================== */
 
 document.addEventListener("click", function (e) {
   const link = e.target.closest("a[data-fade-link]");
   if (!link) return;
 
-  // Respect new tab / modifier keys
+  // Respect modifiers & new tab
   if (
     e.metaKey ||
     e.ctrlKey ||
@@ -225,10 +225,24 @@ document.addEventListener("click", function (e) {
 
   e.preventDefault();
 
+  const loader = document.getElementById("nav-loader");
+  let loaderTimer;
+
+  // Start fade-out
   document.body.classList.add("fade-out");
 
-  // Navigate after animation
+  // Show loader ONLY if navigation is slow
+  loaderTimer = setTimeout(() => {
+    if (loader) loader.classList.add("visible");
+  }, 400);
+
+  // Navigate
   setTimeout(() => {
     window.location.href = href;
   }, 350);
+
+  // Safety cleanup (in case of interruption)
+  window.addEventListener("pagehide", () => {
+    clearTimeout(loaderTimer);
+  });
 });
