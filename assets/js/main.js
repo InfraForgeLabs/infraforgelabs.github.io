@@ -111,3 +111,56 @@ if (scrollBtn) {
 
 })();
 
+/* -------------------------------------------------------
+   Product Version Fetch (DevOpsMind)
+   ------------------------------------------------------- */
+
+const devopsMindVersionEl = document.getElementById("devopsmind-version");
+
+if (devopsMindVersionEl) {
+  fetch(
+    "https://raw.githubusercontent.com/InfraForgeLabs/infraforgelabs.github.io/main/meta/devopsmind/version.json",
+    { cache: "no-store" }
+  )
+    .then(res => {
+      if (!res.ok) throw new Error("Version fetch failed");
+      return res.json();
+    })
+    .then(data => {
+      if (data.latest_version) {
+        devopsMindVersionEl.textContent = `v${data.latest_version}`;
+        devopsMindVersionEl.title = `Released ${data.released_at}`;
+      }
+    })
+    .catch(() => {
+      // Silent fail: keep UI clean if offline
+      devopsMindVersionEl.style.display = "none";
+    });
+}
+
+/* -------------------------------------------------------
+   Product Version Fetch (InfraForge)
+   ------------------------------------------------------- */
+
+const infraForgeVersionEl = document.getElementById("infraforge-version");
+
+if (infraForgeVersionEl) {
+  fetch(
+    "https://raw.githubusercontent.com/InfraForgeLabs/infraforgelabs.github.io/main/meta/infraforge/version.json",
+    { cache: "no-store" }
+  )
+    .then(res => {
+      if (!res.ok) throw new Error("Version fetch failed");
+      return res.json();
+    })
+    .then(data => {
+      if (data.latest_version) {
+        infraForgeVersionEl.textContent = `v${data.latest_version}`;
+        infraForgeVersionEl.title = `Released ${data.released_at}`;
+      }
+    })
+    .catch(() => {
+      infraForgeVersionEl.style.display = "none";
+    });
+}
+
