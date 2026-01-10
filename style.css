@@ -107,19 +107,6 @@ footer {
     );
 }
 
-.hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(
-      70% 60% at center,
-      transparent 0%,
-      rgba(0,0,0,0.7) 100%
-    );
-}
-
 .hero-inner {
   position: relative;
   z-index: 1;
