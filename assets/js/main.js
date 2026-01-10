@@ -111,6 +111,15 @@ if (scrollBtn) {
 
 })();
 
+function formatDate(isoDate) {
+  return new Date(isoDate).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "2-digit"
+  });
+}
+
+
 /* -------------------------------------------------------
    Product Version Fetch (DevOpsMind)
    ------------------------------------------------------- */
@@ -127,16 +136,17 @@ if (devopsMindVersionEl) {
       return res.json();
     })
     .then(data => {
-      if (data.latest_version) {
-        devopsMindVersionEl.textContent = `v${data.latest_version}`;
-        devopsMindVersionEl.title = `Released ${data.released_at}`;
+      if (data.latest_version && data.released_at) {
+        devopsMindVersionEl.innerHTML =
+          `v${data.latest_version} <span class="date">· released on ${formatDate(data.released_at)}</span>`;
+        devopsMindVersionEl.title = `Released on ${data.released_at}`;
       }
     })
     .catch(() => {
-      // Silent fail: keep UI clean if offline
       devopsMindVersionEl.style.display = "none";
     });
 }
+
 
 /* -------------------------------------------------------
    Product Version Fetch (InfraForge)
@@ -154,13 +164,13 @@ if (infraForgeVersionEl) {
       return res.json();
     })
     .then(data => {
-      if (data.latest_version) {
-        infraForgeVersionEl.textContent = `v${data.latest_version}`;
-        infraForgeVersionEl.title = `Released ${data.released_at}`;
+      if (data.latest_version && data.released_at) {
+        infraForgeVersionEl.innerHTML =
+          `v${data.latest_version} <span class="date">· released on ${formatDate(data.released_at)}</span>`;
+        infraForgeVersionEl.title = `Released on ${data.released_at}`;
       }
     })
     .catch(() => {
       infraForgeVersionEl.style.display = "none";
     });
 }
-
