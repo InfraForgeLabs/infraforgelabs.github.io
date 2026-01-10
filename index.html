@@ -27,29 +27,52 @@
 
 <body>
 
-<header>
-  <!-- Small logo with subtle motion -->
-  <img src="logo.png" alt="InfraForge Labs — local-first DevOps tools and learning platforms" class="logo juggle">
+<header class="hero">
+  <div class="hero-inner">
 
-  <h1 class="brand-title">InfraForge Labs</h1>
+    <!-- Logo -->
+    <img
+      src="logo.png"
+      alt="InfraForge Labs — local-first DevOps tools"
+      class="logo hero-logo"
+    />
 
-<h2 class="brand-tagline">
-  Build Infrastructure. Build Engineers.
-</h2>
+    <!-- Badge / positioning -->
+    <span class="hero-badge">
+      Local-First DevOps & DevSecOps Platform
+    </span>
 
-<p class="brand-subtitle">
-  An open, local-first engineering lab building tools and people for real-world DevOps.
-</p>
+    <!-- Main headline -->
+    <h1 class="hero-title">
+      Build Infrastructure.<br />
+      Build Engineers.
+    </h1>
 
+    <!-- Primary value proposition -->
+    <p class="hero-subtitle">
+      InfraForge Labs builds local-first DevOps tools for
+      infrastructure design, validation, and hands-on learning —
+      without SaaS lock-in.
+    </p>
 
-  <p class="subtitle">
-    InfraForge Labs builds local-first DevOps and DevSecOps tools focused on
-    infrastructure creation, hands-on learning, and system understanding — not SaaS platforms.
-  </p>
+    <!-- CTA buttons -->
+    <div class="hero-actions">
+      <a href="#products" class="btn btn-primary">
+        Explore Products
+      </a>
+      <a href="/open-source-devops-tools.html" class="btn btn-secondary">
+        Why Local-First?
+      </a>
+    </div>
 
-  <div class="philosophy">
-    Free · Local · User-Owned · Forever
+    <!-- Trust / philosophy -->
+    <div class="hero-philosophy">
+      Free · Local · User-Owned · Forever
+    </div>
+
   </div>
+</header>
+
 
   <!-- Internal anchor navigation -->
   <nav class="breadcrumb" style="margin-top:1.5rem;">
@@ -63,65 +86,89 @@
 </header>
 
 <!-- Products -->
-<section id="products">
-  <h2>Our Products</h2>
+<section id="products" class="products">
+  <div class="products-inner">
 
-  <!-- InfraForge -->
-  <div id="infraforge" class="card infraforge">
-    <h3>🏗️ InfraForge</h3>
-
-    <p>
-      InfraForge is a local-first infrastructure design and generation engine.
-      It helps engineers scaffold, validate, and reason about infrastructure
-      <strong>before it ever reaches production</strong>.
+    <h2 class="section-title">Products</h2>
+    <p class="section-subtitle">
+      Tools for building real infrastructure and real engineers —
+      fully local, fully transparent.
     </p>
 
-    <ul>
-      <li>Terraform, Docker, Helm, Jenkins templates</li>
-      <li>Security-first and CI/CD-ready scaffolding</li>
-      <li>No cloud dependency, no hidden execution</li>
-      <li>Human-in-control by design</li>
-    </ul>
+    <div class="product-grid">
 
-    <a href="https://infraforge.infraforgelabs.in/" target="_blank" rel="noopener">
-      Visit InfraForge →
-    </a>
+      <!-- InfraForge -->
+      <div class="product-card">
+        <div class="product-header">
+          <span class="product-icon">🏗️</span>
+          <h3>InfraForge</h3>
+        </div>
+
+        <p class="product-desc">
+          A local-first infrastructure design and generation engine that lets
+          engineers reason about systems <strong>before production</strong>.
+        </p>
+
+        <ul class="product-features">
+          <li>Terraform · Docker · Helm · Jenkins templates</li>
+          <li>Security-first & CI/CD-ready scaffolding</li>
+          <li>No cloud dependency or hidden execution</li>
+          <li>Human-in-control by design</li>
+        </ul>
+
+        <a
+          href="https://infraforge.infraforgelabs.in/"
+          target="_blank"
+          rel="noopener"
+          class="btn btn-primary"
+        >
+          Open InfraForge
+        </a>
+      </div>
+
+      <!-- DevOpsMind -->
+      <div class="product-card highlight">
+        <div class="product-header">
+          <span class="product-icon">🎮</span>
+          <h3>DevOpsMind</h3>
+        </div>
+
+        <p class="product-desc">
+          An offline-first DevOps learning platform built on real tools,
+          real configurations, and real failure scenarios — without risk.
+        </p>
+
+        <ul class="product-features">
+          <li>Hands-on CLI-based DevOps challenges</li>
+          <li>Docker · CI/CD · Linux · Kubernetes · Security</li>
+          <li>Fully local sandbox environments</li>
+          <li>Optional cloud sync for leaderboards</li>
+        </ul>
+
+        <p class="product-note">
+          🔒 Labs run fully offline. Only progress metadata is synced.
+        </p>
+
+        <a
+          href="https://devopsmind.infraforgelabs.in/"
+          target="_blank"
+          rel="noopener"
+          class="btn btn-primary"
+        >
+          Start Learning
+        </a>
+      </div>
+
+    </div>
+
+    <p class="product-boundary">
+      InfraForge builds <strong>systems</strong>.<br />
+      DevOpsMind builds <strong>engineers</strong>.
+    </p>
+
   </div>
-
-  <!-- DevOpsMind -->
-<div id="devopsmind" class="card devopsmind">
-  <h3>🎮 DevOpsMind</h3>
-
-  <p>
-    DevOpsMind is an offline-first DevOps learning platform built around
-    real tools, real configurations, and real failure scenarios — without risk.
-  </p>
-
-  <ul>
-    <li>Hands-on CLI-based DevOps challenges</li>
-    <li>Docker, CI/CD, Linux, Kubernetes & security labs</li>
-    <li>Local email & password login (offline-first)</li>
-    <li>Optional cloud sync for leaderboard & future dashboard</li>
-    <li>No cloud access required to run labs or challenges</li>
-    <li>Safe local sandbox environments</li>
-  </ul>
-  
-  <p class="note">
-    🔒 Labs and environments run fully offline. Only progress metadata is synced
-    for leaderboards and dashboards.
-  </p>
-
-
-  <a href="https://devopsmind.infraforgelabs.in/" target="_blank" rel="noopener">
-    Visit DevOpsMind →
-  </a>
-</div>
-
-  <p class="boundary">
-    InfraForge builds <strong>systems</strong>.<br>
-    DevOpsMind builds <strong>engineers</strong>.
-  </p>
 </section>
+
 
 <!-- Who is this for -->
 <section id="who">
