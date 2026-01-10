@@ -436,3 +436,45 @@ section.visible {
   opacity: 1;
   color: var(--ifl-text);
 }
+
+/* =========================================================
+   Breadcrumb – Animated Underline (Active)
+   ========================================================= */
+
+.breadcrumb a {
+  position: relative;
+  opacity: 0.5;
+  transition: opacity 0.25s ease, color 0.25s ease;
+}
+
+/* underline base (hidden) */
+.breadcrumb a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+
+  width: 100%;
+  height: 2px;
+  background-color: var(--blue-accent);
+
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s ease;
+}
+
+/* active breadcrumb */
+.breadcrumb a.active {
+  opacity: 1;
+  color: var(--ifl-text);
+}
+
+/* animated underline appears */
+.breadcrumb a.active::after {
+  transform: scaleX(1);
+}
+
+/* optional: hover hint (very subtle) */
+.breadcrumb a:hover {
+  opacity: 0.85;
+}
