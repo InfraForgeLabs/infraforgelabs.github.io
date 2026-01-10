@@ -646,3 +646,45 @@ body.fade-out {
     transition: none;
   }
 }
+
+/* ======================================
+   Progressive Navigation Loader
+   ====================================== */
+
+#nav-loader {
+  position: fixed;
+  inset: 0;
+  background: var(--charcoal-black, #0b0e13);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease-out;
+  z-index: 9999;
+}
+
+#nav-loader.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid rgba(255,255,255,0.25);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}
