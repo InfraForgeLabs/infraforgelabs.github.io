@@ -581,3 +581,24 @@ body.first-visit .breadcrumb {
 section[id] {
   scroll-margin-top: 96px;
 }
+
+/* =========================================================
+   Version Badge (Product Cards)
+   ========================================================= */
+
+.version-badge {
+  margin-left: auto;
+  padding: 0.2rem 0.6rem;
+
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  border-radius: 999px;
+
+  background: rgba(121,192,255,0.12);
+  color: var(--blue-accent);
+
+  border: 1px solid rgba(121,192,255,0.25);
+
+  white-space: nowrap;
+}
