@@ -3,7 +3,9 @@
    ========================================================= */
 
 :root {
-  --ifl-bg: #0a0c10;
+  --charcoal-black: #0b0e13;
+
+  --ifl-bg: var(--charcoal-black);
   --ifl-bg-soft: #0f1218;
 
   --ifl-text: #e6edf3;
@@ -14,7 +16,7 @@
   /* neutral accent */
   --ifl-accent: #8b949e;
 
-  /* 🔒 ALIASES (for safety & consistency) */
+  /* aliases */
   --text-muted: var(--ifl-muted);
   --border-subtle: var(--ifl-border);
   --blue-accent: #79c0ff;
@@ -29,19 +31,7 @@ body {
   min-height: 100vh;
   font-family: system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
   color: var(--ifl-text);
-
-  background:
-    radial-gradient(
-      1200px 600px at top,
-      rgba(255,255,255,0.06),
-      transparent 60%
-    ),
-    linear-gradient(
-      180deg,
-      #0a0c10 0%,
-      #0f1218 60%,
-      #0a0c10 100%
-    );
+  background-color: var(--charcoal-black);
 }
 
 a {
@@ -63,43 +53,8 @@ header {
   padding: 3.5rem 1.5rem 2.5rem;
 }
 
-/* SaaS Hero background */
-.hero {
-  position: relative;
-  overflow: hidden;
-  text-align: center;
-
-  background:
-    radial-gradient(
-      800px 400px at center top,
-      rgba(121,192,255,0.15),
-      transparent 60%
-    ),
-    linear-gradient(
-      180deg,
-      #05070a 0%,
-      #0a0c10 55%,
-      #05070a 100%
-    );
-}
-
-/* Soft vignette */
-.hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-
-  background: radial-gradient(
-    70% 60% at center,
-    transparent 0%,
-    rgba(0,0,0,0.65) 100%
-  );
-}
-
-.hero-inner {
-  position: relative;
-  z-index: 1;
+section {
+  background-color: transparent;
 }
 
 section,
@@ -126,6 +81,48 @@ footer {
   color: var(--text-muted);
   font-size: 0.9rem;
   border-top: 1px solid var(--border-subtle);
+}
+
+/* =========================================================
+   Hero (Unified Charcoal + Glow Overlay)
+   ========================================================= */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  background-color: var(--charcoal-black);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      900px 420px at center top,
+      rgba(121,192,255,0.18),
+      transparent 60%
+    );
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      70% 60% at center,
+      transparent 0%,
+      rgba(0,0,0,0.7) 100%
+    );
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
 }
 
 /* =========================================================
@@ -157,14 +154,8 @@ p {
   line-height: 1.65;
 }
 
-.subtitle {
-  color: var(--text-muted);
-  font-size: 1.05rem;
-  max-width: 720px;
-  margin: 1rem auto 0;
-}
-
 /* Hero text */
+
 .hero-badge {
   display: inline-block;
   margin-bottom: 1rem;
@@ -194,7 +185,7 @@ p {
 }
 
 /* =========================================================
-   Logo (Global + Slow Juggle)
+   Logo (Slow Juggle)
    ========================================================= */
 
 .logo {
@@ -203,7 +194,6 @@ p {
   margin-bottom: 1rem;
 }
 
-/* Slow, subtle float (restored) */
 @keyframes logoFloat {
   0%   { transform: translateY(0); }
   50%  { transform: translateY(-8px); }
@@ -215,23 +205,7 @@ p {
 }
 
 /* =========================================================
-   Header Bar (docs, governance, articles)
-   ========================================================= */
-
-.header-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  margin-bottom: 1rem;
-}
-
-.header-bar img {
-  width: 72px;
-}
-
-/* =========================================================
-   Breadcrumb (CENTERED)
+   Breadcrumb (Centered)
    ========================================================= */
 
 .breadcrumb {
@@ -243,7 +217,7 @@ p {
   gap: 0.4rem;
   font-size: 0.85rem;
   color: var(--text-muted);
-  margin-bottom: 1.5rem;
+  margin: 1.5rem auto;
   text-align: center;
 }
 
@@ -275,75 +249,8 @@ p {
   color: #79c0ff;
 }
 
-.card a {
-  display: inline-block;
-  margin-top: 1rem;
-  font-weight: 700;
-}
-
 /* =========================================================
-   Utilities
-   ========================================================= */
-
-.philosophy {
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  margin-top: 0.8rem;
-}
-
-.boundary {
-  text-align: center;
-  margin: 4rem auto 3rem;
-  max-width: 36rem;
-  font-size: 1.05rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  color: var(--ifl-text);
-  opacity: 0.9;
-}
-
-.boundary::before {
-  content: "";
-  display: block;
-  width: 72px;
-  height: 2px;
-  margin: 0 auto 1.4rem;
-  background: var(--ifl-border);
-}
-
-.section {
-  border-top: 1px solid var(--border-subtle);
-  padding-top: 2.5rem;
-  margin-top: 4rem;
-}
-
-/* =========================================================
-   InfraForge Labs Hero Branding
-   ========================================================= */
-
-.brand-title {
-  font-size: 2.8rem;
-  font-weight: 800;
-  margin: 0.8rem 0 0.4rem;
-  letter-spacing: -0.02em;
-}
-
-.brand-tagline {
-  font-size: 1.9rem;
-  font-weight: 600;
-  margin: 0.6rem 0 0.8rem;
-  color: var(--ifl-text);
-}
-
-.brand-subtitle {
-  font-size: 1.05rem;
-  max-width: 720px;
-  margin: 0 auto;
-  color: var(--ifl-muted);
-}
-
-/* =========================================================
-   Buttons (SaaS Polish)
+   Buttons
    ========================================================= */
 
 .btn {
@@ -435,27 +342,6 @@ p {
   );
 }
 
-.product-header {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 1rem;
-}
-
-.product-icon {
-  font-size: 1.6rem;
-}
-
-.product-desc {
-  margin-bottom: 1.2rem;
-  opacity: 0.9;
-}
-
-.product-features {
-  margin-bottom: 1.5rem;
-  padding-left: 1.2rem;
-}
-
 .product-note {
   font-size: 0.85rem;
   opacity: 0.75;
@@ -465,6 +351,31 @@ p {
   margin-top: 3rem;
   font-size: 1.1rem;
   opacity: 0.8;
+}
+
+/* =========================================================
+   Scroll Reveal
+   ========================================================= */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.6s ease-out,
+    transform 0.6s ease-out;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 /* =========================================================
@@ -481,49 +392,12 @@ p {
     width: 56px;
   }
 
-  .brand-title {
+  .hero-title {
     font-size: 2.1rem;
-  }
-
-  .brand-tagline {
-    font-size: 1.4rem;
   }
 
   .card {
     padding: 1.25rem;
     border-radius: 14px;
-  }
-}
-
-/* =========================================================
-   Scroll Reveal Animations
-   ========================================================= */
-
-.reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition:
-    opacity 0.6s ease-out,
-    transform 0.6s ease-out;
-  will-change: opacity, transform;
-}
-
-/* When revealed */
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Slightly slower variant (optional) */
-.reveal.slow {
-  transition-duration: 0.8s;
-}
-
-/* Respect reduced motion preferences */
-@media (prefers-reduced-motion: reduce) {
-  .reveal {
-    opacity: 1;
-    transform: none;
-    transition: none;
   }
 }
