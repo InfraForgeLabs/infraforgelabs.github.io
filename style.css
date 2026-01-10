@@ -478,3 +478,42 @@ section.visible {
 .breadcrumb a:hover {
   opacity: 0.85;
 }
+
+/* =========================================================
+   First Visit Fade-In (Hero + Breadcrumb only)
+   ========================================================= */
+
+/* Initial hidden state (only on first visit) */
+body.first-visit .hero,
+body.first-visit .breadcrumb {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+/* Fade-in animation */
+body.first-visit .hero,
+body.first-visit .breadcrumb {
+  animation: firstVisitFade 0.9s ease-out forwards;
+}
+
+/* Breadcrumb slightly delayed */
+body.first-visit .breadcrumb {
+  animation-delay: 0.35s;
+}
+
+@keyframes firstVisitFade {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  body.first-visit .hero,
+  body.first-visit .breadcrumb {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
