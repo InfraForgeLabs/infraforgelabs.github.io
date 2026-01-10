@@ -1,17 +1,11 @@
 /* =========================================================
    InfraForge Labs — main.js
-   - Scroll Reveal
-   - Small UI helpers
    ========================================================= */
 
 (function () {
   "use strict";
 
-  /* -------------------------
-     Scroll Reveal
-     ------------------------- */
-
-  const revealElements = document.querySelectorAll(".reveal");
+  const revealTargets = document.querySelectorAll(".reveal, section");
 
   if ("IntersectionObserver" in window) {
     const observer = new IntersectionObserver(
@@ -23,22 +17,17 @@
           }
         });
       },
-      { threshold: 0.15 }
+      { threshold: 0.12 }
     );
 
-    revealElements.forEach(el => observer.observe(el));
+    revealTargets.forEach(el => observer.observe(el));
   } else {
-    // Fallback for very old browsers
-    revealElements.forEach(el => el.classList.add("visible"));
+    revealTargets.forEach(el => el.classList.add("visible"));
   }
 
-  /* -------------------------
-     Dynamic Year (Footer)
-     ------------------------- */
-
+  /* Footer year */
   const yearEl = document.getElementById("year");
   if (yearEl) {
     yearEl.textContent = Math.max(2025, new Date().getFullYear());
   }
-
 })();
