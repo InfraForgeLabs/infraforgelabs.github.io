@@ -629,3 +629,20 @@ section[id] {
 
   white-space: nowrap;
 }
+
+/* ======================================
+   Intent-Based Page Fade-Out (Navigation)
+   ====================================== */
+
+body.fade-out {
+  opacity: 0;
+  transition: opacity 0.35s ease-in;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  body.fade-out {
+    opacity: 1;
+    transition: none;
+  }
+}
