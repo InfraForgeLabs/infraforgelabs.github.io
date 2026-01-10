@@ -586,6 +586,11 @@ section[id] {
    Version Badge (Product Cards)
    ========================================================= */
 
+.version-badge .date {
+  font-weight: 500;
+  opacity: 0.75;
+}
+
 .version-badge {
   margin-left: auto;
   padding: 0.2rem 0.6rem;
