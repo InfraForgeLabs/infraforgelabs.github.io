@@ -200,3 +200,35 @@ if (infraForgeVersionEl) {
       infraForgeVersionEl.style.display = "none";
     });
 }
+
+/* =====================================================
+   Fade-Out on Intentional Navigation
+   ===================================================== */
+
+document.addEventListener("click", function (e) {
+  const link = e.target.closest("a[data-fade-link]");
+  if (!link) return;
+
+  // Respect new tab / modifier keys
+  if (
+    e.metaKey ||
+    e.ctrlKey ||
+    e.shiftKey ||
+    e.altKey ||
+    link.target === "_blank"
+  ) {
+    return;
+  }
+
+  const href = link.getAttribute("href");
+  if (!href) return;
+
+  e.preventDefault();
+
+  document.body.classList.add("fade-out");
+
+  // Navigate after animation
+  setTimeout(() => {
+    window.location.href = href;
+  }, 350);
+});
