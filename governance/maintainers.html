@@ -13,15 +13,68 @@
   <link rel="canonical"
         href="https://infraforgelabs.in/governance/maintainers.html">
 
-  <!-- Favicon (InfraForge Labs) -->
   <link rel="icon" href="/logo.png" type="image/png">
 
   <link rel="stylesheet" href="/style.css">
+
+  <!-- Page-only animations -->
+  <style>
+    /* Page fade */
+    .page-fade {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: pageFadeIn 0.7s ease-out forwards;
+    }
+
+    @keyframes pageFadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Subtitle */
+    .page-subtitle {
+      margin-top: 0.4rem;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+
+    /* Staggered list animation */
+    .maintainer-list li {
+      opacity: 0;
+      transform: translateY(12px);
+      animation: listFade 0.5s ease-out forwards;
+    }
+
+    .maintainer-list li:nth-child(1) { animation-delay: 0.1s; }
+    .maintainer-list li:nth-child(2) { animation-delay: 0.2s; }
+    .maintainer-list li:nth-child(3) { animation-delay: 0.3s; }
+    .maintainer-list li:nth-child(4) { animation-delay: 0.4s; }
+
+    @keyframes listFade {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 1.5rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
 
 <body>
 
-<header>
+<header class="page-fade">
   <img src="/logo.png" alt="InfraForge Labs Logo" class="logo juggle">
 
   <nav class="breadcrumb">
@@ -31,36 +84,37 @@
   </nav>
 
   <h1>Maintainers & Escalation</h1>
+
+  <p class="page-subtitle">
+    How InfraForge Labs is maintained, reviewed,
+    and protected against instability or misuse.
+  </p>
+
+  <a href="/governance/" class="back-link">← Back to Governance</a>
 </header>
 
-<section>
+<section class="page-fade">
   <div class="card">
+
     <p>
-      <p>
       InfraForge Labs is currently maintained by a single founder maintainer.
       All releases are built, reviewed, and distributed centrally to ensure
-      consistency and long-term stability.
-      </p>
+      consistency, safety, and long-term stability.
     </p>
 
-    <ul>
+    <ul class="maintainer-list">
       <li>One centrally maintained runtime and release stream</li>
       <li>No monetization inside execution logic</li>
       <li>Escalation required for trust-impacting changes</li>
-      <li>Succession rules protect continuity</li>
+      <li>Succession rules protect long-term continuity</li>
     </ul>
 
-    <a href="/governance/">← Back to Governance</a>
   </div>
 </section>
 
 <footer>
-  © <span id="year"></span> InfraForge Labs
+  © 2025 InfraForge Labs
 </footer>
-
-<script>
-  document.getElementById("year").textContent = new Date().getFullYear();
-</script>
 
 </body>
 </html>
