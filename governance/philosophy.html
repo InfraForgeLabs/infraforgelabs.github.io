@@ -13,16 +13,68 @@
   <link rel="canonical"
         href="https://infraforgelabs.in/governance/philosophy.html">
 
-  <!-- Favicon (InfraForge Labs) -->
   <link rel="icon" href="/logo.png" type="image/png">
 
   <link rel="stylesheet" href="/style.css">
-</head>
 
+  <!-- Page-only animations -->
+  <style>
+    /* Page fade */
+    .page-fade {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: pageFadeIn 0.7s ease-out forwards;
+    }
+
+    @keyframes pageFadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Subtitle */
+    .page-subtitle {
+      margin-top: 0.4rem;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+
+    /* Staggered list animation */
+    .philosophy-list li {
+      opacity: 0;
+      transform: translateY(12px);
+      animation: listFade 0.5s ease-out forwards;
+    }
+
+    .philosophy-list li:nth-child(1) { animation-delay: 0.1s; }
+    .philosophy-list li:nth-child(2) { animation-delay: 0.2s; }
+    .philosophy-list li:nth-child(3) { animation-delay: 0.3s; }
+    .philosophy-list li:nth-child(4) { animation-delay: 0.4s; }
+
+    @keyframes listFade {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 1.5rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
 
 <body>
 
-<header>
+<header class="page-fade">
   <img src="/logo.png" alt="InfraForge Labs Logo" class="logo juggle">
 
   <nav class="breadcrumb">
@@ -32,17 +84,24 @@
   </nav>
 
   <h1>Project Philosophy</h1>
-</header>
 
-<section>
-  <div class="card">
-   <p>
-      InfraForge Labs exists to build DevOps and infrastructure tools that are
-      free, local-first, and designed to keep engineers in control of their systems.
+  <p class="page-subtitle">
+    Principles that guide every tool, decision,
+    and long-term direction at InfraForge Labs.
   </p>
 
+  <a href="/governance/" class="back-link">← Back to Governance</a>
+</header>
 
-    <ul>
+<section class="page-fade">
+  <div class="card">
+
+    <p>
+      InfraForge Labs exists to build DevOps and infrastructure tools that are
+      free, local-first, and designed to keep engineers in control of their systems.
+    </p>
+
+    <ul class="philosophy-list">
       <li>No feature gating based on payment</li>
       <li>No forced cloud dependency</li>
       <li>No opaque execution logic</li>
@@ -50,20 +109,16 @@
     </ul>
 
     <p>
-      These principles apply to all current and future projects under InfraForge Labs.
+      These principles apply to all current and future projects
+      developed under InfraForge Labs.
     </p>
 
-    <a href="/governance/">← Back to Governance</a>
   </div>
 </section>
 
 <footer>
-  © <span id="year"></span> InfraForge Labs
+  © 2025 InfraForge Labs
 </footer>
-
-<script>
-  document.getElementById("year").textContent = new Date().getFullYear();
-</script>
 
 </body>
 </html>
