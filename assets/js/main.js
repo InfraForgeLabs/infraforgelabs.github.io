@@ -5,6 +5,32 @@
 (function () {
   "use strict";
 
+
+/* =====================================================
+   First-Visit Full Page Fade-In
+   ===================================================== */
+
+(function () {
+  const KEY = "ifl-first-visit";
+
+  // If already visited, do nothing
+  if (localStorage.getItem(KEY)) return;
+
+  // Mark first visit immediately
+  localStorage.setItem(KEY, "true");
+
+  // Add marker class before render
+  document.documentElement.classList.add("first-visit");
+
+  // Fade in once DOM is ready
+  window.addEventListener("DOMContentLoaded", () => {
+    requestAnimationFrame(() => {
+      document.body.classList.add("page-loaded");
+    });
+  });
+})();
+   
+
   /* -------------------------------------------------------
      First Visit Detection (Hero + Breadcrumb Fade-In)
      ------------------------------------------------------- */
