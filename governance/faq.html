@@ -1,29 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Governance FAQ – InfraForge Labs</title>
 
   <meta name="description"
         content="Frequently asked governance questions about InfraForge Labs.">
 
-  <meta name="color-scheme" content="dark" />
+  <meta name="color-scheme" content="dark">
 
-  <!-- Canonical -->
   <link rel="canonical"
         href="https://infraforgelabs.in/governance/faq.html">
 
-  <!-- Favicon (PNG only) -->
-  <link rel="icon"
-        href="/logo.png"
-        type="image/png" />
+  <link rel="icon" href="/logo.png" type="image/png">
 
-  <!-- Styles -->
   <link rel="stylesheet" href="/style.css">
+
+  <!-- Page-only animations -->
+  <style>
+    /* Page fade */
+    .page-fade {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: pageFadeIn 0.7s ease-out forwards;
+    }
+
+    @keyframes pageFadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Subtitle */
+    .page-subtitle {
+      margin-top: 0.4rem;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+
+    /* FAQ animation */
+    .faq-item {
+      opacity: 0;
+      transform: translateY(12px);
+      animation: faqFade 0.5s ease-out forwards;
+    }
+
+    .faq-item:nth-child(1) { animation-delay: 0.1s; }
+    .faq-item:nth-child(2) { animation-delay: 0.2s; }
+    .faq-item:nth-child(3) { animation-delay: 0.3s; }
+    .faq-item:nth-child(4) { animation-delay: 0.4s; }
+    .faq-item:nth-child(5) { animation-delay: 0.5s; }
+
+    @keyframes faqFade {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 1.5rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
 
 <body>
 
-<header>
+<header class="page-fade">
   <img src="/logo.png" alt="InfraForge Labs Logo" class="logo juggle">
 
   <nav class="breadcrumb">
@@ -33,54 +86,67 @@
   </nav>
 
   <h1>Governance FAQ</h1>
+
+  <p class="page-subtitle">
+    Clear answers about licensing, sustainability,
+    and how InfraForge Labs operates long term.
+  </p>
+
+  <a href="/governance/" class="back-link">← Back to Governance</a>
 </header>
 
-<section>
+<section class="page-fade">
   <div class="card">
-    <div class="card">
-  <h3>Is this really free?</h3>
-  <p>
-    Yes. InfraForge Labs tools are free to use for learning and local execution.
-    You can run them offline without subscriptions or cloud dependencies.
-  </p>
 
-  <h3>Is this open source?</h3>
-  <p>
-    No. The source code is proprietary and not publicly distributed.
-    This allows InfraForge Labs to remain sustainable, consistent, and
-    professionally maintained over the long term.
-  </p>
+    <div class="faq-item">
+      <h3>Is this really free?</h3>
+      <p>
+        Yes. InfraForge Labs tools are free to use for learning and local execution.
+        You can run them offline without subscriptions or cloud dependencies.
+      </p>
+    </div>
 
-  <h3>Why do paid plans exist?</h3>
-  <p>
-    Paid plans support continued development and unlock professional features
-    such as advanced insights, team usage, and extended tooling.
-    Core functionality remains free to use.
-  </p>
+    <div class="faq-item">
+      <h3>Is this open source?</h3>
+      <p>
+        No. The source code is proprietary and not publicly distributed.
+        This allows InfraForge Labs to remain sustainable, consistent,
+        and professionally maintained over the long term.
+      </p>
+    </div>
 
-  <h3>Can I use this commercially?</h3>
-  <p>
-    Yes. Commercial use is allowed under the InfraForge Labs license terms.
-    Redistribution, resale, or hosted offerings may require a separate agreement.
-  </p>
+    <div class="faq-item">
+      <h3>Why do paid plans exist?</h3>
+      <p>
+        Paid plans support continued development and unlock professional features
+        such as advanced insights, team usage, and extended tooling.
+        Core functionality remains free.
+      </p>
+    </div>
 
-  <h3>What happens if I stop paying?</h3>
-  <p>
-    Nothing breaks. Any locally installed tools continue to work.
-    Paid features simply become unavailable until the license is renewed.
-  </p>
+    <div class="faq-item">
+      <h3>Can I use this commercially?</h3>
+      <p>
+        Yes. Commercial use is allowed under InfraForge Labs license terms.
+        Redistribution, resale, or hosted offerings may require
+        a separate agreement.
+      </p>
+    </div>
 
-  <a href="/governance/">← Back to Governance</a>
+    <div class="faq-item">
+      <h3>What happens if I stop paying?</h3>
+      <p>
+        Nothing breaks. Any locally installed tools continue to work.
+        Paid features simply become unavailable until the license is renewed.
+      </p>
+    </div>
+
   </div>
 </section>
 
 <footer>
-  © <span id="year"></span> InfraForge Labs
+  © 2025 InfraForge Labs
 </footer>
-
-<script>
-  document.getElementById("year").textContent = new Date().getFullYear();
-</script>
 
 </body>
 </html>
