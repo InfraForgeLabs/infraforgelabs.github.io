@@ -388,3 +388,37 @@ p {
     border-radius: 14px;
   }
 }
+
+/* =========================================================
+   Section Fade-In Continuity
+   ========================================================= */
+
+/* Default hidden state */
+section {
+  opacity: 0;
+  transform: translateY(32px);
+  transition:
+    opacity 0.8s ease-out,
+    transform 0.8s ease-out;
+}
+
+/* Revealed section */
+section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* First section (hero) should always be visible */
+.hero {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  section {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
