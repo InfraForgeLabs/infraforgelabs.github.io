@@ -4,17 +4,65 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Local-First DevOps Tools — Offline & Cloud-Free</title>
+  <title>Local-First DevOps Tools – InfraForge Labs</title>
   <meta name="description"
-      content="A practical guide to local-first and offline DevOps tools designed to avoid cloud lock-in.">
+        content="A long-term explanation of InfraForge and DevOpsMind — local-first DevOps tools designed to preserve engineer control and avoid cloud lock-in.">
 
-  <link rel="canonical" href="https://infraforgelabs.in/open-source-devops-tools.html">
+  <meta name="color-scheme" content="dark">
+
+  <link rel="canonical"
+        href="https://infraforgelabs.in/open-source-devops-tools.html">
+
+  <link rel="icon" href="/logo.png" type="image/png">
+
   <link rel="stylesheet" href="/style.css">
+
+  <!-- Page-only motion (stable, minimal) -->
+  <style>
+    .page-fade {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: pageFadeIn 0.7s ease-out forwards;
+    }
+    @keyframes pageFadeIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .page-subtitle {
+      margin-top: 0.4rem;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      max-width: 720px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+
+    .tool-section {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: sectionFade 0.6s ease-out forwards;
+    }
+    .tool-section:nth-of-type(1) { animation-delay: 0.15s; }
+    .tool-section:nth-of-type(2) { animation-delay: 0.3s; }
+    .tool-section:nth-of-type(3) { animation-delay: 0.45s; }
+
+    @keyframes sectionFade {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 1.5rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
 
 <body>
 
-<header>
+<header class="page-fade">
   <img src="/logo.png" alt="InfraForge Labs Logo" class="logo juggle">
 
   <nav class="breadcrumb">
@@ -23,68 +71,141 @@
   </nav>
 
   <h1>Local-First DevOps Tools</h1>
-  <p class="subtitle">Modern DevOps without cloud lock-in.</p>
 
+  <p class="page-subtitle">
+    An explanation of how InfraForge Labs builds DevOps tools that remain local,
+    transparent, and under engineer control — now and in the future.
+  </p>
 
-  <nav class="breadcrumb" style="margin-top:1rem;">
-    <a href="#infraforge">InfraForge</a><span>›</span>
-    <a href="#devopsmind">DevOpsMind</a>
-  </nav>
+  <a href="/" class="back-link">← Back to Home</a>
 </header>
 
 <main>
 
-<div id="infraforge" class="section">
-  <h2>InfraForge</h2>
+  <!-- =========================
+       InfraForge
+       ========================= -->
+  <section class="section tool-section">
+    <h2>InfraForge</h2>
 
-  <div class="card infraforge">
-    <p>
-      InfraForge helps engineers design and validate infrastructure locally
-      before production.
-    </p>
+    <div class="card infraforge">
+      <p>
+        InfraForge is a <strong>local-first infrastructure reasoning and generation system</strong>.
+        It exists to help engineers design, understand, and validate systems
+        <em>before they are executed or deployed</em>.
+      </p>
 
-    <ul>
-      <li>Terraform, Docker, Helm, Jenkins</li>
-      <li>Security-first templates</li>
-      <li>No cloud lock-in</li>
-    </ul>
+      <p>
+        InfraForge focuses on producing artifacts that engineers can inspect,
+        version, audit, and adapt themselves.
+        Execution is always explicit and remains under user control.
+      </p>
 
-    <a href="https://infraforge.infraforgelabs.in/" target="_blank" rel="noopener">
-      Visit InfraForge →
-    </a>
-  </div>
-</div>
+      <h3>Core intent</h3>
+      <ul>
+        <li>Enable safe system design before real-world impact</li>
+        <li>Preserve transparency over automation</li>
+        <li>Support multiple infrastructure approaches without lock-in</li>
+        <li>Encourage understanding rather than abstraction</li>
+      </ul>
 
-<div id="devopsmind" class="section">
-  <h2>DevOpsMind</h2>
+      <h3>Deliberate boundaries</h3>
+      <ul>
+        <li>No hidden execution or background deployment</li>
+        <li>No mandatory cloud services or accounts</li>
+        <li>No vendor-controlled runtime state</li>
+        <li>No removal of user decision-making</li>
+      </ul>
 
-  <div class="card devopsmind">
-    <p>
-      DevOpsMind provides offline-first DevOps learning through real challenges.
-    </p>
+      <p>
+        InfraForge treats infrastructure as a system engineers should
+        <strong>own, reason about, and evolve</strong> —
+        not outsource to opaque platforms.
+      </p>
+    </div>
+  </section>
 
-    <ul>
-      <li>Hands-on CLI labs</li>
-      <li>Docker, CI/CD, Linux, Kubernetes</li>
-      <li>No cloud accounts needed</li>
-    </ul>
+  <!-- =========================
+       DevOpsMind
+       ========================= -->
+  <section class="section tool-section">
+    <h2>DevOpsMind</h2>
 
-    <a href="https://devopsmind.infraforgelabs.in/" target="_blank" rel="noopener">
-      Visit DevOpsMind →
-    </a>
-  </div>
-</div>
+    <div class="card devopsmind">
+      <p>
+        DevOpsMind is a <strong>local-first learning and practice environment</strong>
+        designed to build real engineering confidence through hands-on interaction.
+      </p>
 
-<footer>
-  © <span id="year"></span> InfraForge Labs ·
-  <a href="/">← Back to homepage</a>
-</footer>
+      <p>
+        It emphasizes learning by doing:
+        experimenting with real configurations,
+        observing failure modes,
+        and developing the ability to diagnose and recover systems.
+      </p>
+
+      <h3>What DevOpsMind builds</h3>
+      <ul>
+        <li>Practical understanding of systems and workflows</li>
+        <li>Confidence in working with unfamiliar environments</li>
+        <li>Comfort with failure and recovery</li>
+        <li>Judgment, not memorization</li>
+      </ul>
+
+      <h3>Safety by design</h3>
+      <ul>
+        <li>Isolated local environments</li>
+        <li>No dependency on live infrastructure</li>
+        <li>No requirement for external accounts</li>
+        <li>Offline-first execution</li>
+      </ul>
+
+      <p>
+        DevOpsMind exists to help engineers
+        <strong>become capable, not credentialed</strong>.
+      </p>
+    </div>
+  </section>
+
+  <!-- =========================
+       Why Local-First
+       ========================= -->
+  <section class="section tool-section">
+    <h2>Why Local-First Matters</h2>
+
+    <div class="card">
+      <p>
+        As DevOps tooling evolves, convenience is increasingly achieved by
+        hiding complexity behind managed services, dashboards, and automation layers.
+      </p>
+
+      <p>
+        Local-first tools take a different approach:
+        they assume engineers want visibility,
+        predictability,
+        and long-term ownership of their systems.
+      </p>
+
+      <ul>
+        <li>Local-first systems are auditable</li>
+        <li>They remain usable in restricted or offline environments</li>
+        <li>They reduce dependency risk and vendor coupling</li>
+        <li>They preserve engineering judgment</li>
+      </ul>
+
+      <p>
+        InfraForge Labs builds tools that assume
+        <strong>clarity is more valuable than convenience</strong>,
+        and that engineers should always remain in control.
+      </p>
+    </div>
+  </section>
 
 </main>
 
-<script>
-  document.getElementById("year").textContent = new Date().getFullYear();
-</script>
+<footer>
+  © 2025 InfraForge Labs
+</footer>
 
 </body>
 </html>
