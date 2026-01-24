@@ -1,6 +1,6 @@
 {
-  "latest_version": "1.0.8",
+  "latest_version": "1.1.0",
   "runtime_version": "1.0",
-  "released_at": "2026-01-08",
-  "notes": "Added `devopsmind introduce`, an optional one-time step that explains how DevOpsMind works and lets users share a minimal, anonymous profile if they choose. Improved `devopsmind mentor` to give smarter next-step suggestions based on progress and confidence across stacks. Includes stability and usability improvements."
+  "released_at": "2026-02-XX",
+  "notes": "Adds hands-on labs for Jenkins, Argo CD, AWS, Azure, and GCP. Introduces DevOpsMind Safe Shell, a Docker-based local sandbox for running labs safely. BuildTrack program launches on 14 Feb. Includes UX and stability improvements."
 }
