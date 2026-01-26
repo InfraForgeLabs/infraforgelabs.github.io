@@ -19,19 +19,19 @@ case "$OS" in
     ;;
 esac
 
-# ---------------- Python Auto-Install (ADDED) ----------------
+# ---------------- Python Auto-Install ----------------
 if ! command -v python3 >/dev/null 2>&1; then
   echo "🐍 Python not found. Installing Python 3..."
 
   case "$OS" in
     Linux)
       if command -v apt >/dev/null 2>&1; then
-        sudo apt update
-        sudo apt install -y python3 python3-venv python3-pip
+        sudo apt update >/dev/null 2>&1
+        sudo apt install -y python3 python3-venv python3-pip >/dev/null 2>&1
       elif command -v dnf >/dev/null 2>&1; then
-        sudo dnf install -y python3 python3-pip
+        sudo dnf install -y python3 python3-pip >/dev/null 2>&1
       elif command -v pacman >/dev/null 2>&1; then
-        sudo pacman -S --noconfirm python python-pip
+        sudo pacman -S --noconfirm python python-pip >/dev/null 2>&1
       else
         echo "❌ Unsupported Linux package manager."
         echo "👉 Please install Python 3.9+ manually."
@@ -40,7 +40,7 @@ if ! command -v python3 >/dev/null 2>&1; then
       ;;
     Darwin)
       if command -v brew >/dev/null 2>&1; then
-        brew install python
+        brew install python >/dev/null 2>&1
       else
         echo "❌ Homebrew not found."
         echo "👉 Install Homebrew first: https://brew.sh"
@@ -73,28 +73,28 @@ if ! command -v pipx >/dev/null 2>&1; then
   echo "📦 pipx not found. Installing pipx..."
 
   if command -v apt >/dev/null 2>&1; then
-    sudo apt update
-    sudo apt install -y pipx
+    sudo apt update >/dev/null 2>&1
+    sudo apt install -y pipx >/dev/null 2>&1
   elif command -v dnf >/dev/null 2>&1; then
-    sudo dnf install -y python3-pipx
+    sudo dnf install -y python3-pipx >/dev/null 2>&1
   elif command -v pacman >/dev/null 2>&1; then
-    sudo pacman -S --noconfirm python-pipx
+    sudo pacman -S --noconfirm python-pipx >/dev/null 2>&1
   elif command -v brew >/dev/null 2>&1; then
-    brew install pipx
+    brew install pipx >/dev/null 2>&1
   else
     echo "❌ Could not detect a supported package manager."
     echo "👉 Please install pipx manually."
     exit 1
   fi
 
-  pipx ensurepath
+  pipx ensurepath >/dev/null 2>&1
   echo "ℹ️  You may need to restart your shell for PATH changes."
 fi
 
 # ---------------- Install DevOpsMind ----------------
 echo
 echo "📦 Installing $APP_NAME via pipx..."
-pipx install "$PKG_NAME" --force
+pipx install "$PKG_NAME" --force >/dev/null 2>&1
 
 # ---------------- Docker Check ----------------
 if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
