@@ -1,5 +1,5 @@
 {
-  "latest_version": "0.9.0 (Pre-release)",
-  "released_at": "2026-01-01",
-  "notes": "Pre-lease: Initial stable release of InfraForge core template engine."
+  "latest_version": "1.0.0",
+  "released_at": "2026-06-26",
+  "notes": "Public Release: Initial stable release of InfraForge core template engine."
 }
