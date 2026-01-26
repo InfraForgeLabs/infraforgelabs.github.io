@@ -33,14 +33,6 @@ else
   git clone --depth=1 "$REPO_URL" "$INSTALL_DIR" --quiet
 fi
 
-# ---------------- Version metadata (required for CLI version detection) ----------------
-META_SRC=" https://infraforgelabs.in/meta/infraforge/version.json"
-META_DST=" https://infraforgelabs.in/meta/infraforge/version.json"
-
-if [[ ! -f "$META_DST" ]]; then
-  fatal "version.json missing after install. Repository may be corrupted."
-fi
-
 chmod -R "$PERM" "$INSTALL_DIR"
 ln -sf "$INSTALL_DIR/bin/infraforge" "$BIN_TARGET"
 log "🔗 Symlink created: $BIN_TARGET"
