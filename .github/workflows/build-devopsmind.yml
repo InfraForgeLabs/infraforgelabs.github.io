@@ -72,8 +72,13 @@ jobs:
             https://raw.githubusercontent.com/InfraForgeLabs/infraforgelabs.github.io/main/meta/devopsmind/version.json \
             | sed -n 's/.*"latest_version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
 
-          [ -z "$VERSION" ] && exit 1
+          if [ -z "$VERSION" ]; then
+            echo "❌ Failed to read version"
+            exit 1
+          fi
+
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Version: $VERSION"
 
       # -------------------------------------------------
       # 6️⃣ Create tag (once)
@@ -84,10 +89,15 @@ jobs:
         run: |
           git config user.name "InfraForgeLabs Bot"
           git config user.email "ci@infraforgelabs.dev"
+
           TAG="v${{ steps.version.outputs.version }}-devopsmind"
-          git rev-parse "$TAG" >/dev/null 2>&1 || (
-            git tag "$TAG" && git push origin "$TAG"
-          )
+
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag already exists: $TAG"
+          else
+            git tag "$TAG"
+            git push origin "$TAG"
+          fi
 
       # -------------------------------------------------
       # 7️⃣ Build binary (onedir)
@@ -127,4 +137,8 @@ jobs:
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.version.outputs.version }}-_
+          tag_name: v${{ steps.version.outputs.version }}-devopsmind
+          name: DevOpsMind v${{ steps.version.outputs.version }}
+          files: artifacts/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
