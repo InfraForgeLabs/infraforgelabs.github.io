@@ -51,9 +51,17 @@ fi
 
 echo "📦 Latest version: $VERSION"
 
-# ---------------- Release asset ----------------
-BINARY="${BIN_NAME}-${PLATFORM}-${ARCH}"
 TAG="v${VERSION}-devopsmind"
+
+# ---------------- Resolve asset name ----------------
+case "$PLATFORM" in
+  linux)
+    BINARY="devopsmind-linux-x86_64"
+    ;;
+  macos)
+    BINARY="devopsmind-macos-arm64"
+    ;;
+esac
 
 DOWNLOAD_URL="https://github.com/${BIN_REPO}/releases/download/${TAG}/${BINARY}"
 
