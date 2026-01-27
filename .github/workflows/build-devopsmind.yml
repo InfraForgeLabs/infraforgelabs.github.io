@@ -29,7 +29,7 @@ jobs:
       - name: Checkout DevOpsMind source
         uses: actions/checkout@v4
         with:
-          repository: InfraForgeLabs/devopsmind
+          repository: InfraForgeLabs/infraforgelabs.github.io
           token: ${{ secrets.DEVOPSMIND_READ_TOKEN }}
           fetch-depth: 0   # REQUIRED for tagging
 
