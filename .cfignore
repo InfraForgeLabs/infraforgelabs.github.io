@@ -1,1 +1,3 @@
-meta/devopsmind/download/*/devopsmind-*
+**/devopsmind-linux-*
+**/devopsmind-macos-*
+**/devopsmind-windows.exe
