@@ -64,10 +64,9 @@ case "$PLATFORM" in
       echo "  • macOS ARM64 (Apple Silicon)"
       echo "  • Windows x86_64"
       echo
-      echo "Please use a supported platform."
       exit 1
     fi
-    BINARY="devopsmind-linux-x86_64"
+    ARCHIVE="devopsmind-linux-x86_64.tar.gz"
     ;;
   macos)
     if [ "$ARCH" != "arm64" ]; then
@@ -76,18 +75,28 @@ case "$PLATFORM" in
       echo "DevOpsMind currently supports Apple Silicon Macs only."
       exit 1
     fi
-    BINARY="devopsmind-macos-arm64"
+    ARCHIVE="devopsmind-macos-arm64.tar.gz"
     ;;
 esac
 
-DOWNLOAD_URL="https://github.com/${BIN_REPO}/releases/download/${TAG}/${BINARY}"
+DOWNLOAD_URL="https://github.com/${BIN_REPO}/releases/download/${TAG}/${ARCHIVE}"
 
-# ---------------- Download ----------------
-echo "⬇ Downloading ${BINARY}..."
+# ---------------- Download + Extract ----------------
+echo "⬇ Downloading ${ARCHIVE}..."
 mkdir -p "$INSTALL_DIR"
 
-curl -fsSL "$DOWNLOAD_URL" -o "${INSTALL_DIR}/${BIN_NAME}"
+TMP_DIR="$(mktemp -d)"
+
+curl -fsSL "$DOWNLOAD_URL" -o "$TMP_DIR/devopsmind.tar.gz"
+
+echo "📦 Extracting..."
+tar -xzf "$TMP_DIR/devopsmind.tar.gz" -C "$TMP_DIR"
+
+# ---------------- Install binary ----------------
+mv "$TMP_DIR/devopsmind/devopsmind" "${INSTALL_DIR}/${BIN_NAME}"
 chmod +x "${INSTALL_DIR}/${BIN_NAME}"
+
+rm -rf "$TMP_DIR"
 
 # ---------------- Symlinks (multi-entrypoint) ----------------
 ln -sf "${INSTALL_DIR}/${BIN_NAME}" "${INSTALL_DIR}/devopsmind-complete"
