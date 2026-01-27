@@ -23,11 +23,9 @@ jobs:
             output: devopsmind-windows.exe
 
     steps:
-      # 1️⃣ Checkout website repo (where binaries will live)
       - name: Checkout website repo
         uses: actions/checkout@v4
 
-      # 2️⃣ Checkout DevOpsMind source (private, read-only)
       - name: Checkout DevOpsMind source
         uses: actions/checkout@v4
         with:
@@ -35,20 +33,17 @@ jobs:
           token: ${{ secrets.DEVOPSMIND_READ_TOKEN }}
           path: devopsmind
 
-      # 3️⃣ Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      # 4️⃣ Install build tooling
       - name: Install PyInstaller
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
         shell: bash
 
-      # 5️⃣ Build DevOpsMind binary
       - name: Build DevOpsMind
         working-directory: devopsmind
         run: |
@@ -60,8 +55,7 @@ jobs:
             src/devopsmind/main.py
         shell: bash
 
-      # 6️⃣ Move binary into website download directory
-      - name: Publish binary to website
+      - name: Publish binary
         run: |
           mkdir -p meta/devopsmind/download
           if [[ "${{ runner.os }}" == "Windows" ]]; then
@@ -71,8 +65,7 @@ jobs:
           fi
         shell: bash
 
-      # 7️⃣ Commit only the binary
-      - name: Commit and push binary
+      - name: Commit and push
         run: |
           git config user.name "InfraForgeLabs Bot"
           git config user.email "ci@infraforgelabs.dev"
