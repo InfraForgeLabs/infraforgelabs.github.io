@@ -4,7 +4,7 @@ set -e
 APP_NAME="DevOpsMind"
 BIN_NAME="devopsmind"
 
-META_BASE_URL="https://devopsmind.infraforgelabs.in/meta/devopsmind"
+META_BASE_URL="https://infraforgelabs.in/meta/devopsmind"
 
 BIN_REPO="InfraForgeLabs/DevOpsMind"
 
