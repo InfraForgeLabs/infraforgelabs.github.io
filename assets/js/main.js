@@ -193,7 +193,7 @@ if (infraForgeVersionEl) {
       if (!data.latest_version) throw new Error("latest_version missing");
 
       const releasedAt = data.released_at
-        ? ` <span class="date">· released on ${data.released_at}</span>`
+        ? ` <span class="date">· released on ${formatDate(data.released_at)}</span>`
         : "";
 
       infraForgeVersionEl.innerHTML =
@@ -207,6 +207,7 @@ if (infraForgeVersionEl) {
       infraForgeVersionEl.style.display = "none";
     });
 }
+
 
 
 /* =====================================================
