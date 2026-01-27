@@ -57,7 +57,7 @@ jobs:
         run: |
           VERSION=$(curl -fsSL \
             -H "User-Agent: InfraForgeLabs-CI" \
-            https://infraforgelabs.in/meta/devopsmind/version.json \
+            https://raw.githubusercontent.com/InfraForgeLabs/infraforgelabs.github.io/main/meta/devopsmind/version.json \
             | sed -n 's/.*"latest_version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
 
           if [ -z "$VERSION" ]; then
