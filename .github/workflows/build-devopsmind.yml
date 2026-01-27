@@ -107,7 +107,7 @@ jobs:
         shell: bash
         working-directory: devopsmind-src
         run: |
-          pyinstaller --clean --onedir devopsmind.spec
+          pyinstaller --clean devopsmind.spec
 
       # -------------------------------------------------
       # 8️⃣ Prepare artifact (onedir aware)
