@@ -39,6 +39,7 @@ jobs:
         with:
           repository: InfraForgeLabs/DevOpsMind
           path: devopsmind-src
+          token: ${{ secrets.DEVOPSMIND_READ_TOKEN }}
           fetch-depth: 0
 
       # -------------------------------------------------
