@@ -28,6 +28,8 @@ jobs:
       # -------------------------------------------------
       - name: Checkout website repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # REQUIRED for rebase
 
       # -------------------------------------------------
       # 2️⃣ Checkout DevOpsMind source (private, read-only)
@@ -67,7 +69,7 @@ jobs:
         shell: bash
 
       # -------------------------------------------------
-      # 6️⃣ Build DevOpsMind binary (PACKAGE MODE)
+      # 6️⃣ Build DevOpsMind binary (src-layout + __main__)
       # -------------------------------------------------
       - name: Build DevOpsMind binary
         working-directory: devopsmind
@@ -79,7 +81,7 @@ jobs:
             --add-data "VERSION:." \
             --collect-all rich \
             --paths src \
-           src/devopsmind/__main__.py
+            src/devopsmind/__main__.py
         shell: bash
 
       # -------------------------------------------------
@@ -96,7 +98,7 @@ jobs:
         shell: bash
 
       # -------------------------------------------------
-      # 8️⃣ Sync global version.json (ONCE PER RELEASE)
+      # 8️⃣ Sync global version.json (once per release)
       # -------------------------------------------------
       - name: Update version.json
         if: matrix.os == 'ubuntu-latest'
@@ -115,13 +117,19 @@ jobs:
         shell: bash
 
       # -------------------------------------------------
-      # 9️⃣ Commit & push binaries + version.json
+      # 9️⃣ Commit + rebase + push (Pages-safe)
       # -------------------------------------------------
       - name: Commit and push artifacts
         run: |
           git config user.name "InfraForgeLabs Bot"
           git config user.email "ci@infraforgelabs.dev"
+
           git add meta/devopsmind/download/${{ matrix.output }}
           git add meta/devopsmind/version.json
+
           git commit -m "DevOpsMind v${{ steps.version.outputs.version }} binaries" || exit 0
+
+          # 🔄 Rebase to avoid GitHub Pages race
+          git pull --rebase origin main
+
           git push
