@@ -110,19 +110,27 @@ jobs:
           pyinstaller --clean devopsmind.spec
 
       # -------------------------------------------------
-      # 8️⃣ Prepare artifact (onedir → archive)
+      # 8️⃣ Prepare artifact (Linux / macOS)
       # -------------------------------------------------
-      - name: Prepare artifact
+      - name: Prepare artifact (Linux / macOS)
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           mkdir -p artifacts
           cd devopsmind-src/dist
+          tar -czf ../../artifacts/${{ matrix.asset }}.tar.gz devopsmind
 
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
-            zip -r ../../artifacts/devopsmind-windows-x86_64.zip devopsmind
-          else
-            tar -czf ../../artifacts/${{ matrix.asset }}.tar.gz devopsmind
-          fi
+      # -------------------------------------------------
+      # 8️⃣ Prepare artifact (Windows)
+      # -------------------------------------------------
+      - name: Prepare artifact (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts
+          Compress-Archive `
+            -Path devopsmind-src/dist/devopsmind `
+            -DestinationPath artifacts/devopsmind-windows-x86_64.zip
 
       # -------------------------------------------------
       # 9️⃣ Create Release + Upload Assets
