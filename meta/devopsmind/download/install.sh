@@ -92,15 +92,19 @@ curl -fsSL "$DOWNLOAD_URL" -o "$TMP_DIR/devopsmind.tar.gz"
 echo "📦 Extracting..."
 tar -xzf "$TMP_DIR/devopsmind.tar.gz" -C "$TMP_DIR"
 
-# ---------------- Install binary ----------------
-mv "$TMP_DIR/devopsmind/devopsmind" "${INSTALL_DIR}/${BIN_NAME}"
-chmod +x "${INSTALL_DIR}/${BIN_NAME}"
+# ---------------- Install ONEDIR bundle (CRITICAL FIX) ----------------
+rm -rf "${INSTALL_DIR}/devopsmind"
+mv "$TMP_DIR/devopsmind" "${INSTALL_DIR}/devopsmind"
+chmod +x "${INSTALL_DIR}/devopsmind/devopsmind"
+
+# Launcher shim
+ln -sf "${INSTALL_DIR}/devopsmind/devopsmind" "${INSTALL_DIR}/devopsmind"
 
 rm -rf "$TMP_DIR"
 
 # ---------------- Symlinks (multi-entrypoint) ----------------
-ln -sf "${INSTALL_DIR}/${BIN_NAME}" "${INSTALL_DIR}/devopsmind-complete"
-ln -sf "${INSTALL_DIR}/${BIN_NAME}" "${INSTALL_DIR}/devopsmind-outbox"
+ln -sf "${INSTALL_DIR}/devopsmind/devopsmind" "${INSTALL_DIR}/devopsmind-complete"
+ln -sf "${INSTALL_DIR}/devopsmind/devopsmind" "${INSTALL_DIR}/devopsmind-outbox"
 
 # ---------------- Ensure INSTALL_DIR is in PATH ----------------
 ensure_path() {
