@@ -23,9 +23,15 @@ jobs:
             output: devopsmind-windows.exe
 
     steps:
+      # -------------------------------------------------
+      # 1️⃣ Checkout website repo (publish destination)
+      # -------------------------------------------------
       - name: Checkout website repo
         uses: actions/checkout@v4
 
+      # -------------------------------------------------
+      # 2️⃣ Checkout DevOpsMind source (private, read-only)
+      # -------------------------------------------------
       - name: Checkout DevOpsMind source
         uses: actions/checkout@v4
         with:
@@ -33,28 +39,51 @@ jobs:
           token: ${{ secrets.DEVOPSMIND_READ_TOKEN }}
           path: devopsmind
 
+      # -------------------------------------------------
+      # 3️⃣ Setup Python
+      # -------------------------------------------------
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      # -------------------------------------------------
+      # 4️⃣ Install PyInstaller
+      # -------------------------------------------------
       - name: Install PyInstaller
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
         shell: bash
 
-      - name: Build DevOpsMind
+      # -------------------------------------------------
+      # 5️⃣ Read DevOpsMind VERSION (authoritative)
+      # -------------------------------------------------
+      - name: Read DevOpsMind version
+        id: version
+        run: |
+          VERSION=$(cat devopsmind/VERSION)
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        shell: bash
+
+      # -------------------------------------------------
+      # 6️⃣ Build DevOpsMind binary (PACKAGE MODE)
+      # -------------------------------------------------
+      - name: Build DevOpsMind binary
         working-directory: devopsmind
         run: |
           pyinstaller \
             --onefile \
             --clean \
-            --add-data "VERSION:." \
             --name devopsmind \
-            src/devopsmind/__main__.py
+            --add-data "VERSION:." \
+            --collect-all rich \
+            -m devopsmind
         shell: bash
 
+      # -------------------------------------------------
+      # 7️⃣ Publish binary to website download directory
+      # -------------------------------------------------
       - name: Publish binary
         run: |
           mkdir -p meta/devopsmind/download
@@ -65,10 +94,33 @@ jobs:
           fi
         shell: bash
 
-      - name: Commit and push
+      # -------------------------------------------------
+      # 8️⃣ Sync global version.json (ONCE PER RELEASE)
+      # -------------------------------------------------
+      - name: Update version.json
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          DATE=$(date +%Y-%m-%d)
+
+          jq \
+            --arg v "$VERSION" \
+            --arg d "$DATE" \
+            '.latest_version = $v | .released_at = $d' \
+            meta/devopsmind/version.json \
+            > meta/devopsmind/version.tmp.json
+
+          mv meta/devopsmind/version.tmp.json meta/devopsmind/version.json
+        shell: bash
+
+      # -------------------------------------------------
+      # 9️⃣ Commit & push binaries + version.json
+      # -------------------------------------------------
+      - name: Commit and push artifacts
         run: |
           git config user.name "InfraForgeLabs Bot"
           git config user.email "ci@infraforgelabs.dev"
           git add meta/devopsmind/download/${{ matrix.output }}
-          git commit -m "DevOpsMind: update ${{ matrix.output }}" || exit 0
+          git add meta/devopsmind/version.json
+          git commit -m "DevOpsMind v${{ steps.version.outputs.version }} binaries" || exit 0
           git push
