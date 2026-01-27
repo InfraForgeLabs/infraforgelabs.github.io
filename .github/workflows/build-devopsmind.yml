@@ -52,7 +52,7 @@ jobs:
             --clean \
             --add-data "VERSION:." \
             --name devopsmind \
-            src/devopsmind/main.py
+            src/devopsmind/__main__.py
         shell: bash
 
       - name: Publish binary
