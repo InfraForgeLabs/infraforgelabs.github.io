@@ -1,13 +1,10 @@
-name: Build DevOpsMind
+name: Build DevOpsMind Binaries
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -17,21 +14,68 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-latest    # Linux runner
-          - macos-latest
-          - windows-latest
+        include:
+          - os: ubuntu-latest
+            output: devopsmind-linux-x86_64
+          - os: macos-14
+            output: devopsmind-macos-arm64
+          - os: windows-latest
+            output: devopsmind-windows.exe
 
     steps:
-      - uses: actions/checkout@v4
+      # 1️⃣ Checkout website repo (where binaries will live)
+      - name: Checkout website repo
+        uses: actions/checkout@v4
 
-      - name: Upload DevOpsMind installer artifacts
-        uses: actions/upload-artifact@v4
+      # 2️⃣ Checkout DevOpsMind source (private, read-only)
+      - name: Checkout DevOpsMind source
+        uses: actions/checkout@v4
         with:
-          name: |
-            devopsmind-download-${{
-              matrix.os == 'ubuntu-latest' && 'linux' ||
-              matrix.os == 'macos-latest' && 'macos' ||
-              'windows'
-            }}
-          path: meta/devopsmind/download/
+          repository: InfraForgeLabs/devopsmind
+          token: ${{ secrets.DEVOPSMIND_READ_TOKEN }}
+          path: devopsmind
+
+      # 3️⃣ Setup Python
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # 4️⃣ Install build tooling
+      - name: Install PyInstaller
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+        shell: bash
+
+      # 5️⃣ Build DevOpsMind binary
+      - name: Build DevOpsMind
+        working-directory: devopsmind
+        run: |
+          pyinstaller \
+            --onefile \
+            --clean \
+            --add-data "VERSION:." \
+            --name devopsmind \
+            src/devopsmind/main.py
+        shell: bash
+
+      # 6️⃣ Move binary into website download directory
+      - name: Publish binary to website
+        run: |
+          mkdir -p meta/devopsmind/download
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            mv devopsmind/dist/devopsmind.exe meta/devopsmind/download/${{ matrix.output }}
+          else
+            mv devopsmind/dist/devopsmind meta/devopsmind/download/${{ matrix.output }}
+          fi
+        shell: bash
+
+      # 7️⃣ Commit only the binary
+      - name: Commit and push binary
+        run: |
+          git config user.name "InfraForgeLabs Bot"
+          git config user.email "ci@infraforgelabs.dev"
+          git add meta/devopsmind/download/${{ matrix.output }}
+          git commit -m "DevOpsMind: update ${{ matrix.output }}" || exit 0
+          git push
