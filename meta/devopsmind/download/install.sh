@@ -6,8 +6,8 @@ BIN_NAME="devopsmind"
 
 META_BASE_URL="https://infraforgelabs.in/meta/devopsmind"
 
-BIN_REPO="InfraForgeLabs/DevOpsMind"
-
+# 🔒 Releases are created on infraforgelabs.github.io
+BIN_REPO="InfraForgeLabs/infraforgelabs.github.io"
 
 INSTALL_DIR="$HOME/.local/bin"
 
@@ -51,20 +51,22 @@ fi
 
 echo "📦 Latest version: $VERSION"
 
+# ---------------- Release asset ----------------
 BINARY="${BIN_NAME}-${PLATFORM}-${ARCH}"
-DOWNLOAD_URL="https://github.com/${BIN_REPO}/releases/download/v${VERSION}/${BINARY}"
+TAG="v${VERSION}-devopsmind"
+
+DOWNLOAD_URL="https://github.com/${BIN_REPO}/releases/download/${TAG}/${BINARY}"
 
 # ---------------- Download ----------------
 echo "⬇ Downloading ${BINARY}..."
 mkdir -p "$INSTALL_DIR"
 
-curl -fsSL "$DOWNLOAD_URL" -o "${INSTALL_DIR}/${BIN_NAME}" >/dev/null
+curl -fsSL "$DOWNLOAD_URL" -o "${INSTALL_DIR}/${BIN_NAME}"
 chmod +x "${INSTALL_DIR}/${BIN_NAME}"
 
 # ---------------- Symlinks (multi-entrypoint) ----------------
 ln -sf "${INSTALL_DIR}/${BIN_NAME}" "${INSTALL_DIR}/devopsmind-complete"
 ln -sf "${INSTALL_DIR}/${BIN_NAME}" "${INSTALL_DIR}/devopsmind-outbox"
-
 
 # ---------------- PATH hint ----------------
 if ! echo "$PATH" | grep -q "$INSTALL_DIR"; then
