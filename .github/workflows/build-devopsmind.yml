@@ -71,10 +71,11 @@ jobs:
           git config user.name "InfraForgeLabs Bot"
           git config user.email "ci@infraforgelabs.dev"
 
-          TAG="v${{ steps.version.outputs.version }}"
+          BASE_VERSION="${{ steps.version.outputs.version }}"
+          TAG="v${BASE_VERSION}-devopsmind"
 
           if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "Tag already exists"
+            echo "Tag already exists: $TAG"
           else
             git tag "$TAG"
             git push origin "$TAG"
@@ -107,7 +108,7 @@ jobs:
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.version.outputs.version }}
+          tag_name: v${{ steps.version.outputs.version }}-devopsmind
           name: DevOpsMind v${{ steps.version.outputs.version }}
           files: artifacts/*
         env:
