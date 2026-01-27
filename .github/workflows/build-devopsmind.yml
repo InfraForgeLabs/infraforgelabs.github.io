@@ -20,7 +20,7 @@ jobs:
           - os: macos-14
             asset: devopsmind-macos-arm64
           - os: windows-latest
-            asset: devopsmind-windows.exe
+            asset: devopsmind-windows-x86_64
 
     steps:
       # -------------------------------------------------
@@ -101,7 +101,7 @@ jobs:
           fi
 
       # -------------------------------------------------
-      # 7️⃣ Build binary (FROM SOURCE REPO) — FAST ONEDIR
+      # 7️⃣ Build binary (onedir, FAST startup)
       # -------------------------------------------------
       - name: Build binary
         shell: bash
@@ -110,17 +110,18 @@ jobs:
           pyinstaller --clean devopsmind.spec
 
       # -------------------------------------------------
-      # 8️⃣ Prepare artifact (onedir aware)
+      # 8️⃣ Prepare artifact (onedir → archive)
       # -------------------------------------------------
       - name: Prepare artifact
         shell: bash
         run: |
           mkdir -p artifacts
+          cd devopsmind-src/dist
 
           if [[ "${{ runner.os }}" == "Windows" ]]; then
-            mv devopsmind-src/dist/devopsmind artifacts/devopsmind-windows-dir
+            zip -r ../../artifacts/devopsmind-windows-x86_64.zip devopsmind
           else
-            mv devopsmind-src/dist/devopsmind artifacts/${{ matrix.asset }}-dir
+            tar -czf ../../artifacts/${{ matrix.asset }}.tar.gz devopsmind
           fi
 
       # -------------------------------------------------
