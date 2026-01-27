@@ -24,12 +24,12 @@ jobs:
 
     steps:
       # -------------------------------------------------
-      # 1️⃣ Checkout website repo
+      # 1️⃣ Checkout website repo (publish destination)
       # -------------------------------------------------
       - name: Checkout website repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0   # needed for rebase
 
       # -------------------------------------------------
       # 2️⃣ Checkout DevOpsMind source (private)
@@ -50,7 +50,7 @@ jobs:
           python-version: "3.11"
 
       # -------------------------------------------------
-      # 4️⃣ Install DevOpsMind + dependencies (CRITICAL FIX)
+      # 4️⃣ Install DevOpsMind + dependencies (CRITICAL)
       # -------------------------------------------------
       - name: Install DevOpsMind dependencies
         shell: bash
@@ -61,7 +61,7 @@ jobs:
           pip install -e .
 
       # -------------------------------------------------
-      # 5️⃣ Read DevOpsMind VERSION
+      # 5️⃣ Read DevOpsMind VERSION (authoritative)
       # -------------------------------------------------
       - name: Read DevOpsMind version
         id: version
@@ -71,7 +71,7 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       # -------------------------------------------------
-      # 6️⃣ Build DevOpsMind binary
+      # 6️⃣ Build DevOpsMind binary (FINAL FIX)
       # -------------------------------------------------
       - name: Build DevOpsMind binary
         shell: bash
@@ -82,12 +82,25 @@ jobs:
             --clean \
             --name devopsmind \
             --add-data "VERSION:." \
-            --collect-all rich \
             --paths src \
+            --hidden-import rich \
+            --hidden-import rich.console \
+            --hidden-import rich.text \
+            --hidden-import rich.panel \
+            --hidden-import rich.progress \
+            --hidden-import rich.table \
+            --hidden-import rich.align \
+            --hidden-import rich.box \
+            --hidden-import rich.style \
+            --hidden-import rich.theme \
+            --hidden-import rich.markdown \
+            --hidden-import rich.syntax \
+            --hidden-import rich.traceback \
+            --copy-metadata rich \
             src/devopsmind/__main__.py
 
       # -------------------------------------------------
-      # 7️⃣ Publish binary (versioned)
+      # 7️⃣ Publish binary into versioned directory
       # -------------------------------------------------
       - name: Publish binary
         shell: bash
@@ -104,7 +117,7 @@ jobs:
           fi
 
       # -------------------------------------------------
-      # 8️⃣ Update version.json (once)
+      # 8️⃣ Update global version.json (once per release)
       # -------------------------------------------------
       - name: Update version.json
         if: matrix.os == 'ubuntu-latest'
@@ -123,7 +136,7 @@ jobs:
           mv meta/devopsmind/version.tmp.json meta/devopsmind/version.json
 
       # -------------------------------------------------
-      # 9️⃣ Commit + rebase + push
+      # 9️⃣ Commit + rebase + push (Pages-safe)
       # -------------------------------------------------
       - name: Commit and push artifacts
         shell: bash
