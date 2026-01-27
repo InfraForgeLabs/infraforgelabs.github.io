@@ -24,15 +24,15 @@ jobs:
 
     steps:
       # -------------------------------------------------
-      # 1️⃣ Checkout website repo (publish destination)
+      # 1️⃣ Checkout website repo
       # -------------------------------------------------
       - name: Checkout website repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # required for rebase
+          fetch-depth: 0
 
       # -------------------------------------------------
-      # 2️⃣ Checkout DevOpsMind source (private, read-only)
+      # 2️⃣ Checkout DevOpsMind source (private)
       # -------------------------------------------------
       - name: Checkout DevOpsMind source
         uses: actions/checkout@v4
@@ -50,16 +50,18 @@ jobs:
           python-version: "3.11"
 
       # -------------------------------------------------
-      # 4️⃣ Install PyInstaller
+      # 4️⃣ Install DevOpsMind + dependencies (CRITICAL FIX)
       # -------------------------------------------------
-      - name: Install PyInstaller
+      - name: Install DevOpsMind dependencies
         shell: bash
+        working-directory: devopsmind
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
+          pip install -e .
 
       # -------------------------------------------------
-      # 5️⃣ Read DevOpsMind VERSION (authoritative)
+      # 5️⃣ Read DevOpsMind VERSION
       # -------------------------------------------------
       - name: Read DevOpsMind version
         id: version
@@ -69,7 +71,7 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       # -------------------------------------------------
-      # 6️⃣ Build DevOpsMind binary (src-layout + __main__)
+      # 6️⃣ Build DevOpsMind binary
       # -------------------------------------------------
       - name: Build DevOpsMind binary
         shell: bash
@@ -85,7 +87,7 @@ jobs:
             src/devopsmind/__main__.py
 
       # -------------------------------------------------
-      # 7️⃣ Publish binary into versioned directory
+      # 7️⃣ Publish binary (versioned)
       # -------------------------------------------------
       - name: Publish binary
         shell: bash
@@ -102,7 +104,7 @@ jobs:
           fi
 
       # -------------------------------------------------
-      # 8️⃣ Sync global version.json (once per release)
+      # 8️⃣ Update version.json (once)
       # -------------------------------------------------
       - name: Update version.json
         if: matrix.os == 'ubuntu-latest'
@@ -121,7 +123,7 @@ jobs:
           mv meta/devopsmind/version.tmp.json meta/devopsmind/version.json
 
       # -------------------------------------------------
-      # 9️⃣ Commit + rebase + push (Pages-safe, Bash)
+      # 9️⃣ Commit + rebase + push
       # -------------------------------------------------
       - name: Commit and push artifacts
         shell: bash
@@ -135,8 +137,5 @@ jobs:
           git add meta/devopsmind/version.json
 
           git commit -m "DevOpsMind v${VERSION} binaries" || exit 0
-
-          # Rebase to avoid GitHub Pages race
           git pull --rebase origin main
-
           git push
