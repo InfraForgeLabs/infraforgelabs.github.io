@@ -29,7 +29,7 @@ jobs:
       - name: Checkout website repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # needed for rebase
+          fetch-depth: 0   # required for rebase
 
       # -------------------------------------------------
       # 2️⃣ Checkout DevOpsMind source (private, read-only)
@@ -53,25 +53,26 @@ jobs:
       # 4️⃣ Install PyInstaller
       # -------------------------------------------------
       - name: Install PyInstaller
+        shell: bash
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
-        shell: bash
 
       # -------------------------------------------------
       # 5️⃣ Read DevOpsMind VERSION (authoritative)
       # -------------------------------------------------
       - name: Read DevOpsMind version
         id: version
+        shell: bash
         run: |
           VERSION=$(cat devopsmind/VERSION)
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
-        shell: bash
 
       # -------------------------------------------------
       # 6️⃣ Build DevOpsMind binary (src-layout + __main__)
       # -------------------------------------------------
       - name: Build DevOpsMind binary
+        shell: bash
         working-directory: devopsmind
         run: |
           pyinstaller \
@@ -82,12 +83,12 @@ jobs:
             --collect-all rich \
             --paths src \
             src/devopsmind/__main__.py
-        shell: bash
 
       # -------------------------------------------------
       # 7️⃣ Publish binary into versioned directory
       # -------------------------------------------------
       - name: Publish binary
+        shell: bash
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           TARGET_DIR="meta/devopsmind/download/${VERSION}"
@@ -99,13 +100,13 @@ jobs:
           else
             mv devopsmind/dist/devopsmind "${TARGET_DIR}/${{ matrix.output }}"
           fi
-        shell: bash
 
       # -------------------------------------------------
       # 8️⃣ Sync global version.json (once per release)
       # -------------------------------------------------
       - name: Update version.json
         if: matrix.os == 'ubuntu-latest'
+        shell: bash
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           DATE=$(date +%Y-%m-%d)
@@ -118,12 +119,12 @@ jobs:
             > meta/devopsmind/version.tmp.json
 
           mv meta/devopsmind/version.tmp.json meta/devopsmind/version.json
-        shell: bash
 
       # -------------------------------------------------
-      # 9️⃣ Commit + rebase + push (Pages-safe)
+      # 9️⃣ Commit + rebase + push (Pages-safe, Bash)
       # -------------------------------------------------
       - name: Commit and push artifacts
+        shell: bash
         run: |
           VERSION="${{ steps.version.outputs.version }}"
 
