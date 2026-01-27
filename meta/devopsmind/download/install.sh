@@ -8,6 +8,7 @@ META_BASE_URL="https://infraforgelabs.in/meta/devopsmind"
 BIN_REPO="InfraForgeLabs/infraforgelabs.github.io"
 
 INSTALL_DIR="$HOME/.local/bin"
+BUNDLE_DIR="$INSTALL_DIR/.devopsmind"
 
 echo "======================================"
 echo "🚀 Installing ${APP_NAME}"
@@ -70,16 +71,16 @@ echo "📦 Extracting..."
 tar -xzf "$TMP_DIR/devopsmind.tar.gz" -C "$TMP_DIR"
 
 # ---------------- Install onedir bundle ----------------
-rm -rf "${INSTALL_DIR}/devopsmind"
-mv "$TMP_DIR/devopsmind" "${INSTALL_DIR}/devopsmind"
-chmod +x "${INSTALL_DIR}/devopsmind/devopsmind"
-
-# ---------------- User-facing launchers ----------------
-ln -sf "${INSTALL_DIR}/devopsmind/devopsmind" "${INSTALL_DIR}/devopsmind"
-ln -sf "${INSTALL_DIR}/devopsmind/devopsmind" "${INSTALL_DIR}/devopsmind-complete"
-ln -sf "${INSTALL_DIR}/devopsmind/devopsmind" "${INSTALL_DIR}/devopsmind-outbox"
+rm -rf "$BUNDLE_DIR"
+mv "$TMP_DIR/devopsmind" "$BUNDLE_DIR"
+chmod +x "$BUNDLE_DIR/devopsmind"
 
 rm -rf "$TMP_DIR"
+
+# ---------------- User-facing commands ----------------
+ln -sf "$BUNDLE_DIR/devopsmind" "$INSTALL_DIR/devopsmind"
+ln -sf "$BUNDLE_DIR/devopsmind" "$INSTALL_DIR/devopsmind-complete"
+ln -sf "$BUNDLE_DIR/devopsmind" "$INSTALL_DIR/devopsmind-outbox"
 
 # ---------------- Ensure PATH ----------------
 ensure_path() {
