@@ -5,7 +5,7 @@ APP_NAME="DevOpsMind"
 BIN_NAME="devopsmind"
 
 META_REPO="InfraForgeLabs/infraforgelabs.github.io"
-BIN_REPO="InfraForgeLabs/infraforgelabs.github.io"
+BIN_REPO="InfraForgeLabs/devopsmind"
 
 META_BASE_URL="https://raw.githubusercontent.com/${META_REPO}/main/meta/devopsmind"
 INSTALL_DIR="$HOME/.local/bin"
@@ -57,7 +57,7 @@ DOWNLOAD_URL="https://github.com/${BIN_REPO}/releases/download/v${VERSION}/${BIN
 echo "⬇ Downloading ${BINARY}..."
 mkdir -p "$INSTALL_DIR"
 
-curl -fL "$DOWNLOAD_URL" -o "${INSTALL_DIR}/${BIN_NAME}"
+curl -fsSL "$DOWNLOAD_URL" -o "${INSTALL_DIR}/${BIN_NAME}"
 
 chmod +x "${INSTALL_DIR}/${BIN_NAME}"
 
@@ -69,10 +69,46 @@ if ! echo "$PATH" | grep -q "$INSTALL_DIR"; then
   echo "   export PATH=\"\$PATH:$INSTALL_DIR\""
 fi
 
-# ---------------- Docker note ----------------
+# ---------------- Docker Check ----------------
 echo
-echo "🐳 Docker is recommended for DevOpsMind Safe Shell."
-echo "   https://docs.docker.com/get-docker/"
+
+if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+  echo "🐳 Docker is installed and running."
+else
+  echo "🐳 Docker is required for DevOpsMind Safe Shell."
+  echo
+
+  case "$OS" in
+    Linux)
+      if grep -qi microsoft /proc/version 2>/dev/null; then
+        echo "Detected environment: Windows (WSL2)"
+        echo
+        echo "👉 Install Docker Desktop on Windows:"
+        echo "   https://www.docker.com/products/docker-desktop/"
+        echo
+        echo "Then enable WSL integration inside Docker Desktop."
+      else
+        echo "Detected environment: Linux"
+        echo
+        echo "👉 Install Docker Engine:"
+        echo "   curl -fsSL https://get.docker.com | sh"
+        echo "   sudo usermod -aG docker \$USER"
+        echo "   newgrp docker"
+      fi
+      ;;
+    Darwin)
+      echo "Detected environment: macOS"
+      echo
+      echo "👉 Install Docker Desktop:"
+      echo "   https://www.docker.com/products/docker-desktop/"
+      ;;
+  esac
+
+  echo
+  echo "After Docker is running, continue with:"
+  echo "   devopsmind login"
+fi
+
 
 echo
 echo "======================================"
