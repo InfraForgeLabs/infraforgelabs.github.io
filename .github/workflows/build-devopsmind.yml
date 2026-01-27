@@ -24,7 +24,7 @@ jobs:
 
     steps:
       # -------------------------------------------------
-      # 1️⃣ Checkout RELEASE repo (this repo)
+      # 1️⃣ Checkout RELEASE repo
       # -------------------------------------------------
       - name: Checkout release host
         uses: actions/checkout@v4
@@ -32,7 +32,7 @@ jobs:
           fetch-depth: 0
 
       # -------------------------------------------------
-      # 2️⃣ Checkout SOURCE repo (DevOpsMind)
+      # 2️⃣ Checkout SOURCE repo
       # -------------------------------------------------
       - name: Checkout DevOpsMind source
         uses: actions/checkout@v4
@@ -51,19 +51,18 @@ jobs:
           python-version: "3.11"
 
       # -------------------------------------------------
-      # 4️⃣ Install build dependencies
+      # 4️⃣ Install dependencies
       # -------------------------------------------------
       - name: Install dependencies
         shell: bash
         working-directory: devopsmind-src
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller
-          pip install rich
+          pip install pyinstaller rich
           pip install -e .
 
       # -------------------------------------------------
-      # 5️⃣ Read version (CI-safe source)
+      # 5️⃣ Read version
       # -------------------------------------------------
       - name: Read version
         id: version
@@ -73,16 +72,11 @@ jobs:
             https://raw.githubusercontent.com/InfraForgeLabs/infraforgelabs.github.io/main/meta/devopsmind/version.json \
             | sed -n 's/.*"latest_version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
 
-          if [ -z "$VERSION" ]; then
-            echo "❌ Failed to read latest_version"
-            exit 1
-          fi
-
+          [ -z "$VERSION" ] && exit 1
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "📦 Version: $VERSION"
 
       # -------------------------------------------------
-      # 6️⃣ Create Git tag (ONCE, on release repo)
+      # 6️⃣ Create tag (once)
       # -------------------------------------------------
       - name: Create tag
         if: matrix.os == 'ubuntu-latest'
@@ -90,18 +84,13 @@ jobs:
         run: |
           git config user.name "InfraForgeLabs Bot"
           git config user.email "ci@infraforgelabs.dev"
-
           TAG="v${{ steps.version.outputs.version }}-devopsmind"
-
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "Tag already exists: $TAG"
-          else
-            git tag "$TAG"
-            git push origin "$TAG"
-          fi
+          git rev-parse "$TAG" >/dev/null 2>&1 || (
+            git tag "$TAG" && git push origin "$TAG"
+          )
 
       # -------------------------------------------------
-      # 7️⃣ Build binary (onedir, FAST startup)
+      # 7️⃣ Build binary (onedir)
       # -------------------------------------------------
       - name: Build binary
         shell: bash
@@ -110,9 +99,9 @@ jobs:
           pyinstaller --clean devopsmind.spec
 
       # -------------------------------------------------
-      # 8️⃣ Prepare artifact (Linux / macOS)
+      # 8️⃣ Package (Linux / macOS)
       # -------------------------------------------------
-      - name: Prepare artifact (Linux / macOS)
+      - name: Package artifact (Linux / macOS)
         if: runner.os != 'Windows'
         shell: bash
         run: |
@@ -121,25 +110,21 @@ jobs:
           tar -czf ../../artifacts/${{ matrix.asset }}.tar.gz devopsmind
 
       # -------------------------------------------------
-      # 8️⃣ Prepare artifact (Windows)
+      # 8️⃣ Package (Windows)
       # -------------------------------------------------
-      - name: Prepare artifact (Windows)
+      - name: Package artifact (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path artifacts
+          New-Item -ItemType Directory -Force artifacts
           Compress-Archive `
             -Path devopsmind-src/dist/devopsmind `
             -DestinationPath artifacts/devopsmind-windows-x86_64.zip
 
       # -------------------------------------------------
-      # 9️⃣ Create Release + Upload Assets
+      # 9️⃣ Upload release assets
       # -------------------------------------------------
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.version.outputs.version }}-devopsmind
-          name: DevOpsMind v${{ steps.version.outputs.version }}
-          files: artifacts/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: v${{ steps.version.outputs.version }}-_
