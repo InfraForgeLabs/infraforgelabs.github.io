@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [ main ]
 
-# 🔒 Required for actions/checkout@v4
 permissions:
   contents: read
 
@@ -19,25 +18,20 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-latest    # Linux
-          - macos-latest     # macOS
-          - windows-latest   # Windows
+          - ubuntu-latest    # Linux runner
+          - macos-latest
+          - windows-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Verify repository context
-        shell: bash
-        run: |
-          echo "OS: ${{ matrix.os }}"
-          echo "Repository: $GITHUB_REPOSITORY"
-          echo "Ref: $GITHUB_REF"
-          echo
-          echo "Workspace contents:"
-          ls -la
-
-      - name: CI sanity check
-        shell: bash
-        run: |
-          echo "DevOpsMind CI initialized successfully on ${{ matrix.os }}"
+      - name: Upload DevOpsMind installer artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: |
+            devopsmind-download-${{
+              matrix.os == 'ubuntu-latest' && 'linux' ||
+              matrix.os == 'macos-latest' && 'macos' ||
+              'windows'
+            }}
+          path: meta/devopsmind/download/
