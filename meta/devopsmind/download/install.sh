@@ -43,7 +43,10 @@ echo "🔍 Fetching latest version..."
 VERSION="$(curl -fsSL "${META_BASE_URL}/version.json" \
   | sed -n 's/.*"latest_version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')"
 
-[ -z "$VERSION" ] && { echo "❌ Could not determine version"; exit 1; }
+[ -z "$VERSION" ] && {
+  echo "❌ Could not determine latest version."
+  exit 1
+}
 
 echo "📦 Latest version: $VERSION"
 TAG="v${VERSION}-devopsmind"
@@ -51,20 +54,30 @@ TAG="v${VERSION}-devopsmind"
 # ---------------- Resolve asset ----------------
 case "$PLATFORM" in
   linux)
-    [ "$ARCH" != "x86_64" ] && { echo "❌ Linux ARM64 not supported"; exit 1; }
+    [ "$ARCH" != "x86_64" ] && {
+      echo "❌ Linux ARM64 is not supported yet."
+      exit 1
+    }
     ARCHIVE="devopsmind-linux-x86_64.tar.gz"
     ;;
   macos)
-    [ "$ARCH" != "arm64" ] && { echo "❌ Intel macOS not supported"; exit 1; }
+    [ "$ARCH" != "arm64" ] && {
+      echo "❌ Intel macOS is not supported."
+      exit 1
+    }
     ARCHIVE="devopsmind-macos-arm64.tar.gz"
     ;;
 esac
 
 DOWNLOAD_URL="https://github.com/${BIN_REPO}/releases/download/${TAG}/${ARCHIVE}"
 
+# ---------------- Prepare dirs (CRITICAL FIX) ----------------
+mkdir -p "$INSTALL_DIR"
+
 # ---------------- Download + Extract ----------------
 echo "⬇ Downloading ${ARCHIVE}..."
 TMP_DIR="$(mktemp -d)"
+
 curl -fsSL "$DOWNLOAD_URL" -o "$TMP_DIR/devopsmind.tar.gz"
 
 echo "📦 Extracting..."
@@ -82,7 +95,7 @@ ln -sf "$BUNDLE_DIR/devopsmind" "$INSTALL_DIR/devopsmind"
 ln -sf "$BUNDLE_DIR/devopsmind" "$INSTALL_DIR/devopsmind-complete"
 ln -sf "$BUNDLE_DIR/devopsmind" "$INSTALL_DIR/devopsmind-outbox"
 
-# ---------------- Ensure PATH ----------------
+# ---------------- Ensure INSTALL_DIR is in PATH ----------------
 ensure_path() {
   case "$(basename "$SHELL")" in
     bash) PROFILE="$HOME/.bashrc" ;;
@@ -97,7 +110,8 @@ ensure_path() {
       echo "# Added by DevOpsMind installer" >> "$PROFILE"
       echo "export PATH=\"\$PATH:$INSTALL_DIR\"" >> "$PROFILE"
     }
-    echo "➡️  Run: source $PROFILE"
+    echo "➡️  Open a new terminal or run:"
+    echo "   source $PROFILE"
   fi
 }
 
