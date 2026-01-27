@@ -2,147 +2,78 @@
 set -e
 
 APP_NAME="DevOpsMind"
-PKG_NAME="devopsmind"
+BIN_NAME="devopsmind"
+BASE_REPO="InfraForgeLabs/infraforgelabs.github.io"
+BASE_URL="https://raw.githubusercontent.com/${BASE_REPO}/main/meta/devopsmind"
+
+INSTALL_DIR="$HOME/.local/bin"
 
 echo "======================================"
-echo "🚀 Installing $APP_NAME"
+echo "🚀 Installing ${APP_NAME}"
 echo "======================================"
 echo
 
-# ---------------- OS Check ----------------
+# ---------------- OS + ARCH ----------------
 OS="$(uname -s)"
+ARCH="$(uname -m)"
+
 case "$OS" in
-  Linux|Darwin) ;;
+  Linux)   PLATFORM="linux" ;;
+  Darwin)  PLATFORM="macos" ;;
   *)
     echo "❌ Unsupported OS: $OS"
     exit 1
     ;;
 esac
 
-# ---------------- Python Auto-Install ----------------
-if ! command -v python3 >/dev/null 2>&1; then
-  echo "🐍 Python not found. Installing Python 3..."
-
-  case "$OS" in
-    Linux)
-      if command -v apt >/dev/null 2>&1; then
-        sudo apt update >/dev/null 2>&1
-        sudo apt install -y python3 python3-venv python3-pip >/dev/null 2>&1
-      elif command -v dnf >/dev/null 2>&1; then
-        sudo dnf install -y python3 python3-pip >/dev/null 2>&1
-      elif command -v pacman >/dev/null 2>&1; then
-        sudo pacman -S --noconfirm python python-pip >/dev/null 2>&1
-      else
-        echo "❌ Unsupported Linux package manager."
-        echo "👉 Please install Python 3.9+ manually."
-        exit 1
-      fi
-      ;;
-    Darwin)
-      if command -v brew >/dev/null 2>&1; then
-        brew install python >/dev/null 2>&1
-      else
-        echo "❌ Homebrew not found."
-        echo "👉 Install Homebrew first: https://brew.sh"
-        exit 1
-      fi
-      ;;
-  esac
-fi
-
-# ---------------- Python Check ----------------
-if ! command -v python3 >/dev/null 2>&1; then
-  echo "❌ Python 3.9+ is required."
-  echo "👉 Please install Python 3 and retry."
-  exit 1
-fi
-
-PY_OK="$(python3 - <<EOF
-import sys
-print(sys.version_info >= (3,9))
-EOF
-)"
-
-if [ "$PY_OK" != "True" ]; then
-  echo "❌ Python 3.9+ is required."
-  exit 1
-fi
-
-# ---------------- pipx Check ----------------
-if ! command -v pipx >/dev/null 2>&1; then
-  echo "📦 pipx not found. Installing pipx..."
-
-  if command -v apt >/dev/null 2>&1; then
-    sudo apt update >/dev/null 2>&1
-    sudo apt install -y pipx >/dev/null 2>&1
-  elif command -v dnf >/dev/null 2>&1; then
-    sudo dnf install -y python3-pipx >/dev/null 2>&1
-  elif command -v pacman >/dev/null 2>&1; then
-    sudo pacman -S --noconfirm python-pipx >/dev/null 2>&1
-  elif command -v brew >/dev/null 2>&1; then
-    brew install pipx >/dev/null 2>&1
-  else
-    echo "❌ Could not detect a supported package manager."
-    echo "👉 Please install pipx manually."
+case "$ARCH" in
+  x86_64|amd64) ARCH="x86_64" ;;
+  arm64|aarch64) ARCH="arm64" ;;
+  *)
+    echo "❌ Unsupported architecture: $ARCH"
     exit 1
-  fi
+    ;;
+esac
 
-  pipx ensurepath >/dev/null 2>&1
-  echo "ℹ️  You may need to restart your shell for PATH changes."
-fi
+# ---------------- Fetch latest version ----------------
+echo "🔍 Fetching latest version..."
 
-# ---------------- Install DevOpsMind ----------------
-echo
-echo "📦 Installing $APP_NAME via pipx..."
-pipx install "$PKG_NAME" --force >/dev/null 2>&1
+VERSION="$(curl -fsSL "${BASE_URL}/version.json" | sed -n 's/.*"latest_version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')"
 
-# ---------------- Docker Check ----------------
-if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
-  echo
-  echo "🐳 Docker is ready."
-  echo
-else
-  echo
-  echo "🐳 Docker is required for DevOpsMind Safe Shell."
-  echo
-
-  case "$OS" in
-    Linux)
-      if grep -qi microsoft /proc/version 2>/dev/null; then
-        echo "Detected: Windows (WSL2)"
-        echo
-        echo "Install Docker Desktop on Windows:"
-        echo "  curl -L https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe -o DockerInstaller.exe"
-        echo "  start DockerInstaller.exe"
-        echo
-        echo "Then enable WSL integration inside Docker Desktop."
-      else
-        echo "Detected: Linux"
-        echo
-        echo "Install Docker Engine (official):"
-        echo "  curl -fsSL https://get.docker.com | sh"
-        echo "  sudo usermod -aG docker \$USER"
-        echo "  newgrp docker"
-      fi
-      ;;
-    Darwin)
-      echo "Detected: macOS"
-      echo
-      echo "Install Docker Desktop:"
-      echo "  curl -L https://desktop.docker.com/mac/main/amd64/Docker.dmg -o Docker.dmg"
-      echo "  open Docker.dmg"
-      ;;
-  esac
-
-  echo
-  echo "After Docker is running, start DevOpsMind:"
-  echo "  devopsmind login"
-  echo
+if [ -z "$VERSION" ]; then
+  echo "❌ Could not determine latest version."
   exit 1
 fi
+
+echo "📦 Latest version: $VERSION"
+
+BINARY="${BIN_NAME}-${PLATFORM}-${ARCH}"
+DOWNLOAD_URL="https://raw.githubusercontent.com/${BASE_REPO}/main/meta/devopsmind/download/${VERSION}/${BINARY}"
+
+# ---------------- Download ----------------
+echo "⬇ Downloading ${BINARY}..."
+mkdir -p "$INSTALL_DIR"
+
+curl -fL "$DOWNLOAD_URL" -o "${INSTALL_DIR}/${BIN_NAME}"
+
+chmod +x "${INSTALL_DIR}/${BIN_NAME}"
+
+# ---------------- PATH hint ----------------
+if ! echo "$PATH" | grep -q "$INSTALL_DIR"; then
+  echo
+  echo "⚠️  $INSTALL_DIR is not in your PATH"
+  echo "👉 Add this to your shell config:"
+  echo "   export PATH=\"\$PATH:$INSTALL_DIR\""
+fi
+
+# ---------------- Docker note ----------------
+echo
+echo "🐳 Docker is recommended for DevOpsMind Safe Shell."
+echo "   https://docs.docker.com/get-docker/"
 
 echo
 echo "======================================"
-echo "✅ $APP_NAME installed successfully!"
-echo "➡️  Run: devopsmind login"
+echo "✅ ${APP_NAME} installed successfully!"
+echo "➡️  Run: devopsmind --version"
+echo "➡️  Then: devopsmind login"
 echo "======================================"
