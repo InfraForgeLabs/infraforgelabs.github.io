@@ -56,9 +56,26 @@ TAG="v${VERSION}-devopsmind"
 # ---------------- Resolve asset name ----------------
 case "$PLATFORM" in
   linux)
+    if [ "$ARCH" != "x86_64" ]; then
+      echo "❌ Linux ARM64 is not supported yet."
+      echo
+      echo "DevOpsMind currently provides binaries for:"
+      echo "  • Linux x86_64"
+      echo "  • macOS ARM64 (Apple Silicon)"
+      echo "  • Windows x86_64"
+      echo
+      echo "Please use a supported platform."
+      exit 1
+    fi
     BINARY="devopsmind-linux-x86_64"
     ;;
   macos)
+    if [ "$ARCH" != "arm64" ]; then
+      echo "❌ Intel macOS is not supported yet."
+      echo
+      echo "DevOpsMind currently supports Apple Silicon Macs only."
+      exit 1
+    fi
     BINARY="devopsmind-macos-arm64"
     ;;
 esac
@@ -76,13 +93,43 @@ chmod +x "${INSTALL_DIR}/${BIN_NAME}"
 ln -sf "${INSTALL_DIR}/${BIN_NAME}" "${INSTALL_DIR}/devopsmind-complete"
 ln -sf "${INSTALL_DIR}/${BIN_NAME}" "${INSTALL_DIR}/devopsmind-outbox"
 
-# ---------------- PATH hint ----------------
-if ! echo "$PATH" | grep -q "$INSTALL_DIR"; then
-  echo
-  echo "⚠️  $INSTALL_DIR is not in your PATH"
-  echo "👉 Add this to your shell config:"
-  echo "   export PATH=\"\$PATH:$INSTALL_DIR\""
-fi
+# ---------------- Ensure INSTALL_DIR is in PATH ----------------
+ensure_path() {
+  SHELL_NAME="$(basename "$SHELL")"
+
+  case "$SHELL_NAME" in
+    bash)
+      PROFILE="$HOME/.bashrc"
+      ;;
+    zsh)
+      PROFILE="$HOME/.zshrc"
+      ;;
+    *)
+      PROFILE="$HOME/.profile"
+      ;;
+  esac
+
+  if ! echo "$PATH" | grep -q "$INSTALL_DIR"; then
+    echo
+    echo "🔧 Adding $INSTALL_DIR to PATH ($PROFILE)"
+
+    touch "$PROFILE"
+
+    if ! grep -q "$INSTALL_DIR" "$PROFILE"; then
+      {
+        echo ""
+        echo "# Added by DevOpsMind installer"
+        echo "export PATH=\"\$PATH:$INSTALL_DIR\""
+      } >> "$PROFILE"
+    fi
+
+    echo "✅ PATH updated."
+    echo "➡️  Open a new terminal or run:"
+    echo "   source $PROFILE"
+  fi
+}
+
+ensure_path
 
 # ---------------- Docker Check ----------------
 echo
