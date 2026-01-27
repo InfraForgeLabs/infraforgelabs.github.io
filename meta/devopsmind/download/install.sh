@@ -4,10 +4,11 @@ set -e
 APP_NAME="DevOpsMind"
 BIN_NAME="devopsmind"
 
-META_REPO="InfraForgeLabs/infraforgelabs.github.io"
+META_BASE_URL="https://devopsmind.infraforgelabs.in/meta/devopsmind"
+
 BIN_REPO="InfraForgeLabs/DevOpsMind"
 
-META_BASE_URL="https://raw.githubusercontent.com/${META_REPO}/main/meta/devopsmind"
+
 INSTALL_DIR="$HOME/.local/bin"
 
 echo "======================================"
