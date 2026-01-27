@@ -24,12 +24,12 @@ jobs:
 
     steps:
       # -------------------------------------------------
-      # 1️⃣ Checkout THIS repository (release host)
+      # 1️⃣ Checkout release host repo
       # -------------------------------------------------
       - name: Checkout source
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # REQUIRED for tagging + release
+          fetch-depth: 0   # required for tagging
 
       # -------------------------------------------------
       # 2️⃣ Setup Python
@@ -40,7 +40,7 @@ jobs:
           python-version: "3.11"
 
       # -------------------------------------------------
-      # 3️⃣ Install build dependencies ONLY
+      # 3️⃣ Install build dependencies only
       # -------------------------------------------------
       - name: Install dependencies
         shell: bash
@@ -49,14 +49,22 @@ jobs:
           pip install pyinstaller
 
       # -------------------------------------------------
-      # 4️⃣ Read VERSION
+      # 4️⃣ Read version from meta/devopsmind/version.json
       # -------------------------------------------------
       - name: Read version
         id: version
         shell: bash
         run: |
-          VERSION=$(cat VERSION)
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          VERSION=$(curl -fsSL https://infraforgelabs.github.io/meta/devopsmind/version.json \
+            | sed -n 's/.*"latest_version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
+
+          if [ -z "$VERSION" ]; then
+            echo "❌ Failed to read latest_version"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Version: $VERSION"
 
       # -------------------------------------------------
       # 5️⃣ Create Git tag (ONCE)
@@ -99,7 +107,7 @@ jobs:
           fi
 
       # -------------------------------------------------
-      # 8️⃣ Create Release + Upload Assets (infraforgelabs.github.io)
+      # 8️⃣ Create Release + Upload Assets
       # -------------------------------------------------
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
