@@ -24,13 +24,14 @@ jobs:
 
     steps:
       # -------------------------------------------------
-      # 1️⃣ Checkout DevOpsMind source (private)
+      # 1️⃣ Checkout DevOpsMind source
       # -------------------------------------------------
       - name: Checkout DevOpsMind source
         uses: actions/checkout@v4
         with:
           repository: InfraForgeLabs/devopsmind
           token: ${{ secrets.DEVOPSMIND_READ_TOKEN }}
+          fetch-depth: 0   # REQUIRED for tagging
 
       # -------------------------------------------------
       # 2️⃣ Setup Python
@@ -61,7 +62,26 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       # -------------------------------------------------
-      # 5️⃣ Build binary via spec
+      # 5️⃣ Create Git tag (ONCE)
+      # -------------------------------------------------
+      - name: Create tag
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          git config user.name "InfraForgeLabs Bot"
+          git config user.email "ci@infraforgelabs.dev"
+
+          TAG="v${{ steps.version.outputs.version }}"
+
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag already exists"
+          else
+            git tag "$TAG"
+            git push origin "$TAG"
+          fi
+
+      # -------------------------------------------------
+      # 6️⃣ Build binary
       # -------------------------------------------------
       - name: Build binary
         shell: bash
@@ -69,7 +89,7 @@ jobs:
           pyinstaller --clean devopsmind.spec
 
       # -------------------------------------------------
-      # 6️⃣ Rename binary for platform
+      # 7️⃣ Prepare artifact
       # -------------------------------------------------
       - name: Prepare artifact
         shell: bash
@@ -82,7 +102,7 @@ jobs:
           fi
 
       # -------------------------------------------------
-      # 7️⃣ Upload to GitHub Release
+      # 8️⃣ Upload to GitHub Release
       # -------------------------------------------------
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
