@@ -78,7 +78,8 @@ jobs:
             --name devopsmind \
             --add-data "VERSION:." \
             --collect-all rich \
-            -m devopsmind
+            --paths src \
+           src/devopsmind/__main__.py
         shell: bash
 
       # -------------------------------------------------
