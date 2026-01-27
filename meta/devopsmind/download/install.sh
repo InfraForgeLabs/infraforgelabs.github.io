@@ -60,6 +60,11 @@ mkdir -p "$INSTALL_DIR"
 curl -fsSL "$DOWNLOAD_URL" -o "${INSTALL_DIR}/${BIN_NAME}" >/dev/null
 chmod +x "${INSTALL_DIR}/${BIN_NAME}"
 
+# ---------------- Symlinks (multi-entrypoint) ----------------
+ln -sf "${INSTALL_DIR}/${BIN_NAME}" "${INSTALL_DIR}/devopsmind-complete"
+ln -sf "${INSTALL_DIR}/${BIN_NAME}" "${INSTALL_DIR}/devopsmind-outbox"
+
+
 # ---------------- PATH hint ----------------
 if ! echo "$PATH" | grep -q "$INSTALL_DIR"; then
   echo
