@@ -24,15 +24,25 @@ jobs:
 
     steps:
       # -------------------------------------------------
-      # 1️⃣ Checkout release host repo
+      # 1️⃣ Checkout RELEASE repo (this repo)
       # -------------------------------------------------
-      - name: Checkout source
+      - name: Checkout release host
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # required for tagging
+          fetch-depth: 0
 
       # -------------------------------------------------
-      # 2️⃣ Setup Python
+      # 2️⃣ Checkout SOURCE repo (DevOpsMind)
+      # -------------------------------------------------
+      - name: Checkout DevOpsMind source
+        uses: actions/checkout@v4
+        with:
+          repository: InfraForgeLabs/DevOpsMind
+          path: devopsmind-src
+          fetch-depth: 0
+
+      # -------------------------------------------------
+      # 3️⃣ Setup Python
       # -------------------------------------------------
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -40,7 +50,7 @@ jobs:
           python-version: "3.11"
 
       # -------------------------------------------------
-      # 3️⃣ Install build dependencies only
+      # 4️⃣ Install build dependencies
       # -------------------------------------------------
       - name: Install dependencies
         shell: bash
@@ -49,14 +59,13 @@ jobs:
           pip install pyinstaller
 
       # -------------------------------------------------
-      # 4️⃣ Read version from meta/devopsmind/version.json
+      # 5️⃣ Read version (CI-safe source)
       # -------------------------------------------------
       - name: Read version
         id: version
         shell: bash
         run: |
           VERSION=$(curl -fsSL \
-            -H "User-Agent: InfraForgeLabs-CI" \
             https://raw.githubusercontent.com/InfraForgeLabs/infraforgelabs.github.io/main/meta/devopsmind/version.json \
             | sed -n 's/.*"latest_version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
 
@@ -69,7 +78,7 @@ jobs:
           echo "📦 Version: $VERSION"
 
       # -------------------------------------------------
-      # 5️⃣ Create Git tag (ONCE)
+      # 6️⃣ Create Git tag (ONCE, on release repo)
       # -------------------------------------------------
       - name: Create tag
         if: matrix.os == 'ubuntu-latest'
@@ -88,28 +97,29 @@ jobs:
           fi
 
       # -------------------------------------------------
-      # 6️⃣ Build binary
+      # 7️⃣ Build binary (FROM SOURCE REPO)
       # -------------------------------------------------
       - name: Build binary
         shell: bash
+        working-directory: devopsmind-src
         run: |
           pyinstaller --clean devopsmind.spec
 
       # -------------------------------------------------
-      # 7️⃣ Prepare artifact
+      # 8️⃣ Prepare artifact
       # -------------------------------------------------
       - name: Prepare artifact
         shell: bash
         run: |
           mkdir -p artifacts
           if [[ "${{ runner.os }}" == "Windows" ]]; then
-            mv dist/devopsmind.exe artifacts/${{ matrix.asset }}
+            mv devopsmind-src/dist/devopsmind.exe artifacts/${{ matrix.asset }}
           else
-            mv dist/devopsmind artifacts/${{ matrix.asset }}
+            mv devopsmind-src/dist/devopsmind artifacts/${{ matrix.asset }}
           fi
 
       # -------------------------------------------------
-      # 8️⃣ Create Release + Upload Assets
+      # 9️⃣ Create Release + Upload Assets
       # -------------------------------------------------
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
