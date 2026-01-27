@@ -101,25 +101,26 @@ jobs:
           fi
 
       # -------------------------------------------------
-      # 7️⃣ Build binary (FROM SOURCE REPO)
+      # 7️⃣ Build binary (FROM SOURCE REPO) — FAST ONEDIR
       # -------------------------------------------------
       - name: Build binary
         shell: bash
         working-directory: devopsmind-src
         run: |
-          pyinstaller --clean devopsmind.spec
+          pyinstaller --clean --onedir devopsmind.spec
 
       # -------------------------------------------------
-      # 8️⃣ Prepare artifact
+      # 8️⃣ Prepare artifact (onedir aware)
       # -------------------------------------------------
       - name: Prepare artifact
         shell: bash
         run: |
           mkdir -p artifacts
+
           if [[ "${{ runner.os }}" == "Windows" ]]; then
-            mv devopsmind-src/dist/devopsmind.exe artifacts/${{ matrix.asset }}
+            mv devopsmind-src/dist/devopsmind artifacts/devopsmind-windows-dir
           else
-            mv devopsmind-src/dist/devopsmind artifacts/${{ matrix.asset }}
+            mv devopsmind-src/dist/devopsmind artifacts/${{ matrix.asset }}-dir
           fi
 
       # -------------------------------------------------
