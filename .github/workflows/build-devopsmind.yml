@@ -29,7 +29,7 @@ jobs:
       - name: Checkout website repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # REQUIRED for rebase
+          fetch-depth: 0   # needed for rebase
 
       # -------------------------------------------------
       # 2️⃣ Checkout DevOpsMind source (private, read-only)
@@ -85,15 +85,19 @@ jobs:
         shell: bash
 
       # -------------------------------------------------
-      # 7️⃣ Publish binary to website download directory
+      # 7️⃣ Publish binary into versioned directory
       # -------------------------------------------------
       - name: Publish binary
         run: |
-          mkdir -p meta/devopsmind/download
+          VERSION="${{ steps.version.outputs.version }}"
+          TARGET_DIR="meta/devopsmind/download/${VERSION}"
+
+          mkdir -p "${TARGET_DIR}"
+
           if [[ "${{ runner.os }}" == "Windows" ]]; then
-            mv devopsmind/dist/devopsmind.exe meta/devopsmind/download/${{ matrix.output }}
+            mv devopsmind/dist/devopsmind.exe "${TARGET_DIR}/${{ matrix.output }}"
           else
-            mv devopsmind/dist/devopsmind meta/devopsmind/download/${{ matrix.output }}
+            mv devopsmind/dist/devopsmind "${TARGET_DIR}/${{ matrix.output }}"
           fi
         shell: bash
 
@@ -121,15 +125,17 @@ jobs:
       # -------------------------------------------------
       - name: Commit and push artifacts
         run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
           git config user.name "InfraForgeLabs Bot"
           git config user.email "ci@infraforgelabs.dev"
 
-          git add meta/devopsmind/download/${{ matrix.output }}
+          git add meta/devopsmind/download/${VERSION}/${{ matrix.output }}
           git add meta/devopsmind/version.json
 
-          git commit -m "DevOpsMind v${{ steps.version.outputs.version }} binaries" || exit 0
+          git commit -m "DevOpsMind v${VERSION} binaries" || exit 0
 
-          # 🔄 Rebase to avoid GitHub Pages race
+          # Rebase to avoid GitHub Pages race
           git pull --rebase origin main
 
           git push
