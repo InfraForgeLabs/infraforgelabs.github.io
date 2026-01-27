@@ -24,14 +24,12 @@ jobs:
 
     steps:
       # -------------------------------------------------
-      # 1️⃣ Checkout DevOpsMind source
+      # 1️⃣ Checkout THIS repository
       # -------------------------------------------------
-      - name: Checkout DevOpsMind source
+      - name: Checkout source
         uses: actions/checkout@v4
         with:
-          repository: InfraForgeLabs/infraforgelabs.github.io
-          token: ${{ secrets.DEVOPSMIND_READ_TOKEN }}
-          fetch-depth: 0   # REQUIRED for tagging
+          fetch-depth: 0   # REQUIRED for tagging + release
 
       # -------------------------------------------------
       # 2️⃣ Setup Python
@@ -71,8 +69,7 @@ jobs:
           git config user.name "InfraForgeLabs Bot"
           git config user.email "ci@infraforgelabs.dev"
 
-          BASE_VERSION="${{ steps.version.outputs.version }}"
-          TAG="v${BASE_VERSION}-devopsmind"
+          TAG="v${{ steps.version.outputs.version }}-devopsmind"
 
           if git rev-parse "$TAG" >/dev/null 2>&1; then
             echo "Tag already exists: $TAG"
@@ -103,7 +100,7 @@ jobs:
           fi
 
       # -------------------------------------------------
-      # 8️⃣ Upload to GitHub Release
+      # 8️⃣ Create Release + Upload Assets (THIS REPO)
       # -------------------------------------------------
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
