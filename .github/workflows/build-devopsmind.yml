@@ -29,7 +29,7 @@ jobs:
       - name: Checkout website repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # needed for rebase
+          fetch-depth: 0
 
       # -------------------------------------------------
       # 2️⃣ Checkout DevOpsMind source (private)
@@ -50,7 +50,7 @@ jobs:
           python-version: "3.11"
 
       # -------------------------------------------------
-      # 4️⃣ Install DevOpsMind + dependencies (CRITICAL)
+      # 4️⃣ Install DevOpsMind + dependencies
       # -------------------------------------------------
       - name: Install DevOpsMind dependencies
         shell: bash
@@ -61,7 +61,7 @@ jobs:
           pip install -e .
 
       # -------------------------------------------------
-      # 5️⃣ Read DevOpsMind VERSION (authoritative)
+      # 5️⃣ Read DevOpsMind VERSION
       # -------------------------------------------------
       - name: Read DevOpsMind version
         id: version
@@ -71,33 +71,13 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       # -------------------------------------------------
-      # 6️⃣ Build DevOpsMind binary (FINAL FIX)
+      # 6️⃣ Build DevOpsMind binary (SPEC FILE ONLY)
       # -------------------------------------------------
       - name: Build DevOpsMind binary
         shell: bash
         working-directory: devopsmind
         run: |
-          pyinstaller \
-            --onefile \
-            --clean \
-            --name devopsmind \
-            --add-data "VERSION:." \
-            --paths src \
-            --hidden-import rich \
-            --hidden-import rich.console \
-            --hidden-import rich.text \
-            --hidden-import rich.panel \
-            --hidden-import rich.progress \
-            --hidden-import rich.table \
-            --hidden-import rich.align \
-            --hidden-import rich.box \
-            --hidden-import rich.style \
-            --hidden-import rich.theme \
-            --hidden-import rich.markdown \
-            --hidden-import rich.syntax \
-            --hidden-import rich.traceback \
-            --copy-metadata rich \
-            src/devopsmind/__main__.py
+          pyinstaller --clean devopsmind.spec
 
       # -------------------------------------------------
       # 7️⃣ Publish binary into versioned directory
@@ -107,7 +87,6 @@ jobs:
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           TARGET_DIR="meta/devopsmind/download/${VERSION}"
-
           mkdir -p "${TARGET_DIR}"
 
           if [[ "${{ runner.os }}" == "Windows" ]]; then
@@ -117,7 +96,7 @@ jobs:
           fi
 
       # -------------------------------------------------
-      # 8️⃣ Update global version.json (once per release)
+      # 8️⃣ Update version.json (once per release)
       # -------------------------------------------------
       - name: Update version.json
         if: matrix.os == 'ubuntu-latest'
@@ -136,7 +115,7 @@ jobs:
           mv meta/devopsmind/version.tmp.json meta/devopsmind/version.json
 
       # -------------------------------------------------
-      # 9️⃣ Commit + rebase + push (Pages-safe)
+      # 9️⃣ Commit + rebase + push
       # -------------------------------------------------
       - name: Commit and push artifacts
         shell: bash
