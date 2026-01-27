@@ -57,8 +57,7 @@ DOWNLOAD_URL="https://github.com/${BIN_REPO}/releases/download/v${VERSION}/${BIN
 echo "⬇ Downloading ${BINARY}..."
 mkdir -p "$INSTALL_DIR"
 
-curl -fsSL "$DOWNLOAD_URL" -o "${INSTALL_DIR}/${BIN_NAME}"
-
+curl -fsSL "$DOWNLOAD_URL" -o "${INSTALL_DIR}/${BIN_NAME}" >/dev/null
 chmod +x "${INSTALL_DIR}/${BIN_NAME}"
 
 # ---------------- PATH hint ----------------
@@ -83,10 +82,9 @@ else
       if grep -qi microsoft /proc/version 2>/dev/null; then
         echo "Detected environment: Windows (WSL2)"
         echo
-        echo "👉 Install Docker Desktop on Windows:"
+        echo "👉 Install Docker Desktop:"
         echo "   https://www.docker.com/products/docker-desktop/"
-        echo
-        echo "Then enable WSL integration inside Docker Desktop."
+        echo "   Enable WSL integration after install."
       else
         echo "Detected environment: Linux"
         echo
@@ -108,7 +106,6 @@ else
   echo "After Docker is running, continue with:"
   echo "   devopsmind login"
 fi
-
 
 echo
 echo "======================================"
