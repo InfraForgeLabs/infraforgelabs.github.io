@@ -281,7 +281,7 @@ document.addEventListener("DOMContentLoaded", () => {
     statusEl.innerHTML = `
       <div class="buildtrack live">
         🚀 <strong>BuildTrack is Live!</strong><br>
-        <span>Hands-on DevOps learning paths are now available</span>
+        <span>A 14-day real-world system design & execution simulation</span>
       </div>
     `;
   }
