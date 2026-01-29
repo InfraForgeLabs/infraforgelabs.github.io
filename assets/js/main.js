@@ -261,24 +261,33 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!statusEl) return;
 
   const today = new Date();
-  const start = new Date("2026-02-09T00:00:00");
-  const launch = new Date("2026-02-14T00:00:00");
 
+  const start  = new Date("2026-02-09T00:00:00");       // Coming soon start
+  const launch = new Date("2026-02-14T00:00:00");       // Live start
+  const end    = new Date("2026-02-28T23:59:59");       // Live end
+
+  // Coming Soon: 9–13 Feb
   if (today >= start && today < launch) {
-    // Coming Soon phase
     statusEl.innerHTML = `
       <div class="buildtrack coming-soon">
         🚧 <strong>BuildTrack</strong><br>
-        <span>Launching on <strong>14 Feb</strong></span><br>
+        <span>Launching on <strong>14 Feb</strong></span>
       </div>
     `;
-  } else if (today >= launch) {
-    // Live phase
+  }
+
+  // Live: 14–28 Feb
+  else if (today >= launch && today <= end) {
     statusEl.innerHTML = `
       <div class="buildtrack live">
         🚀 <strong>BuildTrack is Live!</strong><br>
         <span>Hands-on DevOps learning paths are now available</span>
       </div>
     `;
+  }
+
+  // Before 9 Feb or after 28 Feb → show nothing
+  else {
+    statusEl.innerHTML = "";
   }
 });
