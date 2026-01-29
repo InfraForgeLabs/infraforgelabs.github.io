@@ -262,16 +262,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const today = new Date();
 
-  const start  = new Date("2026-02-09T00:00:00");       // Coming soon start
-  const launch = new Date("2026-02-14T00:00:00");       // Live start
-  const end    = new Date("2026-02-28T23:59:59");       // Live end
+  const start  = new Date("2026-02-09T00:00:00"); // Coming soon start
+  const launch = new Date("2026-02-14T00:00:00"); // Live start
+  const end    = new Date("2026-02-28T23:59:59"); // Live end
 
   // Coming Soon: 9–13 Feb
   if (today >= start && today < launch) {
     statusEl.innerHTML = `
       <div class="buildtrack coming-soon">
-        🚧 <strong>BuildTrack</strong><br>
-        <span>Launching on <strong>14 Feb</strong></span>
+        <strong>BuildTrack</strong><br>
+        <span>
+          CLI-driven system design & execution simulation ·
+          Launching <strong>14 Feb</strong>
+        </span>
       </div>
     `;
   }
@@ -281,7 +284,10 @@ document.addEventListener("DOMContentLoaded", () => {
     statusEl.innerHTML = `
       <div class="buildtrack live">
         🚀 <strong>BuildTrack is Live!</strong><br>
-        <span>A 14-day real-world system design & execution simulation</span>
+        <span>
+          A 14-day real-world system design & execution simulation
+        </span><br>
+        <small>Run entirely from the DevOpsMind CLI</small>
       </div>
     `;
   }
