@@ -78,7 +78,7 @@ mkdir -p "$INSTALL_DIR"
 echo "⬇ Downloading ${ARCHIVE}..."
 TMP_DIR="$(mktemp -d)"
 
-curl -# -L "$DOWNLOAD_URL" -o "$TMP_DIR/devopsmind.tar.gz"
+curl -fL --progress-bar "$DOWNLOAD_URL" -o "$TMP_DIR/devopsmind.tar.gz"
 
 echo "📦 Extracting..."
 tar -xzf "$TMP_DIR/devopsmind.tar.gz" -C "$TMP_DIR"
