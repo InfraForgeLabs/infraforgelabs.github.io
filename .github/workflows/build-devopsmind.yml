@@ -7,11 +7,6 @@ permissions:
   contents: write
 
 jobs:
-
-  # =================================================
-  # ✅ STANDARD BUILDS (Linux x86 + macOS)
-  # =================================================
-
   build:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -22,17 +17,23 @@ jobs:
         include:
           - os: manylinux2014
             asset: devopsmind-linux-x86_64
-          - os: macos-13
-            asset: devopsmind-macos-x86_64
           - os: macos-14
             asset: devopsmind-macos-arm64
+          - os: windows-latest
+            asset: devopsmind-windows-x86_64
 
     steps:
+      # -------------------------------------------------
+      # 1️⃣ Checkout RELEASE repo
+      # -------------------------------------------------
       - name: Checkout release host
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # -------------------------------------------------
+      # 2️⃣ Checkout SOURCE repo
+      # -------------------------------------------------
       - name: Checkout DevOpsMind source
         uses: actions/checkout@v4
         with:
@@ -41,11 +42,17 @@ jobs:
           token: ${{ secrets.DEVOPSMIND_READ_TOKEN }}
           fetch-depth: 0
 
+      # -------------------------------------------------
+      # 3️⃣ Setup Python
+      # -------------------------------------------------
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+      # -------------------------------------------------
+      # 4️⃣ Install dependencies
+      # -------------------------------------------------
       - name: Install dependencies
         shell: bash
         working-directory: devopsmind-src
@@ -54,6 +61,9 @@ jobs:
           pip install pyinstaller rich
           pip install -e .
 
+      # -------------------------------------------------
+      # 5️⃣ Read version
+      # -------------------------------------------------
       - name: Read version
         id: version
         shell: bash
@@ -62,10 +72,19 @@ jobs:
             https://raw.githubusercontent.com/InfraForgeLabs/infraforgelabs.github.io/main/meta/devopsmind/version.json \
             | sed -n 's/.*"latest_version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')
 
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          if [ -z "$VERSION" ]; then
+            echo "❌ Failed to read version"
+            exit 1
+          fi
 
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Version: $VERSION"
+
+      # -------------------------------------------------
+      # 6️⃣ Create tag (once)
+      # -------------------------------------------------
       - name: Create tag
-        if: matrix.os == 'ubuntu-22.04'
+        if: matrix.os == 'ubuntu-latest'
         shell: bash
         run: |
           git config user.name "InfraForgeLabs Bot"
@@ -73,79 +92,53 @@ jobs:
 
           TAG="v${{ steps.version.outputs.version }}-devopsmind"
 
-          if ! git rev-parse "$TAG" >/dev/null 2>&1; then
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag already exists: $TAG"
+          else
             git tag "$TAG"
             git push origin "$TAG"
           fi
 
+      # -------------------------------------------------
+      # 7️⃣ Build binary (onedir)
+      # -------------------------------------------------
       - name: Build binary
         shell: bash
         working-directory: devopsmind-src
         run: |
-          pyinstaller --clean --noconfirm devopsmind.spec
+          pyinstaller --clean devopsmind.spec
 
-      - name: Package artifact
+      # -------------------------------------------------
+      # 8️⃣ Package (Linux / macOS)
+      # -------------------------------------------------
+      - name: Package artifact (Linux / macOS)
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           mkdir -p artifacts
           cd devopsmind-src/dist
           tar -czf ../../artifacts/${{ matrix.asset }}.tar.gz devopsmind
 
+      # -------------------------------------------------
+      # 8️⃣ Package (Windows)
+      # -------------------------------------------------
+      - name: Package artifact (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force artifacts
+          Compress-Archive `
+            -Path devopsmind-src/dist/devopsmind `
+            -DestinationPath artifacts/devopsmind-windows-x86_64.zip
+
+      # -------------------------------------------------
+      # 9️⃣ Upload release assets
+      # -------------------------------------------------
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.version }}-devopsmind
           name: DevOpsMind v${{ steps.version.outputs.version }}
-          files: artifacts/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  # =================================================
-  # 🔥 LINUX ARM BUILD (Elite Addition)
-  # =================================================
-
-  build-linux-arm64:
-    name: Build Linux ARM64
-    runs-on: ubuntu-22.04
-
-    steps:
-
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: actions/checkout@v4
-        with:
-          repository: InfraForgeLabs/DevOpsMind
-          path: devopsmind-src
-          token: ${{ secrets.DEVOPSMIND_READ_TOKEN }}
-
-      # Enable emulation
-      - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      # Build ARM binary inside container
-      - name: Build ARM binary
-        run: |
-          docker buildx build \
-            --platform linux/arm64 \
-            -t devopsmind-arm \
-            --output type=local,dest=./arm-dist \
-            devopsmind-src
-
-      - name: Package ARM artifact
-        run: |
-          mkdir -p artifacts
-          cd arm-dist
-          tar -czf ../artifacts/devopsmind-linux-arm64.tar.gz *
-
-      - name: Upload ARM Release Asset
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ needs.build.outputs.version }}-devopsmind
           files: artifacts/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
