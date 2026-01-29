@@ -255,3 +255,31 @@ document.addEventListener("click", function (e) {
     clearTimeout(loaderTimer);
   });
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  const statusEl = document.getElementById("buildtrack-status");
+  if (!statusEl) return;
+
+  const today = new Date();
+  const start = new Date("2026-01-09T00:00:00");
+  const launch = new Date("2026-02-14T00:00:00");
+
+  if (today >= start && today < launch) {
+    // Coming Soon phase
+    statusEl.innerHTML = `
+      <div class="buildtrack coming-soon">
+        🚧 <strong>BuildTrack</strong><br>
+        <span>Launching on <strong>14 Feb</strong></span><br>
+        <small>9–13 Feb · Early access preparation</small>
+      </div>
+    `;
+  } else if (today >= launch) {
+    // Live phase
+    statusEl.innerHTML = `
+      <div class="buildtrack live">
+        🚀 <strong>BuildTrack is Live!</strong><br>
+        <span>Hands-on DevOps learning paths are now available</span>
+      </div>
+    `;
+  }
+});
