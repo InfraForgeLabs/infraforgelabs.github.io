@@ -261,7 +261,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!statusEl) return;
 
   const today = new Date();
-  const start = new Date("2026-01-09T00:00:00");
+  const start = new Date("2026-02-09T00:00:00");
   const launch = new Date("2026-02-14T00:00:00");
 
   if (today >= start && today < launch) {
@@ -270,7 +270,6 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="buildtrack coming-soon">
         🚧 <strong>BuildTrack</strong><br>
         <span>Launching on <strong>14 Feb</strong></span><br>
-        <small>9–13 Feb · Early access preparation</small>
       </div>
     `;
   } else if (today >= launch) {
