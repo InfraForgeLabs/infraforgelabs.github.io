@@ -157,20 +157,20 @@ echo "⬇ Downloading ${ARCHIVE}..."
 TMP_DIR="$(mktemp -d)"
 
 curl -fL --progress-bar --retry 3 --retry-delay 2 \
-  "$DOWNLOAD_URL" -o "$TMP_DIR/devopsmind.tar.gz"
+  "$DOWNLOAD_URL" -o "$TMP_DIR/$ARCHIVE"
 
 # ---------------- Verify checksum ----------------
 CHECKSUM_URL="${DOWNLOAD_URL}.sha256"
 
 echo "🔐 Verifying checksum..."
-curl -fsSL "$CHECKSUM_URL" -o "$TMP_DIR/devopsmind.tar.gz.sha256"
+curl -fsSL "$CHECKSUM_URL" -o "$TMP_DIR/$ARCHIVE.sha256"
 
 cd "$TMP_DIR"
 
 if command -v sha256sum >/dev/null 2>&1; then
-  sha256sum -c devopsmind.tar.gz.sha256
+  sha256sum -c "$ARCHIVE.sha256"
 elif command -v shasum >/dev/null 2>&1; then
-  shasum -a 256 -c devopsmind.tar.gz.sha256
+  shasum -a 256 -c "$ARCHIVE.sha256"
 else
   echo "❌ No SHA-256 verification tool found."
   exit 1
@@ -178,7 +178,7 @@ fi
 
 # ---------------- Extract ----------------
 echo "📦 Extracting..."
-tar -xzf "$TMP_DIR/devopsmind.tar.gz" -C "$TMP_DIR"
+tar -xzf "$TMP_DIR/$ARCHIVE" -C "$TMP_DIR"
 
 # ---------------- Install onedir bundle ----------------
 OLD_BUNDLE="${BUNDLE_DIR}.old"
