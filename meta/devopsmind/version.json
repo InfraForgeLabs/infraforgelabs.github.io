@@ -1,6 +1,6 @@
 {
-  "latest_version": "1.1.0",
+  "latest_version": "1.1.5",
   "runtime_version": "1.0",
-  "released_at": "2026-01-25",
-  "notes": "Adds hands-on labs for Jenkins, Argo CD, AWS, Azure, and GCP. Introduces DevOpsMind Safe Shell, a Docker-based local sandbox for running labs safely. Includes UX and stability improvements."
+  "released_at": "2026-02-04",
+  "notes": "Major runtime upgrade: DevOpsMind has fully transitioned from Docker to Podman for a rootless, daemonless, and more secure local runtime. BuildTrack program officially launching on 14th Feb."
 }
