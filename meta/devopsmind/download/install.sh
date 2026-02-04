@@ -36,8 +36,6 @@ install_package_linux() {
   fi
 }
 
-
-
 require_command() {
 
   CMD="$1"
@@ -143,25 +141,42 @@ case "$PLATFORM" in
     ;;
 esac
 
-
 echo "🌐 Checking network..."
 if ! curl -fsSL --connect-timeout 5 https://github.com >/dev/null 2>&1; then
   echo "❌ Network appears unavailable."
   exit 1
 fi
 
-
 DOWNLOAD_URL="https://github.com/${BIN_REPO}/releases/download/${TAG}/${ARCHIVE}"
 
-# ---------------- Prepare dirs (CRITICAL FIX) ----------------
+# ---------------- Prepare dirs ----------------
 mkdir -p "$INSTALL_DIR"
 
-# ---------------- Download + Extract ----------------
+# ---------------- Download ----------------
 echo "⬇ Downloading ${ARCHIVE}..."
 TMP_DIR="$(mktemp -d)"
 
-curl -fL --progress-bar --retry 3 --retry-delay 2 "$DOWNLOAD_URL" -o "$TMP_DIR/devopsmind.tar.gz"
+curl -fL --progress-bar --retry 3 --retry-delay 2 \
+  "$DOWNLOAD_URL" -o "$TMP_DIR/devopsmind.tar.gz"
 
+# ---------------- Verify checksum ----------------
+CHECKSUM_URL="${DOWNLOAD_URL}.sha256"
+
+echo "🔐 Verifying checksum..."
+curl -fsSL "$CHECKSUM_URL" -o "$TMP_DIR/devopsmind.tar.gz.sha256"
+
+cd "$TMP_DIR"
+
+if command -v sha256sum >/dev/null 2>&1; then
+  sha256sum -c devopsmind.tar.gz.sha256
+elif command -v shasum >/dev/null 2>&1; then
+  shasum -a 256 -c devopsmind.tar.gz.sha256
+else
+  echo "❌ No SHA-256 verification tool found."
+  exit 1
+fi
+
+# ---------------- Extract ----------------
 echo "📦 Extracting..."
 tar -xzf "$TMP_DIR/devopsmind.tar.gz" -C "$TMP_DIR"
 
@@ -176,7 +191,6 @@ mv "$TMP_DIR/devopsmind" "$BUNDLE_DIR"
 chmod +x "$BUNDLE_DIR/devopsmind"
 
 rm -rf "$OLD_BUNDLE"
-
 
 # ---------------- User-facing commands ----------------
 ln -sf "$BUNDLE_DIR/devopsmind" "$INSTALL_DIR/devopsmind"
@@ -205,100 +219,8 @@ ensure_path() {
 
 ensure_path
 
-# ---------------- Docker Preflight ----------------
-echo
-echo "🐳 Checking Docker runtime..."
-
-DOCKER_REQUIRED_VERSION="20.10"
-
-version_ge() {
-  # returns 0 if $1 >= $2
-  [ "$(printf '%s\n' "$2" "$1" | sort -V | head -n1)" = "$2" ]
-}
-
-if ! command -v docker >/dev/null 2>&1; then
-
-  echo
-  echo "⚠️  Docker is required to run DevOpsMind labs."
-  echo
-
-  case "$OS" in
-    Linux)
-      if grep -qi microsoft /proc/version 2>/dev/null; then
-        echo "👉 Install Docker Desktop for WSL2:"
-        echo "   https://docs.docker.com/desktop/windows/wsl/"
-      else
-        echo "👉 Install Docker Engine:"
-        echo "   curl -fsSL https://get.docker.com | sh"
-        echo "   sudo usermod -aG docker \$USER"
-        echo "   newgrp docker"
-      fi
-      ;;
-    Darwin)
-      echo "👉 Install Docker Desktop for macOS:"
-      echo "   https://docs.docker.com/desktop/mac/install/"
-      ;;
-  esac
-
-  echo
-  echo "After installation, run:"
-  echo "   devopsmind doctor"
-  echo
-  exit 0
-fi
-
-
-# ---------------- Check daemon ----------------
-
-if ! docker info >/dev/null 2>&1; then
-  echo
-  echo "⚠️  Docker is installed but not running."
-  echo
-  echo "👉 Start Docker Desktop or the Docker daemon,"
-  echo "then run:"
-  echo "   devopsmind doctor"
-  echo
-  exit 0
-fi
-
-
-# ---------------- Check version ----------------
-
-DOCKER_VERSION="$(docker version --format '{{.Server.Version}}' 2>/dev/null || echo "")"
-
-if [ -n "$DOCKER_VERSION" ] && ! version_ge "$DOCKER_VERSION" "$DOCKER_REQUIRED_VERSION"; then
-  echo
-  echo "⚠️  Docker version $DOCKER_VERSION detected."
-  echo "DevOpsMind requires Docker >= $DOCKER_REQUIRED_VERSION"
-  echo
-  echo "👉 Please upgrade Docker:"
-  echo "   https://docs.docker.com/get-docker/"
-  echo
-  exit 0
-fi
-
-
-# ---------------- Permission check ----------------
-
-if ! docker ps >/dev/null 2>&1; then
-  echo
-  echo "⚠️  Docker permission issue detected."
-  echo
-  echo "👉 Run:"
-  echo "   sudo usermod -aG docker \$USER"
-  echo "   newgrp docker"
-  echo
-  echo "Then run:"
-  echo "   devopsmind doctor"
-  echo
-  exit 0
-fi
-
-
-echo "✅ Docker is installed, running, and compatible."
-
 echo
 echo "======================================"
 echo "✅ ${APP_NAME} installed successfully!"
-echo "➡️  Run: devopsmind login"
+echo "➡️  Run: devopsmind init"
 echo "======================================"
