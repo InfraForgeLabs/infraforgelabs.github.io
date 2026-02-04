@@ -59,7 +59,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller rich
-          pip install -e .
+          pip install -e .[all]
 
       # -------------------------------------------------
       # 5️⃣ Read version
@@ -84,7 +84,7 @@ jobs:
       # 6️⃣ Create tag (once)
       # -------------------------------------------------
       - name: Create tag
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-22.04'
         shell: bash
         run: |
           git config user.name "InfraForgeLabs Bot"
@@ -130,6 +130,28 @@ jobs:
           Compress-Archive `
             -Path devopsmind-src/dist/devopsmind `
             -DestinationPath artifacts/devopsmind-windows-x86_64.zip
+
+      # -------------------------------------------------
+      # 🔐 Generate checksums
+      # -------------------------------------------------
+      - name: Generate checksums (Linux / macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          cd artifacts
+          for file in *; do
+            shasum -a 256 "$file" > "$file.sha256"
+          done
+
+      - name: Generate checksums (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Get-ChildItem artifacts | ForEach-Object {
+            $hash = Get-FileHash $_.FullName -Algorithm SHA256
+            "$($hash.Hash.ToLower())  $($_.Name)" |
+              Out-File "$($_.FullName).sha256" -Encoding ascii
+          }
 
       # -------------------------------------------------
       # 9️⃣ Upload release assets
