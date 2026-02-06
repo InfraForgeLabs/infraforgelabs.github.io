@@ -15,7 +15,7 @@
     },
     {
       "tier": "core_pro",
-      "version": 2,
+      "version": 1,
       "released_at": "2026-01-24T00:00:00Z",
       "summary": "Launched Core Pro with advanced CI/CD, governance, security, and reliability engineering labs beyond Foundation Core.",
       "highlights": [
