@@ -3,32 +3,32 @@
   "generated_at": "2026-01-24T00:00:00Z",
   "releases": [
     {
-      "tier": "domain_observability",
-      "version": 1,
-      "released_at": "2026-01-24T00:00:00Z",
-      "summary": "Introduced the Observability domain with labs covering metrics, logs, alerting, incident command, and decision-making under partial visibility.",
-      "highlights": [
-        "Alert vs impact decision scenarios",
-        "Multi-signal correlation and RCA",
-        "Incident command and escalation judgment"
-      ]
-    },
-    {
       "tier": "core_pro",
       "version": 1,
       "released_at": "2026-01-24T00:00:00Z",
-      "summary": "Launched Core Pro with advanced CI/CD, governance, security, and reliability engineering labs beyond Foundation Core.",
+      "summary": "Initial release of Core Pro with advanced DevOps foundations beyond the free tier, covering CI/CD, governance, security, reliability, and production decision-making.",
       "highlights": [
-        "Pipeline governance and failure handling",
-        "Security-first CI/CD decision labs",
-        "Production-grade DevOps scenarios"
+        "Production-grade CI/CD pipelines",
+        "Failure handling and rollback decisions",
+        "Security and governance in DevOps workflows"
+      ]
+    },
+    {
+      "tier": "domain_observability",
+      "version": 1,
+      "released_at": "2026-01-24T00:00:00Z",
+      "summary": "Introduced the Observability domain with hands-on labs focused on metrics, logs, alerting, incident command, and decision-making under partial visibility.",
+      "highlights": [
+        "Alert vs impact decision scenarios",
+        "Multi-signal correlation and root cause analysis",
+        "Incident command and escalation judgment"
       ]
     },
     {
       "tier": "domain_aiops",
       "version": 1,
       "released_at": "2026-01-24T00:00:00Z",
-      "summary": "Released AIOps domain focusing on AI-assisted operations, agent reliability, governance, and human-in-the-loop decision making.",
+      "summary": "Released the AIOps domain focusing on AI-assisted operations, agent reliability, governance, and human-in-the-loop operational decisions.",
       "highlights": [
         "AI agent failure analysis",
         "Readonly vs action-capable agent decisions",
@@ -36,14 +36,36 @@
       ]
     },
     {
-      "tier": "domain_cloudops",
+      "tier": "domain_cloudops_aws",
       "version": 1,
       "released_at": "2026-01-24T00:00:00Z",
-      "summary": "Introduced CloudOps domain covering real-world cloud architecture failures, resilience design, and operational decision making.",
+      "summary": "Launched CloudOps (AWS) domain covering real-world AWS architecture failures, resilience design, IAM issues, and operational decision-making.",
       "highlights": [
         "Multi-AZ and regional failure scenarios",
-        "Permission sprawl and cloud blast radius analysis",
-        "Enterprise cloud control models"
+        "IAM permission sprawl analysis",
+        "AWS reliability and blast radius containment"
+      ]
+    },
+    {
+      "tier": "domain_cloudops_azure",
+      "version": 1,
+      "released_at": "2026-01-24T00:00:00Z",
+      "summary": "Launched CloudOps (Azure) domain focusing on Azure infrastructure failures, identity design, networking, and operational trade-offs.",
+      "highlights": [
+        "Azure identity and access pitfalls",
+        "Network and service dependency failures",
+        "Operational governance in Azure environments"
+      ]
+    },
+    {
+      "tier": "domain_cloudops_gcp",
+      "version": 1,
+      "released_at": "2026-01-24T00:00:00Z",
+      "summary": "Launched CloudOps (GCP) domain covering Google Cloud architecture failures, reliability design, IAM models, and production operations.",
+      "highlights": [
+        "Project and IAM boundary mistakes",
+        "Service dependency and quota failures",
+        "Reliability and cost trade-off decisions in GCP"
       ]
     }
   ]
