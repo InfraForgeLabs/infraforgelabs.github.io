@@ -8,9 +8,10 @@
       "released_at": "2026-01-24T00:00:00Z",
       "summary": "Initial release of Core Pro with advanced DevOps foundations beyond the free tier, covering CI/CD, governance, security, reliability, and production decision-making.",
       "highlights": [
-        "Production-grade CI/CD pipelines",
-        "Failure handling and rollback decisions",
-        "Security and governance in DevOps workflows"
+        "End-to-end failure debugging and recovery across Linux, containers, Kubernetes, CI/CD, and infrastructure",
+        "Production-grade CI/CD, GitOps, and automation workflows with rollback, drift, and incident handling",
+        "Real-world troubleshooting of resource exhaustion, networking failures, and distributed system breakdowns",
+        "Capstone-driven platform recovery scenarios focused on operational ownership and decision-making"
       ]
     },
     {
@@ -19,9 +20,10 @@
       "released_at": "2026-01-24T00:00:00Z",
       "summary": "Introduced the Observability domain with hands-on labs focused on metrics, logs, alerting, incident command, and decision-making under partial visibility.",
       "highlights": [
-        "Alert vs impact decision scenarios",
-        "Multi-signal correlation and root cause analysis",
-        "Incident command and escalation judgment"
+        "Reasoning under partial and conflicting signals across metrics, logs, traces, and alerts",
+        "Incident command, escalation timing, and blast radius containment decisions under pressure",
+        "SLO impact assessment and prioritization when alerts conflict with business symptoms",
+        "Ownership of irreversible decisions, stakeholder trade-offs, and post-incident accountability"
       ]
     },
     {
@@ -30,9 +32,10 @@
       "released_at": "2026-01-24T00:00:00Z",
       "summary": "Released the AIOps domain focusing on AI-assisted operations, agent reliability, governance, and human-in-the-loop operational decisions.",
       "highlights": [
-        "AI agent failure analysis",
-        "Readonly vs action-capable agent decisions",
-        "AI governance and decommissioning scenarios"
+        "Defining and enforcing human-in-the-loop decision boundaries for AI-assisted operations",
+        "Detecting and responding to AI failure modes including confidence drift, silent failures, and automation bias",
+        "Governance, auditability, and accountability for AI-driven incident response and change decisions",
+        "Ownership of irreversible AI decisions, cumulative risk, and safe decommissioning of AI systems"
       ]
     },
     {
@@ -41,9 +44,10 @@
       "released_at": "2026-01-24T00:00:00Z",
       "summary": "Launched CloudOps (AWS) domain covering real-world AWS architecture failures, resilience design, IAM issues, and operational decision-making.",
       "highlights": [
-        "Multi-AZ and regional failure scenarios",
-        "IAM permission sprawl analysis",
-        "AWS reliability and blast radius containment"
+        "Architectural decision-making across regions, availability zones, and shared AWS services under failure conditions",
+        "Blast radius analysis of IAM, networking, and public exposure misconfigurations",
+        "Incident response to large-scale AWS failures including traffic collapse, retry storms, and control-plane vs data-plane outages",
+        "Cross-team and cross-signal incident coordination with platform-level ownership and governance trade-offs"
       ]
     },
     {
@@ -52,9 +56,10 @@
       "released_at": "2026-01-24T00:00:00Z",
       "summary": "Launched CloudOps (Azure) domain focusing on Azure infrastructure failures, identity design, networking, and operational trade-offs.",
       "highlights": [
-        "Azure identity and access pitfalls",
-        "Network and service dependency failures",
-        "Operational governance in Azure environments"
+        "Reasoning about subscription, management group, and resource scope boundaries in complex Azure environments",
+        "Control-plane behavior, propagation delays, and enforcement gaps across RBAC, policy, and networking",
+        "Identity, quota, and configuration drift incidents driven by eventual consistency and state desynchronization",
+        "Long-horizon governance failures involving ownership fragmentation, landing zone authority, and cost pressure"
       ]
     },
     {
@@ -63,9 +68,10 @@
       "released_at": "2026-01-24T00:00:00Z",
       "summary": "Launched CloudOps (GCP) domain covering Google Cloud architecture failures, reliability design, IAM models, and production operations.",
       "highlights": [
-        "Project and IAM boundary mistakes",
-        "Service dependency and quota failures",
-        "Reliability and cost trade-off decisions in GCP"
+        "Reasoning under limited visibility across projects, services, and control-plane vs data-plane boundaries",
+        "Failure analysis driven by shared dependencies, hidden coupling, and cross-project blast radius",
+        "IAM, service account, and workload identity risk involving privilege propagation and latent access accumulation",
+        "Long-horizon operational risk from quota dynamics, governance drift, and fragmented operating models"
       ]
     }
   ]
