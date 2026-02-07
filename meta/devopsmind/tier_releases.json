@@ -16,7 +16,7 @@
     },
     {
       "tier": "domain_observability",
-      "version": 2,
+      "version": 1,
       "released_at": "2026-01-24T00:00:00Z",
       "summary": "Introduced the Observability domain with hands-on labs focused on metrics, logs, alerting, incident command, and decision-making under partial visibility.",
       "highlights": [
