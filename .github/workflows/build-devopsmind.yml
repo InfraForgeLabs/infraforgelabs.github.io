@@ -24,6 +24,7 @@ jobs:
       version: ${{ steps.version.outputs.version }}
 
     steps:
+
 # -------------------------------------------------
 # 1️⃣ Checkout Release Repo
 # -------------------------------------------------
@@ -142,19 +143,8 @@ jobs:
           mv DevOpsMind-${VERSION}-x86_64.AppImage artifacts/
 
 # =====================================================
-# 🍎 MACOS → SIGN + NOTARIZE + DMG
+# 🍎 MACOS → DMG (UNSIGNED)
 # =====================================================
-      - name: macOS Certificate Import
-        if: runner.os == 'macOS'
-        run: |
-          echo "${{ secrets.MACOS_CERT_BASE64 }}" | base64 --decode > cert.p12
-          security create-keychain -p temp build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p temp build.keychain
-          security import cert.p12 -k build.keychain \
-            -P "${{ secrets.MACOS_CERT_PASSWORD }}" -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple: -s -k temp build.keychain
-
       - name: Build macOS DMG
         if: runner.os == 'macOS'
         shell: bash
@@ -180,27 +170,15 @@ jobs:
           </plist>
           EOF
 
-          codesign --deep --force --options runtime \
-            --sign "Developer ID Application: InfraForgeLabs (${{ secrets.APPLE_TEAM_ID }})" \
-            DevOpsMind.app
-
           brew install create-dmg
 
           create-dmg DevOpsMind-${VERSION}.dmg DevOpsMind.app
-
-          xcrun notarytool submit DevOpsMind-${VERSION}.dmg \
-            --apple-id "${{ secrets.APPLE_ID }}" \
-            --password "${{ secrets.APPLE_APP_PASSWORD }}" \
-            --team-id "${{ secrets.APPLE_TEAM_ID }}" \
-            --wait
-
-          xcrun stapler staple DevOpsMind-${VERSION}.dmg
 
           mkdir artifacts
           mv DevOpsMind-${VERSION}.dmg artifacts/
 
 # =====================================================
-# 🪟 WINDOWS → NSIS + SIGN
+# 🪟 WINDOWS → NSIS (UNSIGNED)
 # =====================================================
       - name: Build Windows Installer
         if: runner.os == 'Windows'
@@ -221,17 +199,6 @@ jobs:
           "@ | Out-File installer.nsi -Encoding ascii
 
           makensis installer.nsi
-
-          $certBytes = [Convert]::FromBase64String("${{ secrets.WINDOWS_CERT_BASE64 }}")
-          [IO.File]::WriteAllBytes("cert.pfx", $certBytes)
-
-          signtool sign `
-            /f cert.pfx `
-            /p "${{ secrets.WINDOWS_CERT_PASSWORD }}" `
-            /tr http://timestamp.digicert.com `
-            /td sha256 `
-            /fd sha256 `
-            DevOpsMind-$VERSION-Installer.exe
 
           New-Item -ItemType Directory -Force artifacts
           Move-Item DevOpsMind-$VERSION-Installer.exe artifacts/
