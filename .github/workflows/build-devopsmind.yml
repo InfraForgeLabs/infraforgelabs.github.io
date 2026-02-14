@@ -134,7 +134,7 @@ jobs:
           Categories=Development;
           EOF
 
-          # FIXED: use continuous build (stable for CI)
+          # 🔥 FIXED URL (stable for CI)
           wget -O appimagetool \
             https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
 
@@ -144,6 +144,7 @@ jobs:
 
           mkdir artifacts
           mv DevOpsMind-${VERSION}-x86_64.AppImage artifacts/
+
 
 # =====================================================
 # 🍎 MACOS → DMG (UNSIGNED)
@@ -188,7 +189,6 @@ jobs:
         shell: pwsh
         run: |
           choco install nsis -y
-          echo "C:\Program Files (x86)\NSIS" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Build Windows Installer
         if: runner.os == 'Windows'
