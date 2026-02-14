@@ -110,6 +110,12 @@ jobs:
 # =====================================================
 # 🐧 LINUX → APPIMAGE (FIXED)
 # =====================================================
+      - name: Install FUSE
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfuse2
+
       - name: Build AppImage
         if: runner.os == 'Linux'
         shell: bash
@@ -134,7 +140,6 @@ jobs:
           Categories=Development;
           EOF
 
-          # 🔥 REAL FIX
           wget -O appimagetool \
             https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
 
@@ -144,6 +149,7 @@ jobs:
 
           mkdir artifacts
           mv DevOpsMind-${VERSION}-x86_64.AppImage artifacts/
+
 
 # =====================================================
 # 🍎 MACOS → DMG (UNSIGNED)
@@ -197,9 +203,10 @@ jobs:
 
           @"
           OutFile "DevOpsMind-$VERSION-Installer.exe"
-          InstallDir "$PROGRAMFILES\DevOpsMind"
+          InstallDir "\$PROGRAMFILES\DevOpsMind"
+
           Section
-            SetOutPath \$INSTDIR
+            SetOutPath "\$INSTDIR"
             File /r "devopsmind-src\dist\devopsmind\*"
             CreateShortcut "\$DESKTOP\DevOpsMind.lnk" "\$INSTDIR\devopsmind.exe"
           SectionEnd
@@ -208,7 +215,7 @@ jobs:
           & "C:\Program Files (x86)\NSIS\makensis.exe" installer.nsi
 
           New-Item -ItemType Directory -Force artifacts
-          Move-Item DevOpsMind-$VERSION-Installer.exe artifacts/
+          Move-Item "DevOpsMind-$VERSION-Installer.exe" artifacts/
 
 # -------------------------------------------------
 # 🔐 CHECKSUM
