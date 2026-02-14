@@ -134,7 +134,7 @@ jobs:
           Categories=Development;
           EOF
 
-          # 🔥 FIXED URL (stable for CI)
+          # 🔥 REAL FIX
           wget -O appimagetool \
             https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
 
@@ -144,7 +144,6 @@ jobs:
 
           mkdir artifacts
           mv DevOpsMind-${VERSION}-x86_64.AppImage artifacts/
-
 
 # =====================================================
 # 🍎 MACOS → DMG (UNSIGNED)
