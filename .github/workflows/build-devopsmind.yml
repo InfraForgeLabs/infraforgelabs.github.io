@@ -1,4 +1,4 @@
-name: DevOpsMind Production Release
+name: Build DevOpsMind Binaries
 
 on:
   workflow_dispatch:
@@ -7,10 +7,6 @@ permissions:
   contents: write
 
 jobs:
-
-# =====================================================
-# 🏗 BUILD MATRIX
-# =====================================================
   build:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -18,40 +14,45 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-14, windows-latest]
-
-    outputs:
-      version: ${{ steps.version.outputs.version }}
+        include:
+          - os: ubuntu-22.04
+            asset: devopsmind-linux-x86_64
+          - os: macos-14
+            asset: devopsmind-macos-arm64
+          - os: windows-latest
+            asset: devopsmind-windows-x86_64
 
     steps:
-
-# -------------------------------------------------
-# 1️⃣ Checkout Release Repo
-# -------------------------------------------------
-      - uses: actions/checkout@v4
+      # -------------------------------------------------
+      # 1️⃣ Checkout RELEASE repo
+      # -------------------------------------------------
+      - name: Checkout release host
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-# -------------------------------------------------
-# 2️⃣ Checkout DevOpsMind Source
-# -------------------------------------------------
-      - uses: actions/checkout@v4
+      # -------------------------------------------------
+      # 2️⃣ Checkout SOURCE repo
+      # -------------------------------------------------
+      - name: Checkout DevOpsMind source
+        uses: actions/checkout@v4
         with:
           repository: InfraForgeLabs/DevOpsMind
           path: devopsmind-src
           token: ${{ secrets.DEVOPSMIND_READ_TOKEN }}
           fetch-depth: 0
 
-# -------------------------------------------------
-# 3️⃣ Setup Python
-# -------------------------------------------------
-      - uses: actions/setup-python@v5
+      # -------------------------------------------------
+      # 3️⃣ Setup Python
+      # -------------------------------------------------
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-# -------------------------------------------------
-# 4️⃣ Install Dependencies
-# -------------------------------------------------
+      # -------------------------------------------------
+      # 4️⃣ Install dependencies
+      # -------------------------------------------------
       - name: Install dependencies
         shell: bash
         working-directory: devopsmind-src
@@ -60,9 +61,9 @@ jobs:
           pip install pyinstaller rich
           pip install -e .[all]
 
-# -------------------------------------------------
-# 5️⃣ Read Version (UNCHANGED LOGIC)
-# -------------------------------------------------
+      # -------------------------------------------------
+      # 5️⃣ Read version
+      # -------------------------------------------------
       - name: Read version
         id: version
         shell: bash
@@ -79,11 +80,11 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "📦 Version: $VERSION"
 
-# -------------------------------------------------
-# 6️⃣ Create Tag (Linux only)
-# -------------------------------------------------
+      # -------------------------------------------------
+      # 6️⃣ Create tag (once)
+      # -------------------------------------------------
       - name: Create tag
-        if: runner.os == 'Linux'
+        if: matrix.os == 'ubuntu-22.04'
         shell: bash
         run: |
           git config user.name "InfraForgeLabs Bot"
@@ -92,144 +93,52 @@ jobs:
           TAG="v${{ steps.version.outputs.version }}-devopsmind"
 
           if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "Tag already exists"
+            echo "Tag already exists: $TAG"
           else
             git tag "$TAG"
             git push origin "$TAG"
           fi
 
-# -------------------------------------------------
-# 7️⃣ Build PyInstaller (onedir)
-# -------------------------------------------------
+      # -------------------------------------------------
+      # 7️⃣ Build binary (onedir)
+      # -------------------------------------------------
       - name: Build binary
         shell: bash
         working-directory: devopsmind-src
         run: |
-          pyinstaller --clean --noconfirm devopsmind.spec
+          pyinstaller --clean devopsmind.spec
 
-# =====================================================
-# 🐧 LINUX → APPIMAGE (FIXED)
-# =====================================================
-      - name: Install FUSE
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libfuse2
-
-      - name: Build AppImage
-        if: runner.os == 'Linux'
-        shell: bash
-        run: |
-          VERSION=${{ steps.version.outputs.version }}
-
-          mkdir -p DevOpsMind.AppDir/usr/bin
-          cp -r devopsmind-src/dist/devopsmind/* DevOpsMind.AppDir/usr/bin/
-
-          # Create dummy icon (required)
-          mkdir -p DevOpsMind.AppDir
-          convert -size 256x256 xc:blue DevOpsMind.AppDir/devopsmind.png
-
-          cat <<EOF > DevOpsMind.AppDir/AppRun
-          #!/bin/bash
-          HERE="\$(dirname "\$(readlink -f "\$0")")"
-          exec "\$HERE/usr/bin/devopsmind"
-          EOF
-          chmod +x DevOpsMind.AppDir/AppRun
-
-          cat <<EOF > DevOpsMind.AppDir/devopsmind.desktop
-          [Desktop Entry]
-          Name=DevOpsMind
-          Exec=devopsmind
-          Icon=devopsmind
-          Type=Application
-          Categories=Development;
-          EOF
-
-          wget -O appimagetool \
-            https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-
-          chmod +x appimagetool
-
-          ./appimagetool DevOpsMind.AppDir DevOpsMind-${VERSION}-x86_64.AppImage
-
-          mkdir artifacts
-          mv DevOpsMind-${VERSION}-x86_64.AppImage artifacts/
-
-
-# =====================================================
-# 🍎 MACOS → DMG (UNSIGNED)
-# =====================================================
-      - name: Build macOS DMG
-        if: runner.os == 'macOS'
-        shell: bash
-        run: |
-          VERSION=${{ steps.version.outputs.version }}
-
-          mkdir -p DevOpsMind.app/Contents/MacOS
-          cp -r devopsmind-src/dist/devopsmind/* DevOpsMind.app/Contents/MacOS/
-
-          cat <<EOF > DevOpsMind.app/Contents/Info.plist
-          <?xml version="1.0" encoding="UTF-8"?>
-          <plist version="1.0">
-          <dict>
-            <key>CFBundleName</key>
-            <string>DevOpsMind</string>
-            <key>CFBundleExecutable</key>
-            <string>devopsmind</string>
-            <key>CFBundleIdentifier</key>
-            <string>com.infraforgelabs.devopsmind</string>
-            <key>CFBundleVersion</key>
-            <string>${VERSION}</string>
-          </dict>
-          </plist>
-          EOF
-
-          brew install create-dmg
-
-          create-dmg DevOpsMind-${VERSION}.dmg DevOpsMind.app
-
-          mkdir artifacts
-          mv DevOpsMind-${VERSION}.dmg artifacts/
-
-# =====================================================
-# 🪟 WINDOWS → NSIS (FIXED PATH)
-# =====================================================
-      - name: Install NSIS
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          choco install nsis -y
-
-      - name: Build Windows Installer
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          $VERSION="${{ steps.version.outputs.version }}"
-
-          @"
-          OutFile "DevOpsMind-$VERSION-Installer.exe"
-          InstallDir "\$PROGRAMFILES\DevOpsMind"
-
-          Section
-            SetOutPath "\$INSTDIR"
-            File /r "devopsmind-src\dist\devopsmind\*"
-            CreateShortcut "\$DESKTOP\DevOpsMind.lnk" "\$INSTDIR\devopsmind.exe"
-          SectionEnd
-          "@ | Out-File installer.nsi -Encoding ascii
-
-          & "C:\Program Files (x86)\NSIS\makensis.exe" installer.nsi
-
-          New-Item -ItemType Directory -Force artifacts
-          Move-Item "DevOpsMind-$VERSION-Installer.exe" artifacts/
-
-# -------------------------------------------------
-# 🔐 CHECKSUM
-# -------------------------------------------------
-      - name: Generate checksums (Linux/macOS)
+      # -------------------------------------------------
+      # 8️⃣ Package (Linux / macOS)
+      # -------------------------------------------------
+      - name: Package artifact (Linux / macOS)
         if: runner.os != 'Windows'
         shell: bash
         run: |
-          cd artifacts || exit 0
+          mkdir -p artifacts
+          cd devopsmind-src/dist
+          tar -czf ../../artifacts/${{ matrix.asset }}.tar.gz devopsmind
+
+      # -------------------------------------------------
+      # 8️⃣ Package (Windows)
+      # -------------------------------------------------
+      - name: Package artifact (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force artifacts
+          Compress-Archive `
+            -Path devopsmind-src/dist/devopsmind `
+            -DestinationPath artifacts/devopsmind-windows-x86_64.zip
+
+      # -------------------------------------------------
+      # 🔐 Generate checksums
+      # -------------------------------------------------
+      - name: Generate checksums (Linux / macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          cd artifacts
           for file in *; do
             shasum -a 256 "$file" > "$file.sha256"
           done
@@ -244,43 +153,14 @@ jobs:
               Out-File "$($_.FullName).sha256" -Encoding ascii
           }
 
-# -------------------------------------------------
-# 📦 Upload Artifacts (CRITICAL)
-# -------------------------------------------------
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ runner.os }}-artifacts
-          path: artifacts/*
-
-# =====================================================
-# 🚀 RELEASE
-# =====================================================
-  release:
-    needs: build
-    runs-on: ubuntu-22.04
-
-    steps:
-      - uses: actions/checkout@v4
-
-      # Download ALL artifacts from matrix builds
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      # Flatten artifacts safely
-      - name: Flatten artifacts
-        run: |
-          mkdir final
-          find artifacts -type f -exec cp {} final/ \;
-
-      # Publish GitHub Release
-      - name: Publish Release
+      # -------------------------------------------------
+      # 9️⃣ Upload release assets
+      # -------------------------------------------------
+      - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.build.outputs.version }}-devopsmind
-          name: DevOpsMind v${{ needs.build.outputs.version }}
-          files: final/*
+          tag_name: v${{ steps.version.outputs.version }}-devopsmind
+          name: DevOpsMind v${{ steps.version.outputs.version }}
+          files: artifacts/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
