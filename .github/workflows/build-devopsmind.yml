@@ -244,6 +244,15 @@ jobs:
               Out-File "$($_.FullName).sha256" -Encoding ascii
           }
 
+# -------------------------------------------------
+# 📦 Upload Artifacts (CRITICAL)
+# -------------------------------------------------
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-artifacts
+          path: artifacts/*
+
 # =====================================================
 # 🚀 RELEASE
 # =====================================================
