@@ -108,7 +108,7 @@ jobs:
           pyinstaller --clean --noconfirm devopsmind.spec
 
 # =====================================================
-# 🐧 LINUX → APPIMAGE
+# 🐧 LINUX → APPIMAGE (FIXED)
 # =====================================================
       - name: Build AppImage
         if: runner.os == 'Linux'
@@ -134,10 +134,13 @@ jobs:
           Categories=Development;
           EOF
 
-          wget https://github.com/AppImage/AppImageKit/releases/latest/download/appimagetool-x86_64.AppImage
-          chmod +x appimagetool-x86_64.AppImage
+          # FIXED: use continuous build (stable for CI)
+          wget -O appimagetool \
+            https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
 
-          ./appimagetool-x86_64.AppImage DevOpsMind.AppDir DevOpsMind-${VERSION}-x86_64.AppImage
+          chmod +x appimagetool
+
+          ./appimagetool DevOpsMind.AppDir DevOpsMind-${VERSION}-x86_64.AppImage
 
           mkdir artifacts
           mv DevOpsMind-${VERSION}-x86_64.AppImage artifacts/
@@ -178,15 +181,20 @@ jobs:
           mv DevOpsMind-${VERSION}.dmg artifacts/
 
 # =====================================================
-# 🪟 WINDOWS → NSIS (UNSIGNED)
+# 🪟 WINDOWS → NSIS (FIXED PATH)
 # =====================================================
+      - name: Install NSIS
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          choco install nsis -y
+          echo "C:\Program Files (x86)\NSIS" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
       - name: Build Windows Installer
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           $VERSION="${{ steps.version.outputs.version }}"
-
-          choco install nsis -y
 
           @"
           OutFile "DevOpsMind-$VERSION-Installer.exe"
@@ -198,7 +206,7 @@ jobs:
           SectionEnd
           "@ | Out-File installer.nsi -Encoding ascii
 
-          makensis installer.nsi
+          & "C:\Program Files (x86)\NSIS\makensis.exe" installer.nsi
 
           New-Item -ItemType Directory -Force artifacts
           Move-Item DevOpsMind-$VERSION-Installer.exe artifacts/
