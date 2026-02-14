@@ -125,6 +125,10 @@ jobs:
           mkdir -p DevOpsMind.AppDir/usr/bin
           cp -r devopsmind-src/dist/devopsmind/* DevOpsMind.AppDir/usr/bin/
 
+          # Create dummy icon (required)
+          mkdir -p DevOpsMind.AppDir
+          convert -size 256x256 xc:blue DevOpsMind.AppDir/devopsmind.png
+
           cat <<EOF > DevOpsMind.AppDir/AppRun
           #!/bin/bash
           HERE="\$(dirname "\$(readlink -f "\$0")")"
@@ -136,6 +140,7 @@ jobs:
           [Desktop Entry]
           Name=DevOpsMind
           Exec=devopsmind
+          Icon=devopsmind
           Type=Application
           Categories=Development;
           EOF
@@ -220,7 +225,8 @@ jobs:
 # -------------------------------------------------
 # 🔐 CHECKSUM
 # -------------------------------------------------
-      - name: Generate checksums
+      - name: Generate checksums (Linux/macOS)
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           cd artifacts || exit 0
@@ -228,10 +234,15 @@ jobs:
             shasum -a 256 "$file" > "$file.sha256"
           done
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ${{ runner.os }}-artifacts
-          path: artifacts/*
+      - name: Generate checksums (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Get-ChildItem artifacts | ForEach-Object {
+            $hash = Get-FileHash $_.FullName -Algorithm SHA256
+            "$($hash.Hash.ToLower())  $($_.Name)" |
+              Out-File "$($_.FullName).sha256" -Encoding ascii
+          }
 
 # =====================================================
 # 🚀 RELEASE
