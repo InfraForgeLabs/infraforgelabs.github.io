@@ -254,15 +254,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
+      # Download ALL artifacts from matrix builds
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
         with:
-          path: release-assets
+          path: artifacts
 
+      # Flatten artifacts safely
       - name: Flatten artifacts
         run: |
           mkdir final
-          find release-assets -type f -exec cp {} final/ \;
+          find artifacts -type f -exec cp {} final/ \;
 
+      # Publish GitHub Release
       - name: Publish Release
         uses: softprops/action-gh-release@v2
         with:
