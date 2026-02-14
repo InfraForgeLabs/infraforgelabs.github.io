@@ -1,4 +1,4 @@
-name: Build DevOpsMind Binaries
+name: DevOpsMind Production Release
 
 on:
   workflow_dispatch:
@@ -7,6 +7,10 @@ permissions:
   contents: write
 
 jobs:
+
+# =====================================================
+# 🏗 BUILD MATRIX
+# =====================================================
   build:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -14,45 +18,39 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-22.04
-            asset: devopsmind-linux-x86_64
-          - os: macos-14
-            asset: devopsmind-macos-arm64
-          - os: windows-latest
-            asset: devopsmind-windows-x86_64
+        os: [ubuntu-22.04, macos-14, windows-latest]
+
+    outputs:
+      version: ${{ steps.version.outputs.version }}
 
     steps:
-      # -------------------------------------------------
-      # 1️⃣ Checkout RELEASE repo
-      # -------------------------------------------------
-      - name: Checkout release host
-        uses: actions/checkout@v4
+# -------------------------------------------------
+# 1️⃣ Checkout Release Repo
+# -------------------------------------------------
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # -------------------------------------------------
-      # 2️⃣ Checkout SOURCE repo
-      # -------------------------------------------------
-      - name: Checkout DevOpsMind source
-        uses: actions/checkout@v4
+# -------------------------------------------------
+# 2️⃣ Checkout DevOpsMind Source
+# -------------------------------------------------
+      - uses: actions/checkout@v4
         with:
           repository: InfraForgeLabs/DevOpsMind
           path: devopsmind-src
           token: ${{ secrets.DEVOPSMIND_READ_TOKEN }}
           fetch-depth: 0
 
-      # -------------------------------------------------
-      # 3️⃣ Setup Python
-      # -------------------------------------------------
-      - name: Setup Python
-        uses: actions/setup-python@v5
+# -------------------------------------------------
+# 3️⃣ Setup Python
+# -------------------------------------------------
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      # -------------------------------------------------
-      # 4️⃣ Install dependencies
-      # -------------------------------------------------
+# -------------------------------------------------
+# 4️⃣ Install Dependencies
+# -------------------------------------------------
       - name: Install dependencies
         shell: bash
         working-directory: devopsmind-src
@@ -61,9 +59,9 @@ jobs:
           pip install pyinstaller rich
           pip install -e .[all]
 
-      # -------------------------------------------------
-      # 5️⃣ Read version
-      # -------------------------------------------------
+# -------------------------------------------------
+# 5️⃣ Read Version (UNCHANGED LOGIC)
+# -------------------------------------------------
       - name: Read version
         id: version
         shell: bash
@@ -80,11 +78,11 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "📦 Version: $VERSION"
 
-      # -------------------------------------------------
-      # 6️⃣ Create tag (once)
-      # -------------------------------------------------
+# -------------------------------------------------
+# 6️⃣ Create Tag (Linux only)
+# -------------------------------------------------
       - name: Create tag
-        if: matrix.os == 'ubuntu-22.04'
+        if: runner.os == 'Linux'
         shell: bash
         run: |
           git config user.name "InfraForgeLabs Bot"
@@ -93,74 +91,191 @@ jobs:
           TAG="v${{ steps.version.outputs.version }}-devopsmind"
 
           if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "Tag already exists: $TAG"
+            echo "Tag already exists"
           else
             git tag "$TAG"
             git push origin "$TAG"
           fi
 
-      # -------------------------------------------------
-      # 7️⃣ Build binary (onedir)
-      # -------------------------------------------------
+# -------------------------------------------------
+# 7️⃣ Build PyInstaller (onedir)
+# -------------------------------------------------
       - name: Build binary
         shell: bash
         working-directory: devopsmind-src
         run: |
-          pyinstaller --clean devopsmind.spec
+          pyinstaller --clean --noconfirm devopsmind.spec
 
-      # -------------------------------------------------
-      # 8️⃣ Package (Linux / macOS)
-      # -------------------------------------------------
-      - name: Package artifact (Linux / macOS)
-        if: runner.os != 'Windows'
+# =====================================================
+# 🐧 LINUX → APPIMAGE
+# =====================================================
+      - name: Build AppImage
+        if: runner.os == 'Linux'
         shell: bash
         run: |
-          mkdir -p artifacts
-          cd devopsmind-src/dist
-          tar -czf ../../artifacts/${{ matrix.asset }}.tar.gz devopsmind
+          VERSION=${{ steps.version.outputs.version }}
 
-      # -------------------------------------------------
-      # 8️⃣ Package (Windows)
-      # -------------------------------------------------
-      - name: Package artifact (Windows)
+          mkdir -p DevOpsMind.AppDir/usr/bin
+          cp -r devopsmind-src/dist/devopsmind/* DevOpsMind.AppDir/usr/bin/
+
+          cat <<EOF > DevOpsMind.AppDir/AppRun
+          #!/bin/bash
+          HERE="\$(dirname "\$(readlink -f "\$0")")"
+          exec "\$HERE/usr/bin/devopsmind"
+          EOF
+          chmod +x DevOpsMind.AppDir/AppRun
+
+          cat <<EOF > DevOpsMind.AppDir/devopsmind.desktop
+          [Desktop Entry]
+          Name=DevOpsMind
+          Exec=devopsmind
+          Type=Application
+          Categories=Development;
+          EOF
+
+          wget https://github.com/AppImage/AppImageKit/releases/latest/download/appimagetool-x86_64.AppImage
+          chmod +x appimagetool-x86_64.AppImage
+
+          ./appimagetool-x86_64.AppImage DevOpsMind.AppDir DevOpsMind-${VERSION}-x86_64.AppImage
+
+          mkdir artifacts
+          mv DevOpsMind-${VERSION}-x86_64.AppImage artifacts/
+
+# =====================================================
+# 🍎 MACOS → SIGN + NOTARIZE + DMG
+# =====================================================
+      - name: macOS Certificate Import
+        if: runner.os == 'macOS'
+        run: |
+          echo "${{ secrets.MACOS_CERT_BASE64 }}" | base64 --decode > cert.p12
+          security create-keychain -p temp build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p temp build.keychain
+          security import cert.p12 -k build.keychain \
+            -P "${{ secrets.MACOS_CERT_PASSWORD }}" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k temp build.keychain
+
+      - name: Build macOS DMG
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+
+          mkdir -p DevOpsMind.app/Contents/MacOS
+          cp -r devopsmind-src/dist/devopsmind/* DevOpsMind.app/Contents/MacOS/
+
+          cat <<EOF > DevOpsMind.app/Contents/Info.plist
+          <?xml version="1.0" encoding="UTF-8"?>
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleName</key>
+            <string>DevOpsMind</string>
+            <key>CFBundleExecutable</key>
+            <string>devopsmind</string>
+            <key>CFBundleIdentifier</key>
+            <string>com.infraforgelabs.devopsmind</string>
+            <key>CFBundleVersion</key>
+            <string>${VERSION}</string>
+          </dict>
+          </plist>
+          EOF
+
+          codesign --deep --force --options runtime \
+            --sign "Developer ID Application: InfraForgeLabs (${{ secrets.APPLE_TEAM_ID }})" \
+            DevOpsMind.app
+
+          brew install create-dmg
+
+          create-dmg DevOpsMind-${VERSION}.dmg DevOpsMind.app
+
+          xcrun notarytool submit DevOpsMind-${VERSION}.dmg \
+            --apple-id "${{ secrets.APPLE_ID }}" \
+            --password "${{ secrets.APPLE_APP_PASSWORD }}" \
+            --team-id "${{ secrets.APPLE_TEAM_ID }}" \
+            --wait
+
+          xcrun stapler staple DevOpsMind-${VERSION}.dmg
+
+          mkdir artifacts
+          mv DevOpsMind-${VERSION}.dmg artifacts/
+
+# =====================================================
+# 🪟 WINDOWS → NSIS + SIGN
+# =====================================================
+      - name: Build Windows Installer
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force artifacts
-          Compress-Archive `
-            -Path devopsmind-src/dist/devopsmind `
-            -DestinationPath artifacts/devopsmind-windows-x86_64.zip
+          $VERSION="${{ steps.version.outputs.version }}"
 
-      # -------------------------------------------------
-      # 🔐 Generate checksums
-      # -------------------------------------------------
-      - name: Generate checksums (Linux / macOS)
-        if: runner.os != 'Windows'
+          choco install nsis -y
+
+          @"
+          OutFile "DevOpsMind-$VERSION-Installer.exe"
+          InstallDir "$PROGRAMFILES\DevOpsMind"
+          Section
+            SetOutPath \$INSTDIR
+            File /r "devopsmind-src\dist\devopsmind\*"
+            CreateShortcut "\$DESKTOP\DevOpsMind.lnk" "\$INSTDIR\devopsmind.exe"
+          SectionEnd
+          "@ | Out-File installer.nsi -Encoding ascii
+
+          makensis installer.nsi
+
+          $certBytes = [Convert]::FromBase64String("${{ secrets.WINDOWS_CERT_BASE64 }}")
+          [IO.File]::WriteAllBytes("cert.pfx", $certBytes)
+
+          signtool sign `
+            /f cert.pfx `
+            /p "${{ secrets.WINDOWS_CERT_PASSWORD }}" `
+            /tr http://timestamp.digicert.com `
+            /td sha256 `
+            /fd sha256 `
+            DevOpsMind-$VERSION-Installer.exe
+
+          New-Item -ItemType Directory -Force artifacts
+          Move-Item DevOpsMind-$VERSION-Installer.exe artifacts/
+
+# -------------------------------------------------
+# 🔐 CHECKSUM
+# -------------------------------------------------
+      - name: Generate checksums
         shell: bash
         run: |
-          cd artifacts
+          cd artifacts || exit 0
           for file in *; do
             shasum -a 256 "$file" > "$file.sha256"
           done
 
-      - name: Generate checksums (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          Get-ChildItem artifacts | ForEach-Object {
-            $hash = Get-FileHash $_.FullName -Algorithm SHA256
-            "$($hash.Hash.ToLower())  $($_.Name)" |
-              Out-File "$($_.FullName).sha256" -Encoding ascii
-          }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-artifacts
+          path: artifacts/*
 
-      # -------------------------------------------------
-      # 9️⃣ Upload release assets
-      # -------------------------------------------------
-      - name: Upload Release Assets
+# =====================================================
+# 🚀 RELEASE
+# =====================================================
+  release:
+    needs: build
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+
+      - name: Flatten artifacts
+        run: |
+          mkdir final
+          find release-assets -type f -exec cp {} final/ \;
+
+      - name: Publish Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.version.outputs.version }}-devopsmind
-          name: DevOpsMind v${{ steps.version.outputs.version }}
-          files: artifacts/*
+          tag_name: v${{ needs.build.outputs.version }}-devopsmind
+          name: DevOpsMind v${{ needs.build.outputs.version }}
+          files: final/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
